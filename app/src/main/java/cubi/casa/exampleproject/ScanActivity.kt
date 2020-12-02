@@ -1,5 +1,6 @@
 package cubi.casa.exampleproject
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,7 +9,13 @@ import android.view.WindowManager
 import cubi.casa.cubicapture.CubiCapture
 import java.io.File
 
-class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
+/** Read the CubiCapture documentary at:
+ * https://www.cubi.casa/developers/cubicasa-android-sdk */
+
+/** Example Activity which provides an example implementation
+ * and use of the CubiCapture 2.0.0 library module */
+
+class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
     // Create lateinit variable for CubiCapture
     private lateinit var cubiCapture: CubiCapture
@@ -16,8 +23,11 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
     // Boolean 'saving' is used to disable navigation bar back press during saving
     private var saving = false
 
-    /** Read the CubiCapture documentary at:
-     * https://www.cubi.casa/developers/cubicasa-android-sdk */
+    // Boolean 'saved' is used to start ViewScanActivity after successful scan
+    private var saved = false
+
+    // File 'scanFolder' is set after successful scan
+    private var scanFolder: File? = null
 
     /** CubiCapture requires CAMERA and WRITE_EXTERNAL_STORAGE permissions to be granted.
      * Remember to request those permissions before you start your scanning Activity.
@@ -25,11 +35,14 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.example_layout)
+        setContentView(R.layout.activity_scan)
 
         // To keep the screen turned on and in landscape orientation
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
+        // Getting order info from extras
+        val orderInfo = getOrderInfoFromExtras()
 
         // Initialize CubiCapture lateinit variable
         cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as CubiCapture
@@ -38,35 +51,35 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         cubiCapture.registerCallback(this)
 
         // Before scanning with CubiCapture you first have to set scan output folder name
-        cubiCapture.scanFolderName = "exampleFolderName"
+        cubiCapture.scanFolderName = orderInfo[0]
 
         // Name of the folder which contains all the scan folders. This is "CubiCapture" by default.
         cubiCapture.allScansFolderName = "MyScans"
 
         // Before starting the scan you can add order information (not required)
         cubiCapture.setOrderInfo(
-            "ExampleStreet",
-            "10",
-            "ExampleSuite",
-            "ExampleCity",
-            "ExampleState",
-            "ExampleCountry",
-            "12345"
+            orderInfo[0], // street
+            orderInfo[1], // number
+            orderInfo[2], // suite
+            orderInfo[3], // city
+            orderInfo[4], // state
+            orderInfo[5], // country
+            orderInfo[6] // postalCode
         )
 
         /** -------------------------- UI SETTINGS BELOW -------------------------- */
 
-        /** If you want to hide scan timer call: */
+        /** To hide scan timer call: */
         // cubiCapture.setTimerEnabled(false) // Visible (true) by default
 
-        /** If you want to hide CubiCapture's back button call: */
+        /** To hide CubiCapture's back button call: */
         // cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
 
-        /** If you want to change CubiCapture's ARCore tracking error texts: */
+        /** To change CubiCapture's ARCore tracking error texts: */
         // cubiCapture.excessiveMotionErrorText = "Excessive motion!"
         // cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
 
-        /** If you want to change the warning sound call: */
+        /** To change the warning sound call: */
         // cubiCapture.setWarningSound(R.raw.new_warning_sound)
 
         /**
@@ -83,11 +96,11 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
          * 'Changing image resource' means that View's image resource might change during the
          * scan. For example the buttonRecord's image resource changes when user clicks it. */
 
-        /** If you want to replace some CubiCapture View with your own View (example): */
+        /** To replace some CubiCapture View with your own View (example): */
         // val newView: ImageView = findViewById(R.id.newRecordingBtn)
         // cubiCapture.setNewView(cubiCapture.buttonRecord, newView)
 
-        /** If you want to change image resource of some CubiCapture view call (example): */
+        /** To change image resource of some CubiCapture view call (example): */
         // cubiCapture.buttonRecord.setImageResource(R.drawable.new_not_recording)
 
         /**
@@ -107,34 +120,46 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** ---------------------------------------------------------------------------- */
         /** ----------------- ABOUT AUTOMATIC AND MANUAL ZIPPING BELOW ----------------- */
 
-        /** If you want to disable automatic zipping after scan call: */
+        /** To disable automatic zipping after scan call: */
         // cubiCapture.setAutoZippingEnabled(false) // true (auto zips) by default
 
         /** Zipping scan folder if automatic zipping is disabled.
          * This can be called after scan files are saved successfully.
          * This returns the Zip file if it's is successful or null if zipping failed. */
         // val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
+
+        /** Manual zipping 'zipScan()' method expects the scan folder to contain the following files;
+         * arkitData.json, config.json and video.mp4.
+         * If any of the files doesn't exist, 'zipScan()' returns null. */
     }
 
     // Receives Scan folder and Zip file from CubiEventListener
     override fun getFile(code: Int, file: File) {
-        when (code)
-        {
-            1 -> { } // Scan folder as File
+        when (code) {
+            1 -> { // Scan folder as File
+                scanFolder = file
+            }
             2 -> { } // Zip File
         }
     }
 
     // Receives status updates from CubiEventListener
     override fun getStatus(code: Int, description: String) {
-        Log.d("DEBUGTAG", "code: $code, description: $description")
+        Log.d("DEBUGTAG", "code: $code, description: $description") // Logging status updates
 
-        when (code)
-        {
+        when (code) {
             2 -> { // Finished recording
                 saving = true
             }
+            4 -> { // Saving finished
+                saved = true
+            }
             5 -> { // CubiCapture is finished
+                if (saved && scanFolder != null) {
+                    val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
+                    viewScanIntent.putExtra("folderPath", scanFolder?.path)
+                    startActivity(viewScanIntent)
+                }
                 finish()
             }
             19 -> { // Back button pressed twice
@@ -177,4 +202,15 @@ class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         }
     }
 
+    // Returns order info as Array<String>
+    private fun getOrderInfoFromExtras(): Array<String> {
+        val extras = intent.extras
+        if (extras != null && intent.hasExtra("orderInfo")) {
+            val orderInfo = extras.getStringArray("orderInfo")
+
+            if (orderInfo != null && orderInfo.size == 7)
+                return orderInfo
+        }
+        return arrayOf("ExampleStreet", "", "", "", "", "", "")
+    }
 }

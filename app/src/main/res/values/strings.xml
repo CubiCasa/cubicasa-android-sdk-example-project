@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">ExampleProject</string>
+    <string name="street"><i>Street | required</i></string>
+    <string name="number"><i>Street number</i></string>
+    <string name="suite"><i>Suite number</i></string>
+    <string name="city"><i>City</i></string>
+    <string name="state"><i>State</i></string>
+    <string name="country"><i>Country</i></string>
+    <string name="postalCode"><i>Postal code</i></string>
 </resources>

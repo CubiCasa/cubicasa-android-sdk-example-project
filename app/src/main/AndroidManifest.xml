@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="cubi.casa.exampleproject">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="cubi.casa.exampleproject">
 
     <application
         android:allowBackup="true"
@@ -12,13 +12,40 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".ExampleActivity"
-                  android:largeHeap="true"
-                  android:screenOrientation="landscape"
-                  android:configChanges="orientation|screenSize">
+        <!--
+        To allow your scanning Activity to consume more RAM, to lock screen orientation to
+        landscape and to prevent multiple onCreate() calls add the following code to your inside
+        your scanning Activity's activity tag:
+
+        android:configChanges="orientation|screenSize"
+        android:largeHeap="true"
+        android:screenOrientation="landscape"
+        -->
+        <activity
+            android:name=".ScanActivity"
+            android:configChanges="orientation|screenSize"
+            android:largeHeap="true"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ScanInfoActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
+        <activity
+            android:name=".ViewScanActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
