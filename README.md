@@ -236,3 +236,22 @@ Zipping scan folder if automatic zipping is disabled. This can be called after s
 ```Kotlin
 val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
 ```
+
+Manual zipping `zipScan()` method expects the scan folder to contain the following files;
+`arkitData.json`, `config.json` and `video.mp4`.
+If any of the files doesn't exist, `zipScan()` returns `null`.
+
+Here's an example directory structure where `zipScan()` method would successfully zip the scan folders
+`ExampleStreet 123` and `AnotherStreet 10`:
+```.
+.
+└── AllScansFolder
+    ├── ExampleStreet 123
+    │   ├── arkitData.json
+    │   ├── config.json
+    │   └── video.mp4
+    └── AnotherStreet 10
+        ├── arkitData.json
+        ├── config.json
+        └── video.mp4
+```
