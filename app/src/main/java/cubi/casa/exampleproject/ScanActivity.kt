@@ -141,8 +141,7 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
             1 -> { // Scan folder as File
                 scanFolder = file
             }
-            2 -> {
-            } // Zip File
+            2 -> { } // Zip File
         }
     }
 
@@ -162,6 +161,15 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
                 saved = true
             }
             5 -> { // CubiCapture is finished
+                /** You will always receive this code after a scan. To determine if the scan was
+                 * successful or not you have to handle the codes received before this code,
+                 * e.g. codes 4 and 7.
+                 *
+                 * For example; When a scan is successful, before code 5 you will receive a code 4
+                 * for successful saving of scan data, and then a code 7 for successful zipping of
+                 * the scan files (if you have 'autoZipping' enabled).
+                 * When a scan is not successful you will not receive code 4, but instead you will
+                 * receive an error code (e.g. code 3, "Finished recording - Not enough data."). */
                 if (saved && scanFolder != null) {
                     // Scan successful. Starting ViewScanActivity to view its video
                     val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
