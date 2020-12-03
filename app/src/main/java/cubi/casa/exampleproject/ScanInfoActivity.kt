@@ -3,8 +3,15 @@ package cubi.casa.exampleproject
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.ar.core.ArCoreApk
@@ -21,6 +28,7 @@ class ScanInfoActivity : AppCompatActivity() {
     private var permissionsGranted = false
     private var mUserRequestedInstall = true
     private val requestPermissionCode = 0
+    private val REQUEST_DISPLAY_ERROR = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +67,43 @@ class ScanInfoActivity : AppCompatActivity() {
 
             val scanIntent = Intent(baseContext, ScanActivity::class.java)
             scanIntent.putExtra("orderInfo", orderInfo)
-            startActivity(scanIntent)
+            startActivityForResult(scanIntent, REQUEST_DISPLAY_ERROR)
+        }
+    }
+
+    // Receives an error message from the intent extras - e.g. when the scan was too short
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_DISPLAY_ERROR && resultCode == RESULT_OK) {
+            if (data == null)
+                return
+
+            val errorMessage = data.getStringExtra("errorMessage") ?: return
+
+            scanInfoConstraintLayout.post {
+                displayErrorDialog(errorMessage)
+            }
+        }
+    }
+
+    // Displays an error dialog - e.g. when the scan was too short (not enough data)
+    private fun displayErrorDialog(errorMessage: String) {
+        val builder = AlertDialog.Builder(this)
+        val view = LayoutInflater
+            .from(this)
+            .inflate(R.layout.error_dialog, null)
+        val okBtn = view.findViewById<Button>(R.id.okButton)
+        val messageTextView = view.findViewById<TextView>(R.id.messageTextView)
+
+        messageTextView.text = errorMessage
+        builder.setView(view)
+
+        val dialog = builder.show()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        okBtn.setOnClickListener {
+            dialog.dismiss()
         }
     }
 

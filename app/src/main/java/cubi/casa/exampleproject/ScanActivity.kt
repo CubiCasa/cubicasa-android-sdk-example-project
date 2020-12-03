@@ -2,10 +2,10 @@ package cubi.casa.exampleproject
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
 import java.io.File
 
@@ -28,6 +28,8 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
     // File 'scanFolder' is set after successful scan
     private var scanFolder: File? = null
+
+    private var errorMessage: String? = null
 
     /** CubiCapture requires CAMERA and WRITE_EXTERNAL_STORAGE permissions to be granted.
      * Remember to request those permissions before you start your scanning Activity.
@@ -133,17 +135,18 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
          * If any of the files doesn't exist, 'zipScan()' returns null. */
     }
 
-    // Receives Scan folder and Zip file from CubiEventListener
+    /** Receives Scan folder and Zip file from CubiEventListener */
     override fun getFile(code: Int, file: File) {
         when (code) {
             1 -> { // Scan folder as File
                 scanFolder = file
             }
-            2 -> { } // Zip File
+            2 -> {
+            } // Zip File
         }
     }
 
-    // Receives status updates from CubiEventListener
+    /** Receives status updates from CubiEventListener */
     override fun getStatus(code: Int, description: String) {
         Log.d("DEBUGTAG", "code: $code, description: $description") // Logging status updates
 
@@ -151,25 +154,51 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
             2 -> { // Finished recording
                 saving = true
             }
+            3 -> { // Not enough data
+                /** You will receive code 5 after this */
+                errorMessage = description
+            }
             4 -> { // Saving finished
                 saved = true
             }
             5 -> { // CubiCapture is finished
                 if (saved && scanFolder != null) {
+                    // Scan successful. Starting ViewScanActivity to view its video
                     val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
                     viewScanIntent.putExtra("folderPath", scanFolder?.path)
                     startActivity(viewScanIntent)
+                } else if (errorMessage != null) {
+                    // Not successful scan - 'errorMessage' will be displayed in ScanInfoActivity
+                    val displayErrorIntent = Intent()
+                    displayErrorIntent.putExtra("errorMessage", errorMessage)
+                    setResult(RESULT_OK, displayErrorIntent)
                 }
                 finish()
+            }
+            12 -> { // MediaFormat and MediaCodec failed to be configured and started
+                /** You will receive code 5 after this code */
+                errorMessage = description
+            }
+            13 -> { // Scan drifted
+                /** You will receive code 5 after this code */
+                errorMessage = description
             }
             19 -> { // Back button pressed twice
                 finish()
             }
+            28 -> { // ARCore was unable to start tracking during the first five seconds
+                /** You will receive code 5 after this code */
+                errorMessage = description
+            }
+            54 -> { // Writing of scan data failed: <exception>
+                /** You will receive code 5 after this code */
+                errorMessage = description
+            }
         }
     }
 
-    // The following (lifecycle) methods and calls allow CubiCapture to handle
-    // its processes correctly when there's changes in the Activity.
+    /** The following (lifecycle) methods and calls allow CubiCapture to handle
+     * its processes correctly when there's changes in the Activity. */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         cubiCapture.onWindowFocusChanged(hasFocus, this)
@@ -196,7 +225,7 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
     }
 
     override fun onBackPressed() {
-        // Navigation bar's back button press is disabled during saving.
+        /** Navigation bar's back button press is disabled during saving. */
         if (!saving) {
             super.onBackPressed()
         }
