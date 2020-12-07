@@ -255,3 +255,163 @@ Here's an example directory structure where `zipScan()` method would successfull
         ├── config.json
         └── video.mp4
 ```
+
+## Status codes
+
+### 0, "Device turned to landscape orientation."
+Received when the device is in landscape orientation and `orientationWarning (ImageView)` 
+is set to invisible. 
+This is usually the first status code received when the device is turned to landscape orientation
+in order to start recording. 
+When the device is in landscape orientation for the first time `orientationWarning (ImageView)`'s 
+image resource is set to `rotate180Image`.
+
+### 1, "Started recording."
+Received when the `buttonRecord` is pressed for the first time and scan is started. 
+
+### 2, "Finished recording."
+Received when the `buttonRecord` is pressed for the second time and scan has enough data. 
+The saving of the scan files begins after this.
+
+### 3, "Finished recording - Not enough data."
+Received when the `buttonRecord` is pressed for the second time and scan does not have enough data. 
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 4, "Saving of scan files finished. (Beginning to zip files.)"
+Received when the saving of the scan files is finished. Receiving this code means that 
+the scan has data and scan files are succesfully saved without errors. 
+If `autoZipping` is enabled, zipping will start after this.
+
+### 5, "CubiCapture is finished. You can now finish your scanning Activity."
+You will always receive this code after a scan. To determine if the scan was 
+successful or not you have to handle the codes received before this code, 
+e.g. codes 4 and 7.
+
+For example; When a scan is successful, before code 5 you will receive a code 4 
+for successful saving of scan data, and then a code 7 for successful zipping of 
+the scan files (if you have 'autoZipping' enabled). 
+When a scan is not successful you will not receive code 4, but instead you will 
+receive an error code (e.g. code 3, "Finished recording - Not enough data.").
+
+### 6, "Scan folder: <folder-path>"
+Received when the saving of the scan files is finished. 
+The description will contain a path to the scan folder. 
+To receive the scan folder as a `File` use the `CubiEventListener`'s 
+`getFile(code: Int, file: File)` method where code 1 receives the scan folder.
+
+### 7, "Zipping is done. Zip file: <zip-file-path>"
+Received when the zipping of the scan files is finished. 
+The description will contain a path to the zip file. 
+To receive the zip file as a `File` use the `CubiEventListener`'s 
+`getFile(code: Int, file: File)` method where code 2 receives the zip file.
+
+### 8, "ARCore TrackingFailureReason: INSUFFICIENT_LIGHT"
+Received when ARCore motion tracking is lost due to poor lighting conditions. 
+`statusText (TextView)`'s `text` is set to `insufficientErrorText (CharSequence)`.
+
+### 9, "ARCore TrackingFailureReason: EXCESSIVE_MOTION"
+Received when ARCore motion tracking is lost due to excessive motion. 
+`statusText (TextView)`'s `text` is set to `excessiveMotionErrorText (CharSequence)`.
+
+### 10, "ARCore TrackingFailureReason: INSUFFICIENT_FEATURES"
+Received when ARCore motion tracking is lost due to insufficient visual features. 
+`statusText (TextView)`'s `text` is set to `insufficientErrorText (CharSequence)`.
+
+### 11, "ARCore TrackingState is TRACKING."
+Received when ARCore is tracking again. Any error text from `statusText (TextView)` is removed.
+
+### 12, "MediaFormat and MediaCodec failed to be configured and started."
+Received if MediaFormat and MediaCodec fails to be configured and started 
+when `buttonRecord` is pressed for the first time. You will receive code 5 after this.
+
+### 13, "Scan drifted! Position changed by over 10 meters during 2 second interval."
+Received if the position of the device has changed by over 10 meters during a 2 second interval. 
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 15, "Error shutdown. Deleting scan folder: <folder-path>
+Received when the scan is not successful. 
+The scan files are deleted and CubiCapture will be finished after this (code 5).
+
+### 16, "Portrait to landscape guidance has to be dismissed first in order to start recording."
+Received when `buttonRecord` is pressed for the first time and `orientationWarning (ImageView)` 
+is still visible.
+
+### 17, "Device is in reverse-landscape orientation."
+Received when the device is in reverse-landscape orientation and if the device has been in 
+landscape orientation at least once. `orientationWarning (ImageView)` is set to visible.
+
+### 18, "Playing error sound."
+Received when an error sound is played and ARCore motion tracking is lost (codes 8, 9 and 10). 
+Only received if the ARCore was tracking before the tracking is lost to avoid playing the error sound 
+multiple times in a row. 
+(The ARCore `TrackingFailureReason` might change (between codes 8, 9 and 10) during a short period of time).
+
+### 19, "Back button pressed twice. You can now finish your scanning Activity."
+Received when the CubiCapture's back button is pressed twice. You should call `finish()`.
+
+### 20, "Name of the scan output folder has to be set first. Set .scanFolderName"
+Received when `buttonRecord` is pressed for the first time and `scanFolderName` has not been set.
+
+### 21, "Scanning floor."
+Received when the pitch of the camera has been too low for a certain amount of time 
+and `floorWarning` is set to visible. 
+Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+
+### 22, "Scanning ceiling."
+Received when the pitch of the camera has been too high for a certain amount of time 
+and `ceilingWarning` is set to visible. 
+Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+
+### 23, "Not scanning ceiling or floor anymore."
+Received when the pitch of the camera is valid again and `ceilingWarning` or `floorWarning` is set to invisible.
+
+### 24, "Pitch of the device unknown because ARCore TrackingState is PAUSED."
+Received when ARCore's `TrackingState` is `PAUSED` and pitch of the camera cannot be calculated. 
+Sets `ceilingWarning` or `floorWarning` to invisible.
+
+### 25, "Walking sideways. Displaying turn left warning."
+Received when the user is walking sideways to the left while the camera is pointing forward. 
+`sidewaysWarning` is set to visible and its image resource is set to `turnLeftImage`. 
+Only received if the `orientationWarning` is set to invisible.
+
+### 26, "Walking sideways. Displaying turn right warning."
+Received when the user is walking sideways to the right while the camera is pointing forward. 
+`sidewaysWarning` is set to visible and its image resource is set to `turnRightImage`. 
+Only received if the `orientationWarning` is set to invisible.
+
+### 27, "Not walking sideways anymore."
+Received when the user is not walking sideways anymore and the `sidewaysWarning` is set to invisible. 
+The `sidewaysWarning` is always displayed for at least a certain amount of time to avoid quick flashes 
+of guidance images.
+
+### 28, "ARCore was unable to start tracking during the first five seconds."
+Received if the ARCore is unable to start tracking during the first five seconds. 
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 50, "MediaMuxer.writeSampleData Exception: <exception>"
+Received if the video encoder fails to write an encoded sample into the muxer.
+
+### 51, "Zipping failed! You can try zipping again with .zipScan(<scanFolderPath>)"
+Received if the automatic zipping fails.
+
+### 52, "Exception on the OpenGL thread: <Throwable>"
+Received if there's an exception on the OpenGL thread.
+
+### 53, "Failed to read an asset file: <exception>"
+Received if camera video preview surface fails to be initialized.
+
+### 54, "Writing of scan data failed: <exception>"
+Received if the writing of the scan data fails. 
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 55, "InputBuffer IllegalStateException: <exception>"
+Received if the input buffer is not in Executing state.
+
+### 56, "MediaCodec.stop() exception: <exception>"
+Received if the finishing of the encode session fails.
+
+### 57, "MediaMuxer.stop() exception: <exception>"
+Received if the stopping of the muxer fails.
+
+### 58, "MediaCodec.releaseOutputBuffer() exception: <exception>"
+Received if the releasing of the output buffer fails.
