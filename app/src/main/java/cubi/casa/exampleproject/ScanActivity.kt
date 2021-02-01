@@ -13,7 +13,7 @@ import java.io.File
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.0.0 library module */
+ * and use of the CubiCapture 2.2.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -69,6 +69,15 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
             orderInfo[6] // postalCode
         )
 
+        /** -------------------------- SPEECH RECOGNITION BELOW -------------------------- */
+
+        /** To disable the speech recognition and hide its `View`s call: */
+        // cubiCapture.speechRecognitionEnabled = false
+
+        /** Speech recognition is enabled ('speechRecognitionEnabled' is set to 'true') by default.
+         * If you are going to use speech recognition you need to declare the
+         * 'RECORD_AUDIO' and 'INTERNET' permissions in your app's manifest file. */
+
         /** -------------------------- UI SETTINGS BELOW -------------------------- */
 
         /** To hide scan timer call: */
@@ -86,8 +95,6 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
         /**
          * The following CubiCapture Views are customizable:
-         * buttonRecord: ImageView          // Changing image resource
-         * buttonRecordHint: ImageView
          * statusBorder: ImageView          // Changing image resource
          * sidewaysWarning: ImageView       // Changing image resource
          * floorWarning: ImageView
@@ -96,30 +103,37 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
          * statusText: TextView
          *
          * 'Changing image resource' means that View's image resource might change during the
-         * scan. For example the buttonRecord's image resource changes when user clicks it. */
+         * scan. For example the statusBorder's image resource changes when there's changes in
+         * ARCore's TrackingState during a scan. */
 
         /** To replace some CubiCapture View with your own View (example): */
-        // val newView: ImageView = findViewById(R.id.newRecordingBtn)
-        // cubiCapture.setNewView(cubiCapture.buttonRecord, newView)
+        // val newView: TextView = findViewById(R.id.newStatusText)
+        // cubiCapture.setNewView(cubiCapture.statusText, newView)
 
         /** To change image resource of some CubiCapture view call (example): */
-        // cubiCapture.buttonRecord.setImageResource(R.drawable.new_not_recording)
+        // cubiCapture.ceilingWarning.setImageResource(R.drawable.new_ceiling_warning)
 
         /**
-         * The following image resources might be set to certain views during the scan:
-         * recordingImage        // Set to buttonRecord: ImageView
+         * The following image resources might be set to a 'View' which is private and/or has
+         * changing image resources:
+         * recordingImage        // Set to private record button
+         * notRecordingImage     // Set to private record button
+         * hintLabelBackground   // Set to private hint labels
          * rotate180Image        // Set to orientationWarning: ImageView
          * trackingStatusBorders // Set to statusBorder: ImageView
          * failureStatusBorders  // Set to statusBorder: ImageView
          * turnLeftImage         // Set to sidewaysWarning: ImageView
          * turnRightImage        // Set to sidewaysWarning: ImageView
          *
-         * For example when the user clicks buttonRecord the image resource
-         * of the view is set to recordingImage.
+         * For example, when the user clicks the record button the image resource of the view is set
+         * to 'recordingImage'.
          * In this case you can change the image resource like this (example): */
         // cubiCapture.recordingImage = R.drawable.new_recording
 
-        /** ---------------------------------------------------------------------------- */
+        /** Speech recognition UI can be modified by using the 'colors.xml' and 'dimens.xml' files.
+         * To see how to customize the graphics, size of the views and layout margins read the
+         * comments in those files or the documentation of this library module version. */
+
         /** ----------------- ABOUT AUTOMATIC AND MANUAL ZIPPING BELOW ----------------- */
 
         /** To disable automatic zipping after scan call: */
@@ -198,38 +212,19 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }
-            54 -> { // Writing of scan data failed: <exception>
+            54, 64 -> { // Writing of scan data failed: <e>, Unable to start saving. Error: <e>
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }
         }
     }
 
-    /** The following (lifecycle) methods and calls allow CubiCapture to handle
-     * its processes correctly when there's changes in the Activity. */
+    /** Override the 'onWindowFocusChanged()' function to call CubiCapture's
+     * 'onWindowFocusChanged()' to allow CubiCapture to handle its processes correctly when
+     * the current 'Window' of the activity gains or loses focus */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         cubiCapture.onWindowFocusChanged(hasFocus, this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        cubiCapture.resume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        cubiCapture.pause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        cubiCapture.stop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        cubiCapture.destroy()
     }
 
     override fun onBackPressed() {

@@ -3,4 +3,39 @@
     <color name="colorPrimary">#569789</color>
     <color name="colorPrimaryDark">#163241</color>
     <color name="colorAccent">#FFFFFF</color>
+
+    <!--
+      To change the theme colors or alphas of the speech recognition 'View's and hint labels
+      re-define the colors here.
+      The colors can be defined with color notation `#RRGGBB`s or with a color notation
+      including a hexadecimal alpha value `#AARRGGBB`s.
+
+      Note:
+      You don't have to re-define the color here if you're not changing it.
+      Colors here are re-defined to the same default values just for example.
+     -->
+
+    <!-- Speech recognition text color -->
+    <color name="ccTextColor">#FFFFFF</color>
+
+    <!-- Hint label's background and stroke color -->
+    <color name="ccHintColor">#000000</color>
+    <color name="ccHintStrokeColor">#FFFFFF</color>
+
+    <!-- Speech recognition pop-up text's background color-->
+    <color name="ccPopupColor">#000000</color>
+
+    <!-- Speech recognition button colors -->
+    <color name="ccMicColor">#FFFFFF</color>
+    <color name="ccMicDisabledColor">#B4808080</color>
+    <color name="ccCircleColor">#569789</color>
+    <color name="ccCircleListeningColor">#F90067</color>
+    <color name="ccCircleDisabledColor">#50808080</color>
+
+    <!-- Volume/dB circle's color -->
+    <color name="ccVolumeCircleColor">#7FF90067</color>
+
+    <!-- Recognition results view's colors -->
+    <color name="ccResultColor">#CC569789</color>
+    <color name="ccCancelColor">#808080</color>
 </resources>
