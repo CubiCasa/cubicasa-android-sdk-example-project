@@ -14,6 +14,3 @@ local.properties
 
 # Android NDK cmake output.
 .cxx/
-
-cubicapture-release-2.0.0/build
-cubicapture-release-2.0.0/build.gradle
