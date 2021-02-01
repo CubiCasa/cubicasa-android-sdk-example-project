@@ -13,7 +13,7 @@ import java.io.File
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.1.0 library module */
+ * and use of the CubiCapture 2.2.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
