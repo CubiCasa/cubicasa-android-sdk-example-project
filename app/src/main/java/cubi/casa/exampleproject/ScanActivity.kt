@@ -13,7 +13,7 @@ import java.io.File
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.2.0 library module */
+ * and use of the CubiCapture 2.2.1 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -51,6 +51,10 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
         // Register CubiEventListener's interface callback
         cubiCapture.registerCallback(this)
+
+        // Add information about your app's version to be written to the scan data (Optional)
+        cubiCapture.appVersion = BuildConfig.VERSION_NAME
+        cubiCapture.appBuild = BuildConfig.VERSION_CODE
 
         // Before scanning with CubiCapture you first have to set scan output folder name
         cubiCapture.scanFolderName = orderInfo[0]
@@ -212,7 +216,10 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }
-            54, 64 -> { // Writing of scan data failed: <e>, Unable to start saving. Error: <e>
+            54, 64, 66 -> {
+                // 54, Writing of scan data failed: <e>,
+                // 64, Unable to start saving. Error: <e>,
+                // 66, Unable to get correct values for the device's position
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }

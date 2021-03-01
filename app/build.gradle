@@ -35,5 +35,5 @@ dependencies {
     implementation 'com.google.ar:core:1.22.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.jaredrummler:android-device-names:2.0.0'
-    implementation project(":cubicapture-release-2.2.0")
+    implementation project(":cubicapture-release-2.2.1")
 }

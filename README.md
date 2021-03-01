@@ -1,16 +1,20 @@
-Example project using the CubiCapture 2.2.0 library module for Android
+Example project using the CubiCapture 2.2.1 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.2.0 library module.
+This project provides an example implementation and use of the CubiCapture 2.2.1 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
 
-## Updating from CubiCapture 2.0.0 to CubiCapture 2.2.0
+## Updating to CubiCapture 2.2.1
 
-If you're updating from CubiCapture 2.0.0 to CubiCapture 2.2.0 you should do the following:
-- Update your app to use the CubiCapture 2.2.0 library module
+- Update your app to use the CubiCapture 2.2.1 library module
+- Check if you want to handle the new status codes (codes 65 and 66)
+- See if you want to add information about your app's version to be written to the scan data
+(see variables `appVersion` and `appBuild` from [Implementation](#headimplementation) below)
+
+**Note! If you are already using version 2.2.0 you've probably done the next steps already:**
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - See how to enable/disable speech recognition (see the end of [Implementation](#headimplementation) below)
 - Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
@@ -22,6 +26,13 @@ and how to customize those
 
 ## <a name="headreleasenotes"></a>Release Notes
 
+**2.2.1:**
+- Possibility to add information about your app's version with new variables
+`appVersion` and `appBuild`. These will be written to the scan data
+- New status codes (codes 65 and 66)
+- Various bug fixes
+
+**2.2.0:**
 - Depth capturing support for the following devices; `Galaxy S20 Ultra 5G`, `Galaxy S20+ 5G` and `Galaxy S10 5G`
 - Speech recognition for room labels
 - Optimized frame-rate handling (more stable capturing frame-rate)
@@ -57,15 +68,15 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.2.0.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.2.1.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.2.0.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.2.1.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.2.0")
+implementation project(":cubicapture-release-2.2.1")
 implementation 'com.google.ar:core:1.22.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
@@ -133,6 +144,12 @@ Before scanning with CubiCapture you first have to set folder name for the scan 
 cubiCapture.scanFolderName = "exampleFolderName"
 ```
 
+Change the value of `allScansFolderName` to change the name of the folder which contains all the
+scan folders (Optional). This is "CubiCapture" by default. Example:
+```Kotlin
+cubiCapture.allScansFolderName = "MyScans"
+```
+
 Before starting the scan you can add order information:
 ```Kotlin
 cubiCapture.setOrderInfo(
@@ -144,6 +161,12 @@ cubiCapture.setOrderInfo(
     "ExampleCountry", // country
     "12345" // postalCode
 )
+```
+
+Add information about your app's version to be written to the scan data (Optional). Example:
+```Kotlin
+cubiCapture.appVersion = BuildConfig.VERSION_NAME // e.g. String "1.2.3"
+cubiCapture.appBuild = BuildConfig.VERSION_CODE // e.g. Int 25
 ```
 
 Override the `onWindowFocusChanged()` function to call CubiCapture's `onWindowFocusChanged()`
@@ -319,7 +342,8 @@ To disable the automatic zipping after a scan call:
 cubiCapture.setAutoZippingEnabled(false) // true (auto zips) by default
 ```
 
-Zipping scan folder if automatic zipping is disabled. This can be called after scan files are saved successfully. This returns the Zip file if it's is successful or null if zipping failed.
+Zipping scan folder if automatic zipping is disabled. This can be called after scan files are
+saved successfully. This returns the Zip file if it's is successful or null if zipping failed.
 ```Kotlin
 val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
 ```
@@ -328,20 +352,27 @@ Manual zipping `zipScan()` method expects the scan folder to contain the followi
 `arkitData.json`, `config.json` and `video.mp4`.
 If any of the files doesn't exist, `zipScan()` returns `null`.
 
-Here's an example directory structure where `zipScan()` method would successfully zip the scan folders
-`ExampleStreet 123` and `AnotherStreet 10`:
+Here's an example directory structure where `zipScan()` method would successfully zip the scan
+folders `ExampleStreet 123` and `AnotherStreet 10`:
 ```.
 .
 └── AllScansFolder
     ├── ExampleStreet 123
     │   ├── arkitData.json
     │   ├── config.json
-    │   └── video.mp4
+    │   ├── video.mp4
+    │   ├── intrinsics.json
+    │   └── allDepthFrames.bin
     └── AnotherStreet 10
         ├── arkitData.json
         ├── config.json
-        └── video.mp4
+        ├── video.mp4
+        ├── intrinsics.json
+        └── allDepthFrames.bin
 ```
+
+Please note that the `allDepthFrames.bin` will be only present for devices which support depth
+capturing and the `intrinsics.json` for scans made with CubiCapture 2.2.0 or later.
 
 ## Status codes
 
@@ -380,13 +411,13 @@ the scan files (if you have 'autoZipping' enabled).
 When a scan is not successful you will not receive code 4, but instead you will
 receive an error code (e.g. code 3, "Finished recording - Not enough data.").
 
-### 6, "Scan folder: <folder-path>"
+### 6, "Scan folder: $folderPath"
 Received when the saving of the scan files is finished.
 The description will contain a path to the scan folder.
 To receive the scan folder as a `File` use the `CubiEventListener`'s
 `getFile(code: Int, file: File)` method where code 1 receives the scan folder.
 
-### 7, "Zipping is done. Zip file: <zip-file-path>"
+### 7, "Zipping is done. Zip file: $zipFilePath"
 Received when the zipping of the scan files is finished.
 The description will contain a path to the zip file.
 To receive the zip file as a `File` use the `CubiEventListener`'s
@@ -415,7 +446,7 @@ when record button is pressed for the first time. You will receive code 5 after 
 Received if the position of the device has changed by over 10 meters during a 2 second interval.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
-### 15, "Error shutdown. Deleting scan folder: <folder-path>
+### 15, "Error shutdown. Deleting scan folder: $folder-path
 Received when the scan is not successful.
 The scan files are deleted and CubiCapture will be finished after this (code 5).
 
@@ -484,7 +515,7 @@ listening for speech. This requires that the scan is started (recording), and th
 Received when the speech recognition stops listening for speech and the
 recognition results are ready and displayed.
 
-### 42, "Recognition result '<result>' was chosen."
+### 42, "Recognition result '$result' was chosen."
 Received when one of the recognition results is pressed.
 
 ### 43, "Recognition results canceled."
@@ -511,50 +542,57 @@ Received when user has granted the `RECORD_AUDIO` permission.
 ### 49, "User denied RECORD_AUDIO permission."
 Received when user has denied the `RECORD_AUDIO` permission.
 
-### 50, "MediaMuxer.writeSampleData Exception: <exception>"
+### 50, "MediaMuxer.writeSampleData Exception: $exception"
 Received if the video encoder fails to write an encoded sample into the muxer.
 
-### 51, "Zipping failed! You can try zipping again with .zipScan(<scanFolderPath>)"
+### 51, "Zipping failed! You can try zipping again with .zipScan($scanFolderPath)"
 Received if the automatic zipping fails.
 
-### 52, "Exception on the OpenGL thread: <Throwable>"
+### 52, "Exception on the OpenGL thread: $throwable"
 Received if there's an exception on the OpenGL thread.
 
-### 53, "Failed to read an asset file: <exception>"
+### 53, "Failed to read an asset file: $exception"
 Received if camera video preview surface fails to be initialized.
 
-### 54, "Writing of scan data failed: <exception>"
+### 54, "Writing of scan data failed: $exception"
 Received if the writing of the scan data fails.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
-### 55, "InputBuffer IllegalStateException: <exception>"
+### 55, "InputBuffer IllegalStateException: $exception"
 Received if the input buffer is not in Executing state.
 
-### 56, "MediaCodec.stop() exception: <exception>"
+### 56, "MediaCodec.stop() exception: $exception"
 Received if the finishing of the encode session fails.
 
-### 57, "MediaMuxer.stop() exception: <exception>"
+### 57, "MediaMuxer.stop() exception: $exception"
 Received if the stopping of the muxer fails.
 
-### 58, "MediaCodec.releaseOutputBuffer() exception: <exception>"
+### 58, "MediaCodec.releaseOutputBuffer() exception: $exception"
 Received if the releasing of the output buffer fails.
 
 ### 59, "Failed to print camera intrinsics!"
 Received if printing `intrinsics.json` file to scan folder fails.
 
-### 60, "dequeueOutputBuffer IllegalStateException: <exception>"
+### 60, "dequeueOutputBuffer IllegalStateException: $exception"
 Received if dequeuing an output buffer fails.
 
-### 61, "getOutputBuffer IllegalStateException: <exception>"
+### 61, "getOutputBuffer IllegalStateException: $exception"
 Received if the getting of the output buffer fails.
 
-### 62, "queueInputBuffer IllegalStateException: <exception>"
+### 62, "queueInputBuffer IllegalStateException: $exception"
 Received if queueing an input buffer to the codec fails.
 
 ### 63, "Depth sensor is no longer producing depth data!"
 Received if device's depth (time-of-flight) sensor is no longer producing depth data.
 The scan will be saved as a regular (non-depth) scan.
 
-### 64, "Unable to start saving. Error: <error>"
+### 64, "Unable to start saving. Error: $error"
 Received if the conditions for saving are not met.
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 65, "Frame processing exception: $exception"
+Received if the frame processing fails.
+
+### 66, "Unable to get correct values for the device's position."
+Received if ARCore is unable to return correct values for the device's position.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
