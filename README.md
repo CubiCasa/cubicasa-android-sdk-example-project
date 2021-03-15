@@ -1,20 +1,25 @@
-Example project using the CubiCapture 2.2.1 library module for Android
+Example project using the CubiCapture 2.2.2 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.2.1 library module.
+This project provides an example implementation and use of the CubiCapture 2.2.2 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
 
-## Updating to CubiCapture 2.2.1
+## Updating to CubiCapture 2.2.2
 
-- Update your app to use the CubiCapture 2.2.1 library module
+- Update your app to use the CubiCapture 2.2.2 library module
+- Update `com.google.ar:core` dependency to `1.23.0` from app level `build.gradle` dependencies
+- If you want to change the hint label texts, speech recognition's pop-up texts or to set the
+enabled status of the record button `View` see [Release Notes](#headreleasenotes) for more information
+
+**Note! If you've previously implemented version 2.2.1 you've probably done the next steps already:**
 - Check if you want to handle the new status codes (codes 65 and 66)
 - See if you want to add information about your app's version to be written to the scan data
 (see variables `appVersion` and `appBuild` from [Implementation](#headimplementation) below)
 
-**Note! If you are already using version 2.2.0 you've probably done the next steps already:**
+**Note! If you've previously implemented version 2.2.0 you've probably done the next steps already:**
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - See how to enable/disable speech recognition (see the end of [Implementation](#headimplementation) below)
 - Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
@@ -25,6 +30,14 @@ and how to customize those
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.2.2:**
+- Hint label texts can be changed by redefining the strings in your applications `strings.xml` file
+(see the end of [UI Settings](#headuisettings) below)
+- New variables `speechNoResultsText` and `readyForSpeechText` to change speech recognition's pop-up texts
+(type: `CharSequence`, default values: `"No results"` and `"Say the room name"`)
+- New function `recordButtonEnabled(boolean)` to set the enabled status of the record button `View`
+- Updated ARCore version to 1.23.0
 
 **2.2.1:**
 - Possibility to add information about your app's version with new variables
@@ -68,16 +81,16 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.2.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.2.2.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.2.1.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.2.2.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.2.1")
-implementation 'com.google.ar:core:1.22.0'
+implementation project(":cubicapture-release-2.2.2")
+implementation 'com.google.ar:core:1.23.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 ```
@@ -219,10 +232,21 @@ To set the visibility of CubiCapture's back button call:
 cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
 ```
 
+To set the enabled status of the record button `View`:
+```Kotlin
+cubiCapture.recordButtonEnabled(false)
+```
+
 To change CubiCapture's ARCore tracking error texts:
 ```Kotlin
 cubiCapture.excessiveMotionErrorText = "Excessive motion!"
 cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
+```
+
+To change speech recognition's pop-up texts:
+```Kotlin
+cubiCapture.speechNoResultsText = "No results"
+cubiCapture.readyForSpeechText = "Say the room name"
 ```
 
 To change the warning sound call:
@@ -334,6 +358,13 @@ you can define the new size in your applications `dimens.xml` file like so:
 ```xml
 <dimen name="button_record_size">80dp</dimen>
 ```
+
+To change the hint label texts you have to override the library's default hint label strings
+by defining the strings in your applications `strings.xml` file.
+
+Here's the default hint label text strings defined by CubiCapture library:
+<string name="recordHintString"><i>1. Start scanning</i></string>
+<string name="speakHintString"><i>2. Say the room name</i></string>
 
 ## Automatic and manual zipping
 

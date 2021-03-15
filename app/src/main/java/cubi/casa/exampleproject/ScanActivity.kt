@@ -9,11 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
 import java.io.File
 
-/** Read the CubiCapture documentary at:
+/** Read the CubiCapture documentation at:
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.2.1 library module */
+ * and use of the CubiCapture 2.2.2 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -90,9 +90,16 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** To hide CubiCapture's back button call: */
         // cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
 
+        /** To set the enabled status of the record button 'View': */
+        // cubiCapture.recordButtonEnabled(false)
+
         /** To change CubiCapture's ARCore tracking error texts: */
         // cubiCapture.excessiveMotionErrorText = "Excessive motion!"
         // cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
+
+        /** To change speech recognition's pop-up texts: */
+        // cubiCapture.speechNoResultsText = "No results"
+        // cubiCapture.readyForSpeechText = "Say the room name"
 
         /** To change the warning sound call: */
         // cubiCapture.setWarningSound(R.raw.new_warning_sound)
@@ -137,6 +144,10 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** Speech recognition UI can be modified by using the 'colors.xml' and 'dimens.xml' files.
          * To see how to customize the graphics, size of the views and layout margins read the
          * comments in those files or the documentation of this library module version. */
+
+        /** Hint label texts can be changed by redefining the strings in the 'strings.xml' file.
+         * To see how to do that, see the comments in the 'strings.xml' file or the documentation
+         * of this library module version. */
 
         /** ----------------- ABOUT AUTOMATIC AND MANUAL ZIPPING BELOW ----------------- */
 
