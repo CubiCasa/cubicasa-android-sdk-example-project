@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('cubicapture-release-2.2.2.aar'))
