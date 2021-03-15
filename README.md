@@ -363,8 +363,10 @@ To change the hint label texts you have to override the library's default hint l
 by defining the strings in your applications `strings.xml` file.
 
 Here's the default hint label text strings defined by CubiCapture library:
+```xml
 <string name="recordHintString"><i>1. Start scanning</i></string>
 <string name="speakHintString"><i>2. Say the room name</i></string>
+```
 
 ## Automatic and manual zipping
 
