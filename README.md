@@ -1,15 +1,24 @@
-Example project using the CubiCapture 2.2.2 library module for Android
+Example project using the CubiCapture 2.3.0 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.2.2 library module.
+This project provides an example implementation and use of the CubiCapture 2.3.0 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
+# CubiCapture 2.3.0 library module
 
-## Updating to CubiCapture 2.2.2
+CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
+with an Android device.
 
-- Update your app to use the CubiCapture 2.2.2 library module
+## Updating to CubiCapture 2.3.0
+
+- Update your app to use the CubiCapture 2.3.0 library module
+- See how to enable/disable the true north detection
+(see the end of [Implementation](#headimplementation) below)
+- Check if you want to handle the new status codes (codes 31-36 and 67-69)
+
+**Note! If you've previously implemented version 2.2.2 you've probably done the next steps already:**
 - Update `com.google.ar:core` dependency to `1.23.0` from app level `build.gradle` dependencies
 - If you want to change the hint label texts, speech recognition's pop-up texts or to set the
 enabled status of the record button `View` see [Release Notes](#headreleasenotes) for more information
@@ -30,6 +39,15 @@ and how to customize those
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.3.0:**
+- Horizontal scanning warning. This is a customizable `View` `horizontalWarning: ImageView`
+- True north detection (see the end of [Implementation](#headimplementation) below)
+- New status codes (codes 31-36 and 67-69)
+- Dropped values from the `arkitData.json` (scan data file). Saving of the scan files is now faster
+- Changes to the device orientation detection (landscape, portrait etc)
+- Memory optimization
+- Fixes to scaling of depth camera intrinsics
 
 **2.2.2:**
 - Hint label texts can be changed by redefining the strings in your applications `strings.xml` file
@@ -81,18 +99,21 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.2.2.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.3.0.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.2.2.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.3.0.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.2.2")
+implementation project(":cubicapture-release-2.3.0")
 implementation 'com.google.ar:core:1.23.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
+
+// Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
+implementation 'com.google.android.gms:play-services-location:18.0.0'
 ```
 
 Add the following lines to the app level `build.gradle` inside the `android` branch:
@@ -220,6 +241,32 @@ Speech recognition is enabled (`speechRecognitionEnabled` is set to `true`) by d
 If you are going to use speech recognition you need to declare the
 `RECORD_AUDIO` and `INTERNET` permissions in your app's manifest file.
 
+#### True north detection
+
+True north detection `trueNorth` has the following three settings:
+
+Name | Description
+-----|------------
+`TrueNorth.DISABLED`| True north detection disabled
+`TrueNorth.ENABLED` | True north detection enabled
+`TrueNorth.ENABLED_AND_REQUEST` | True north detection enabled and location permission requested by CubiCapture
+
+Example, where we enable the true north detection:
+```Kotlin
+cubiCapture.trueNorth = TrueNorth.ENABLED
+```
+
+True north detection is enabled and location permission is requested by CubiCapture
+(`trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST`) by default. If you are going to use
+true north detection you need to declare the `ACCESS_FINE_LOCATION` permission in your app's
+manifest file. You also need to implement the Google Play services' location library by adding it
+to the app level `build.gradle` dependencies
+(see the `build.gradle` implementation in the start of [Implementation](#headimplementation) above).
+
+If you're going to use the `TrueNorth.ENABLED` setting, you should request the `ACCESS_FINE_LOCATION`
+permission on application side. This gives you the possibility to explain the user why your
+applications needs the permission before requesting it.
+
 ## <a name="headuisettings"></a>UI settings
 
 To set the visibility of scan timer call:
@@ -260,9 +307,27 @@ statusBorder: ImageView
 sidewaysWarning: ImageView
 floorWarning: ImageView
 ceilingWarning: ImageView
+horizontalWarning: ImageView
 orientationWarning: ImageView
 statusText: TextView
 ```
+
+#### About warnings which use the ARCore's `Pose`
+
+The following warnings use the ARCore's `Pose` to detect bad scanning styles.
+These warnings have different priority levels.
+Higher priority warnings will override all the visible lower priority warnings by setting them to
+invisible in order to only display the higher priority warning.
+Priority level `1` is the highest priority, `2` is the second highest priority and so on.
+
+Priority level | Warnings
+---------------|---------
+1 | `orientationWarning`
+2 | `sidewaysWarning`
+3 | `ceilingWarning`, `floorWarning`, `horizontalWarning`
+
+**Note!** If ARCore's `TrackingState` is anything other than `TRACKING` all these warnings will be set
+to invisible because the ARCore Pose should not be considered useful.
 
 To replace a CubiCapture's `View` with your own `View` (example):
 ```Kotlin
@@ -539,6 +604,31 @@ of guidance images.
 Received if the ARCore is unable to start tracking during the first five seconds.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
+### 31, "Horizontal scanning."
+Received when the pitch of the camera has been too horizontal for a certain amount of time
+and `horizontalWarning` is set to visible.
+Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+
+### 32, "Not scanning horizontally anymore."
+Received when the pitch of the camera is valid again (not scanning horizontally) for a certain
+amount of time and `horizontalWarning` is set to invisible.
+
+### 33, "Requesting LOCATION permissions."
+Received when `trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST` and the `ACCESS_FINE_LOCATION`
+permission is not granted. Requests `ACCESS_FINE_LOCATION` permission to be granted to this application.
+
+### 34, "User granted LOCATION permissions."
+Received when user has granted the `ACCESS_FINE_LOCATION` permission and `trueNorth` is set to
+`TrueNorth.ENABLED_AND_REQUEST`.
+
+### 35, "User denied LOCATION permissions."
+Received when user has denied the `ACCESS_FINE_LOCATION` permission and `trueNorth` is set to
+`TrueNorth.ENABLED_AND_REQUEST`.
+
+### 36, "LOCATION permission is not granted. Not saving true north."
+Received when the `ACCESS_FINE_LOCATION` permission is not granted and `trueNorth` is set to
+`TrueNorth.ENABLED`. Not saving true north.
+
 ### 40, "Started listening for speech."
 Received when the speech recognition button is pressed and speech recognition starts
 listening for speech. This requires that the scan is started (recording), and that the
@@ -629,3 +719,16 @@ Received if the frame processing fails.
 ### 66, "Unable to get correct values for the device's position."
 Received if ARCore is unable to return correct values for the device's position.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 67, "Location Services are off."
+Received if the device has Location Services turned off on start. Only received if true north
+detection is enabled and `ACCESS_FINE_LOCATION` permission is granted.
+
+### 68, "Not able to get true north because Location Services were still off once recording was started."
+Received if the device had Location Services turned off once recording was started.
+Only received if true north detection is enabled and `ACCESS_FINE_LOCATION` permission is granted.
+
+### 69, "Sensor is reporting true north data with low or unreliable accuracy. Not saving these true north values."
+Received if the sensor is reporting true north data with low or unreliable accuracy. These values
+cannot be trusted so true north detection is not saving these values. Only received if true north
+detection is enabled and running.

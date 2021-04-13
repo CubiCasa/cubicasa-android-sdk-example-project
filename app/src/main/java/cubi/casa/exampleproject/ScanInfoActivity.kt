@@ -1,6 +1,7 @@
 package cubi.casa.exampleproject
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -37,6 +38,10 @@ class ScanInfoActivity : AppCompatActivity() {
          * Remember to request those permissions before you start your scanning Activity.
          * To avoid crashes you should also check that the device's ARCore version is up-to-date. */
         checkPermissionsAndArCore()
+
+        /* Requesting 'ACCESS_FINE_LOCATION' permission on the app side because we've set
+        'CubiCapture.trueNorth' to 'TrueNorth.ENABLED' in ScanActivity.kt */
+        checkGpsPermission()
 
         startScanButton.setOnClickListener {
             if (!permissionsGranted) {
@@ -152,6 +157,19 @@ class ScanInfoActivity : AppCompatActivity() {
             grantResults[1] == PackageManager.PERMISSION_GRANTED
         ) {
             permissionsGranted = true
+        }
+    }
+
+    // Requests ACCESS_FINE_LOCATION permission if it's not granted
+    private fun checkGpsPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
         }
     }
 
