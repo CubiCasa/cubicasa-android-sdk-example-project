@@ -7,13 +7,14 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
+import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Read the CubiCapture documentation at:
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.2.2 library module */
+ * and use of the CubiCapture 2.3.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -51,6 +52,10 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
         // Register CubiEventListener's interface callback
         cubiCapture.registerCallback(this)
+
+        /* 'trueNorth' set to 'ENABLED' to enable True North detection.
+        'ACCESS_FINE_LOCATION' permission is requested on the app side (in ScanInfoActivity.kt) */
+        cubiCapture.trueNorth = TrueNorth.ENABLED // 'ENABLED_AND_REQUEST' by default
 
         // Add information about your app's version to be written to the scan data (Optional)
         cubiCapture.appVersion = BuildConfig.VERSION_NAME
@@ -110,6 +115,7 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
          * sidewaysWarning: ImageView       // Changing image resource
          * floorWarning: ImageView
          * ceilingWarning: ImageView
+         * horizontalWarning: ImageView
          * orientationWarning: ImageView    // Changing image resource
          * statusText: TextView
          *
