@@ -1,14 +1,22 @@
 <resources>
     <!--
-      To change the hint label texts you have to override the library's default hint label strings
-      'recordHintString' and 'speakHintString' by re-defining the strings here.
+      To change the hint label and low storage texts you have to override the library's default
+      strings 'recordHintString', 'speakHintString' and 'lowStorageString' by re-defining the
+      strings here.
 
       Note:
       You don't have to re-define the string here if you're not changing it.
       Strings here are re-defined to the same default values just for example.
      -->
+    <!-- Hint label texts -->
     <string name="recordHintString"><i>1. Start scanning</i></string>
     <string name="speakHintString"><i>2. Say the room name</i></string>
+
+    <!--
+      Low storage warning text
+      Always include '%1$d' in the string. It's a placeholder for the value of the available minutes
+    -->
+    <string name="lowStorageString">Low storage: %1$d minutes left!</string>
 
     <!-- App name -->
     <string name="app_name">ExampleProject</string>
