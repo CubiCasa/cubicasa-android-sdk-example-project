@@ -14,7 +14,7 @@ import java.io.File
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.3.0 library module */
+ * and use of the CubiCapture 2.3.1 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -64,8 +64,13 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         // Before scanning with CubiCapture you first have to set scan output folder name
         cubiCapture.scanFolderName = orderInfo[0]
 
-        // Name of the folder which contains all the scan folders. This is "CubiCapture" by default.
-        cubiCapture.allScansFolderName = "MyScans"
+        /* You also need to set the File (directory) which contains all the scan folders.
+        Android 11 Storage updates will restrict where your app can store data.
+        We suggest the directory returned by 'getExternalFilesDir(null)' for storing scan data.
+        Just make sure that the storage is available and that the returned File is not null.
+        Read more about Android 11 storage updates from here:
+        https://developer.android.com/about/versions/11/privacy/storage */
+        cubiCapture.allScansFolder = getExternalFilesDir(null)
 
         // Before starting the scan you can add order information (not required)
         cubiCapture.setOrderInfo(
@@ -101,6 +106,7 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** To change CubiCapture's ARCore tracking error texts: */
         // cubiCapture.excessiveMotionErrorText = "Excessive motion!"
         // cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
+        // cubiCapture.initializingErrorText = "AR Session is initializing normally."
 
         /** To change speech recognition's pop-up texts: */
         // cubiCapture.speechNoResultsText = "No results"
@@ -168,6 +174,13 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** Manual zipping 'zipScan()' method expects the scan folder to contain the following files;
          * arkitData.json, config.json and video.mp4.
          * If any of the files doesn't exist, 'zipScan()' returns null. */
+
+        /** ----------------- ABOUT AVAILABLE STORAGE SPACE BELOW ----------------- */
+
+        /** To get an estimation in minutes of the maximum scan length the device can store.
+         * Pass 'getAvailableStorageMinutes()' the File (directory) which contains all the scan
+         * folders */
+        // val minutes: Int = cubiCapture.getAvailableStorageMinutes(getExternalFilesDir(null)!!)
     }
 
     /** Receives Scan folder and Zip file from CubiEventListener */

@@ -1,25 +1,33 @@
-Example project using the CubiCapture 2.3.0 library module for Android
+Example project using the CubiCapture 2.3.1 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.3.0 library module.
+This project provides an example implementation and use of the CubiCapture 2.3.1 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.3.0 library module
+# CubiCapture 2.3.1 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device.
 
-## Updating to CubiCapture 2.3.0
+## Updating to CubiCapture 2.3.1
 
-- Update your app to use the CubiCapture 2.3.0 library module
+- Update your app to use the CubiCapture 2.3.1 library module
+- Update `com.google.ar:core` dependency to `1.24.0` from app level `build.gradle` dependencies
+- Set `allScansFolder: File?` which replaced `allScansFolderName: String`
+(see [Implementation](#headimplementation) below)
+- If you want to change the AR Session initializing indication texts, low storage warning texts,
+get an estimation in minutes of the maximum scan length the device can store or to set the enabled
+status of the feedback data gathering, see [Release Notes](#headreleasenotes) for more information
+- Check if you want to handle the new status codes (codes 78, 91, and 100-102)
+
+**Note! If you've previously implemented version 2.3.0 you've probably done the next steps already:**
 - See how to enable/disable the true north detection
 (see the end of [Implementation](#headimplementation) below)
 - Check if you want to handle the new status codes (codes 31-36 and 67-69)
 
 **Note! If you've previously implemented version 2.2.2 you've probably done the next steps already:**
-- Update `com.google.ar:core` dependency to `1.23.0` from app level `build.gradle` dependencies
 - If you want to change the hint label texts, speech recognition's pop-up texts or to set the
 enabled status of the record button `View` see [Release Notes](#headreleasenotes) for more information
 
@@ -40,6 +48,21 @@ and how to customize those
 
 ## <a name="headreleasenotes"></a>Release Notes
 
+**2.3.1:**
+- Replaced `allScansFolderName: String` with `allScansFolder: File?` (see [Implementation](#headimplementation) below)
+- AR Session initializing indication text. This text can be customized by changing the value of
+`initializingErrorText: CharSequence`
+- Low storage warning. Low storage warning text can be changed by redefining the string in your applications
+`strings.xml` file (see [UI Settings](#headuisettings) below)
+- New function `getAvailableStorageMinutes(File)` which returns an estimation in minutes of the maximum scan
+length the device can store (see the end of [Implementation](#headimplementation) below)
+- New variable `feedbackGatheringEnabled: Boolean` to toggle the feedback data gathering, this is `true` by default
+(see the end of [Implementation](#headimplementation) below)
+- Various bug fixes and optimizations
+- New status codes (codes 78, 91, and 100-102)
+- Changes to the description message of the error code 45. It now contains the error code of the SpeechRecognizer
+- Updated ARCore version to 1.24.0
+
 **2.3.0:**
 - Horizontal scanning warning. This is a customizable `View` `horizontalWarning: ImageView`
 - True north detection (see the end of [Implementation](#headimplementation) below)
@@ -54,7 +77,7 @@ and how to customize those
 (see the end of [UI Settings](#headuisettings) below)
 - New variables `speechNoResultsText` and `readyForSpeechText` to change speech recognition's pop-up texts
 (type: `CharSequence`, default values: `"No results"` and `"Say the room name"`)
-- New function `recordButtonEnabled(boolean)` to set the enabled status of the record button `View`
+- New function `recordButtonEnabled(Boolean)` to set the enabled status of the record button `View`
 - Updated ARCore version to 1.23.0
 
 **2.2.1:**
@@ -99,16 +122,16 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.3.0.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.3.1.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.3.0.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.3.1.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.3.0")
-implementation 'com.google.ar:core:1.23.0'
+implementation project(":cubicapture-release-2.3.1")
+implementation 'com.google.ar:core:1.24.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 
@@ -173,15 +196,26 @@ Add the following function to receive scan folder and zip file as `File` from `C
 override fun getFile(code: Int, file: File) { }
 ```
 
-Before scanning with CubiCapture you first have to set folder name for the scan files:
+Before scanning with CubiCapture you first have to set folder name `scanFolderName: String`
+where we store the scan files.
+**Note!** You should always check that a scan folder with that name does not already exist,
+and that the `String` value of the scan folder name is a valid `File` name!
+Example:
 ```Kotlin
-cubiCapture.scanFolderName = "exampleFolderName"
+val scanName: String = getScanFolderName()
+cubiCapture.scanFolderName = scanName
 ```
 
-Change the value of `allScansFolderName` to change the name of the folder which contains all the
-scan folders (Optional). This is "CubiCapture" by default. Example:
+Set the `allScansFolder: File?` to set the directory where CubiCapture will save all the
+scan folders. Android 11 Storage updates will restrict where your app can store data.
+We suggest the directory returned by `getExternalFilesDir()` for storing scan data.
+Just make sure that the storage is available and that the returned `File` is not `null`.
+Read more about Android 11 storage updates from
+[here](https://developer.android.com/about/versions/11/privacy/storage).
+Example:
 ```Kotlin
-cubiCapture.allScansFolderName = "MyScans"
+val mainStorage: File = getExternalFilesDir(null) ?: getBackupStorage()
+cubiCapture.allScansFolder = mainStorage
 ```
 
 Before starting the scan you can add order information:
@@ -267,6 +301,30 @@ If you're going to use the `TrueNorth.ENABLED` setting, you should request the `
 permission on application side. This gives you the possibility to explain the user why your
 applications needs the permission before requesting it.
 
+#### Feedback data gathering
+
+During a scan, CubiCapture collects data about user's scanning style. This is still an experimental feature,
+and we're analyzing the collected data. In the future this feature will be used to provide feedback to the user about
+their scanning style and how to improve it.
+
+Feedback data gathering `feedbackGatheringEnabled: Boolean` is enabled (`true`) by default.
+If you want to disable it, set the `feedbackGatheringEnabled: Boolean` to `false`.
+
+#### Get available storage space estimation
+
+`getAvailableStorageMinutes(File)` is a public function which returns an estimation in minutes
+of the maximum scan length the device can store.
+This will be useful in a case where user's available storage space is running low and you want to inform the user
+about it before starting your scanning activity.
+
+Example:
+```Kotlin
+val availableMinutes = CubiCapture().getAvailableStorageMinutes(mainStorage)
+if (availableMinutes <= 60){
+	showLowStorageWarning(availableMinutes)
+}
+```
+
 ## <a name="headuisettings"></a>UI settings
 
 To set the visibility of scan timer call:
@@ -284,10 +342,11 @@ To set the enabled status of the record button `View`:
 cubiCapture.recordButtonEnabled(false)
 ```
 
-To change CubiCapture's ARCore tracking error texts:
+To change CubiCapture's ARCore tracking status texts:
 ```Kotlin
 cubiCapture.excessiveMotionErrorText = "Excessive motion!"
 cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
+cubiCapture.initializingErrorText = "Move your device to start tracking"
 ```
 
 To change speech recognition's pop-up texts:
@@ -424,14 +483,21 @@ you can define the new size in your applications `dimens.xml` file like so:
 <dimen name="button_record_size">80dp</dimen>
 ```
 
-To change the hint label texts you have to override the library's default hint label strings
-by defining the strings in your applications `strings.xml` file.
+To change the hint label and low storage texts you have to override the library's default strings
+by redefining the strings in your applications `strings.xml` file.
 
-Here's the default hint label text strings defined by CubiCapture library:
+Here's the default hint label and low storage text strings defined by CubiCapture library:
 ```xml
 <string name="recordHintString"><i>1. Start scanning</i></string>
 <string name="speakHintString"><i>2. Say the room name</i></string>
+<string name="lowStorageString">Low storage: %1$d minutes left!</string>
 ```
+
+The low storage warning text `lowStorageString` is shown in the `statusText: TextView` for 5 seconds
+in certain intervals during a scan if the estimation of the maximum scan length the device can store
+is less than 10 minutes.
+If you want to change the value of `lowStorageString`, always include the `%1$d` in the string.
+It's a placeholder for the value of the available minutes.
 
 ## Automatic and manual zipping
 
@@ -459,27 +525,28 @@ folders `ExampleStreet 123` and `AnotherStreet 10`:
     │   ├── arkitData.json
     │   ├── config.json
     │   ├── video.mp4
+    │   ├── feedbackData.json
     │   ├── intrinsics.json
     │   └── allDepthFrames.bin
     └── AnotherStreet 10
         ├── arkitData.json
         ├── config.json
         ├── video.mp4
+        ├── feedbackData.json
         ├── intrinsics.json
         └── allDepthFrames.bin
 ```
 
 Please note that the `allDepthFrames.bin` will be only present for devices which support depth
 capturing and the `intrinsics.json` for scans made with CubiCapture 2.2.0 or later.
+`feedbackData.json` will be only present if feedback data gathering is enabled.
 
 ## Status codes
 
 ### 0, "Device turned to landscape orientation."
-Received when the device is in landscape orientation and `orientationWarning (ImageView)`
+Received when the device is in landscape orientation and `orientationWarning: ImageView`
 is set to invisible.
-This is usually the first status code received when the device is turned to landscape orientation
-in order to start recording.
-When the device is in landscape orientation for the first time `orientationWarning (ImageView)`'s
+When the device is in landscape orientation for the first time `orientationWarning: ImageView`'s
 image resource is set to `rotate180Image`.
 
 ### 1, "Started recording."
@@ -523,18 +590,18 @@ To receive the zip file as a `File` use the `CubiEventListener`'s
 
 ### 8, "ARCore TrackingFailureReason: INSUFFICIENT_LIGHT"
 Received when ARCore motion tracking is lost due to poor lighting conditions.
-`statusText (TextView)`'s `text` is set to `insufficientErrorText (CharSequence)`.
+`statusText: TextView`'s `text` is set to `insufficientErrorText: CharSequence`.
 
 ### 9, "ARCore TrackingFailureReason: EXCESSIVE_MOTION"
 Received when ARCore motion tracking is lost due to excessive motion.
-`statusText (TextView)`'s `text` is set to `excessiveMotionErrorText (CharSequence)`.
+`statusText: TextView`'s `text` is set to `excessiveMotionErrorText: CharSequence`.
 
 ### 10, "ARCore TrackingFailureReason: INSUFFICIENT_FEATURES"
 Received when ARCore motion tracking is lost due to insufficient visual features.
-`statusText (TextView)`'s `text` is set to `insufficientErrorText (CharSequence)`.
+`statusText: TextView`'s `text` is set to `insufficientErrorText: CharSequence`.
 
 ### 11, "ARCore TrackingState is TRACKING."
-Received when ARCore is tracking again. Any error text from `statusText (TextView)` is removed.
+Received when ARCore is tracking again. Any error text from `statusText: TextView` is removed.
 
 ### 12, "MediaFormat and MediaCodec failed to be configured and started."
 Received if MediaFormat and MediaCodec fails to be configured and started
@@ -549,12 +616,12 @@ Received when the scan is not successful.
 The scan files are deleted and CubiCapture will be finished after this (code 5).
 
 ### 16, "Portrait to landscape guidance has to be dismissed first in order to start recording."
-Received when record button is pressed for the first time and `orientationWarning (ImageView)`
-is still visible.
+Received when the record button is pressed and recording cannot be started because
+`orientationWarning: ImageView` is still visible.
 
 ### 17, "Device is in reverse-landscape orientation."
 Received when the device is in reverse-landscape orientation and if the device has been in
-landscape orientation at least once. `orientationWarning (ImageView)` is set to visible.
+landscape orientation at least once. `orientationWarning: ImageView` is set to visible.
 
 ### 18, "Playing error sound."
 Received when an error sound is played and ARCore motion tracking is lost (codes 8, 9 and 10).
@@ -566,7 +633,8 @@ multiple times in a row.
 Received when the CubiCapture's back button is pressed twice. You should call `finish()`.
 
 ### 20, "Name of the scan output folder has to be set first. Set .scanFolderName"
-Received when record button is pressed for the first time and `scanFolderName` has not been set.
+Received when the record button is pressed and recording cannot be started because `scanFolderName`
+has not been set.
 
 ### 21, "Scanning floor."
 Received when the pitch of the camera has been too low for a certain amount of time
@@ -648,8 +716,9 @@ Received when the recognition results are canceled by pressing the Cancel -butto
 Received when the speech recognition is aborted by pressing the speech recognition button
 while speech recognition was listening for speech.
 
-### 45, "No speech recognition results."
-Received when the speech recognition doesn't return any results.
+### 45, "No speech recognition results. Error: $error"
+Received when the speech recognition doesn't return any results. `error: Int` is defined in
+[SpeechRecognizer](https://developer.android.com/reference/android/speech/SpeechRecognizer)
 
 ### 46, "All recognition results over the max length of 40 characters."
 Received when all the recognition results are over the max length of 40 characters.
@@ -732,3 +801,23 @@ Only received if true north detection is enabled and `ACCESS_FINE_LOCATION` perm
 Received if the sensor is reporting true north data with low or unreliable accuracy. These values
 cannot be trusted so true north detection is not saving these values. Only received if true north
 detection is enabled and running.
+
+### 78, "Storage: $minutes minutes left"
+Received once on start when the fragment's activity has been created and in certain intervals during a scan
+while recording. `minutes: Int` is an estimation in minutes of the maximum scan length the device can store.
+
+### 91, "Failed to write feedback data. $exception"
+Received if writing of the `feedbackData.json` file to scan folder fails.
+
+### 100, "ARCore session is initializing"
+Received if the ARCore session is initializing normally.
+`statusText: TextView`'s `text` is set to `initializingErrorText: CharSequence`
+if there is no portrait to landscape guidance visible.
+
+### 101, "ARCore session is initialized"
+Received if the ARCore session is initialized and ARCore's `TrackingState` is `TRACKING`.
+Only received when the recording has not been started. While recording, status code 11 is received instead.
+`statusText: TextView`'s `text` is reset.
+
+### 102, "ARCore session has to be initialized first in order to start recording."
+Received when the record button is pressed and recording cannot be started because ARCore session is still initializing.

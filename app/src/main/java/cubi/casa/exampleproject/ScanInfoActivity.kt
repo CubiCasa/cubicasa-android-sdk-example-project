@@ -1,7 +1,6 @@
 package cubi.casa.exampleproject
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -52,8 +51,9 @@ class ScanInfoActivity : AppCompatActivity() {
             val street = streetInput.text.toString().trim()
 
             /** String value of the streetInput (EditText) is required
-             * because it's used as the <scanFolderName>.
-             * You should also check that scan folder with that name does not already exist! */
+             * because we use as the <scanFolderName> in this example project.
+             * You should also check that scan folder with that name does not already exist,
+             * and in this case that the String 'street' is a valid File name! */
             if (street.isBlank()) {
                 streetInput.error = "Required."
                 return@setOnClickListener
