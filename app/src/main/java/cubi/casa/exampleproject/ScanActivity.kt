@@ -14,7 +14,7 @@ import java.io.File
  * https://www.cubi.casa/developers/cubicasa-android-sdk */
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.3.1 library module */
+ * and use of the CubiCapture 2.4.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -123,6 +123,7 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
          * ceilingWarning: ImageView
          * horizontalWarning: ImageView
          * orientationWarning: ImageView    // Changing image resource
+         * fastMovementWarning: ImageView
          * statusText: TextView
          *
          * 'Changing image resource' means that View's image resource might change during the
@@ -246,10 +247,12 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }
-            54, 64, 66 -> {
-                // 54, Writing of scan data failed: <e>,
-                // 64, Unable to start saving. Error: <e>,
-                // 66, Unable to get correct values for the device's position
+            54, 64, 66, 105, 106 -> {
+                /* 54, Writing of scan data failed: <e>
+                 * 64, Unable to start saving. Error: <e>
+                 * 66, Unable to get correct values for the device's position
+                 * 105, Unable to create ARCore session. Error: <e>
+                 * 106, Device is not compatible with ARCore. */
                 /** You will receive code 5 after this code */
                 errorMessage = description
             }
