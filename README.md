@@ -1,26 +1,31 @@
-Example project using the CubiCapture 2.3.1 library module for Android
+Example project using the CubiCapture 2.4.0 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.3.1 library module.
+This project provides an example implementation and use of the CubiCapture 2.4.0 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.3.1 library module
+# CubiCapture 2.4.0 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device.
 
-## Updating to CubiCapture 2.3.1
+## Updating to CubiCapture 2.4.0
+- Update your app to use the CubiCapture 2.4.0 library module
+- Update `com.google.ar:core` dependency to `1.25.0` from app level `build.gradle` dependencies
+- Remove deprecated `feedbackGatheringEnabled: Boolean` if you used it
+- If you want to customize the fast rotation warning, change the image resource of the
+`fastMovementWarning: ImageView`
+- Check if you want to handle the new status codes (codes 39, 87, 89, 92, 105 and 106)
 
-- Update your app to use the CubiCapture 2.3.1 library module
-- Update `com.google.ar:core` dependency to `1.24.0` from app level `build.gradle` dependencies
+**Note! If you've previously implemented version 2.3.1 you've probably done the next steps already:**
 - Set `allScansFolder: File?` which replaced `allScansFolderName: String`
 (see [Implementation](#headimplementation) below)
-- If you want to change the AR Session initializing indication texts, low storage warning texts,
-get an estimation in minutes of the maximum scan length the device can store or to set the enabled
-status of the feedback data gathering, see [Release Notes](#headreleasenotes) for more information
-- Check if you want to handle the new status codes (codes 78, 91, and 100-102)
+- If you want to change the AR Session initializing indication texts, low storage warning texts or
+get an estimation in minutes of the maximum scan length the device can store,
+see [Release Notes](#headreleasenotes) for more information
+- Check if you want to handle the new status codes (codes 78, 91 and 100-102)
 
 **Note! If you've previously implemented version 2.3.0 you've probably done the next steps already:**
 - See how to enable/disable the true north detection
@@ -48,6 +53,15 @@ and how to customize those
 
 ## <a name="headreleasenotes"></a>Release Notes
 
+**2.4.0:**
+- Fast rotation warning. A warning which will trigger if the user turns around too fast while
+scanning. This is a customizable `View` `fastMovementWarning: ImageView`
+- Deprecated `feedbackGatheringEnabled: Boolean` option
+- New status codes (codes 39, 87, 89, 92, 105 and 106)
+- UI improvements
+- Various bug fixes
+- Updated ARCore version to 1.25.0
+
 **2.3.1:**
 - Replaced `allScansFolderName: String` with `allScansFolder: File?` (see [Implementation](#headimplementation) below)
 - AR Session initializing indication text. This text can be customized by changing the value of
@@ -57,9 +71,8 @@ and how to customize those
 - New function `getAvailableStorageMinutes(File)` which returns an estimation in minutes of the maximum scan
 length the device can store (see the end of [Implementation](#headimplementation) below)
 - New variable `feedbackGatheringEnabled: Boolean` to toggle the feedback data gathering, this is `true` by default
-(see the end of [Implementation](#headimplementation) below)
 - Various bug fixes and optimizations
-- New status codes (codes 78, 91, and 100-102)
+- New status codes (codes 78, 91 and 100-102)
 - Changes to the description message of the error code 45. It now contains the error code of the SpeechRecognizer
 - Updated ARCore version to 1.24.0
 
@@ -122,16 +135,16 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.3.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.4.0.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.3.1.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.4.0.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.3.1")
-implementation 'com.google.ar:core:1.24.0'
+implementation project(":cubicapture-release-2.4.0")
+implementation 'com.google.ar:core:1.25.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 
@@ -303,12 +316,8 @@ applications needs the permission before requesting it.
 
 #### Feedback data gathering
 
-During a scan, CubiCapture collects data about user's scanning style. This is still an experimental feature,
-and we're analyzing the collected data. In the future this feature will be used to provide feedback to the user about
-their scanning style and how to improve it.
-
-Feedback data gathering `feedbackGatheringEnabled: Boolean` is enabled (`true`) by default.
-If you want to disable it, set the `feedbackGatheringEnabled: Boolean` to `false`.
+During a scan, CubiCapture collects data about user's scanning technique.
+In the future this data will be used to improve the user's scanning technique.
 
 #### Get available storage space estimation
 
@@ -368,12 +377,14 @@ floorWarning: ImageView
 ceilingWarning: ImageView
 horizontalWarning: ImageView
 orientationWarning: ImageView
+fastMovementWarning: ImageView
 statusText: TextView
 ```
 
 #### About warnings which use the ARCore's `Pose`
 
-The following warnings use the ARCore's `Pose` to detect bad scanning styles.
+The following warnings use the ARCore's `Pose` (excluding `fastMovementWarning` which uses the
+gyroscope sensor) to detect bad scanning styles.
 These warnings have different priority levels.
 Higher priority warnings will override all the visible lower priority warnings by setting them to
 invisible in order to only display the higher priority warning.
@@ -382,11 +393,13 @@ Priority level `1` is the highest priority, `2` is the second highest priority a
 Priority level | Warnings
 ---------------|---------
 1 | `orientationWarning`
-2 | `sidewaysWarning`
+2 | `sidewaysWarning`, `fastMovementWarning`
 3 | `ceilingWarning`, `floorWarning`, `horizontalWarning`
 
 **Note!** If ARCore's `TrackingState` is anything other than `TRACKING` all these warnings will be set
 to invisible because the ARCore Pose should not be considered useful.
+In this case, we also want to prioritize the tracking status error messages displayed in `statusText: TextView`
+so that we can get the device tracking again as quickly as possible.
 
 To replace a CubiCapture's `View` with your own `View` (example):
 ```Kotlin
@@ -514,7 +527,7 @@ val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as St
 
 Manual zipping `zipScan()` method expects the scan folder to contain the following files;
 `arkitData.json`, `config.json` and `video.mp4`.
-If any of the files doesn't exist, `zipScan()` returns `null`.
+If any of the files above doesn't exist, `zipScan()` returns `null`.
 
 Here's an example directory structure where `zipScan()` method would successfully zip the scan
 folders `ExampleStreet 123` and `AnotherStreet 10`:
@@ -538,8 +551,7 @@ folders `ExampleStreet 123` and `AnotherStreet 10`:
 ```
 
 Please note that the `allDepthFrames.bin` will be only present for devices which support depth
-capturing and the `intrinsics.json` for scans made with CubiCapture 2.2.0 or later.
-`feedbackData.json` will be only present if feedback data gathering is enabled.
+capturing.
 
 ## Status codes
 
@@ -639,12 +651,12 @@ has not been set.
 ### 21, "Scanning floor."
 Received when the pitch of the camera has been too low for a certain amount of time
 and `floorWarning` is set to visible.
-Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+Only received if there's no higher priority warnings visible.
 
 ### 22, "Scanning ceiling."
 Received when the pitch of the camera has been too high for a certain amount of time
 and `ceilingWarning` is set to visible.
-Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+Only received if there's no higher priority warnings visible.
 
 ### 23, "Not scanning ceiling or floor anymore."
 Received when the pitch of the camera is valid again and `ceilingWarning` or `floorWarning` is set to invisible.
@@ -656,12 +668,12 @@ Sets `ceilingWarning` or `floorWarning` to invisible.
 ### 25, "Walking sideways. Displaying turn left warning."
 Received when the user is walking sideways to the left while the camera is pointing forward.
 `sidewaysWarning` is set to visible and its image resource is set to `turnLeftImage`.
-Only received if the `orientationWarning` is set to invisible.
+Only received if there's no higher priority warnings visible.
 
 ### 26, "Walking sideways. Displaying turn right warning."
 Received when the user is walking sideways to the right while the camera is pointing forward.
 `sidewaysWarning` is set to visible and its image resource is set to `turnRightImage`.
-Only received if the `orientationWarning` is set to invisible.
+Only received if there's no higher priority warnings visible.
 
 ### 27, "Not walking sideways anymore."
 Received when the user is not walking sideways anymore and the `sidewaysWarning` is set to invisible.
@@ -675,7 +687,7 @@ The scan files will be deleted (code 15) and CubiCapture will be finished after 
 ### 31, "Horizontal scanning."
 Received when the pitch of the camera has been too horizontal for a certain amount of time
 and `horizontalWarning` is set to visible.
-Only received if there's no `orientationWarning` or `sidewaysWarning` visible.
+Only received if there's no higher priority warnings visible.
 
 ### 32, "Not scanning horizontally anymore."
 Received when the pitch of the camera is valid again (not scanning horizontally) for a certain
@@ -696,6 +708,9 @@ Received when user has denied the `ACCESS_FINE_LOCATION` permission and `trueNor
 ### 36, "LOCATION permission is not granted. Not saving true north."
 Received when the `ACCESS_FINE_LOCATION` permission is not granted and `trueNorth` is set to
 `TrueNorth.ENABLED`. Not saving true north.
+
+### 39, "Unable to start listening for speech. Error: $error"
+Received if the speech recognition service fails to allow access to start listening for speech.
 
 ### 40, "Started listening for speech."
 Received when the speech recognition button is pressed and speech recognition starts
@@ -806,8 +821,22 @@ detection is enabled and running.
 Received once on start when the fragment's activity has been created and in certain intervals during a scan
 while recording. `minutes: Int` is an estimation in minutes of the maximum scan length the device can store.
 
+### 87, "Too fast rotations. Showing fast movement warning."
+Received when the user turns around too fast while scanning and `fastMovementWarning: ImageView`
+is set to visible.
+
+### 89, "Not moving too fast anymore."
+Received when the user is not turning around too fast anymore and `fastMovementWarning: ImageView`
+is set to invisible.
+The `fastMovementWarning: ImageView` is always displayed for at least a certain amount of time to
+avoid quick flashes of guidance images.
+
 ### 91, "Failed to write feedback data. $exception"
 Received if writing of the `feedbackData.json` file to scan folder fails.
+
+### 92, "Gyroscope sensor not available. Not able to detect fast movements."
+Received if there's no gyroscope sensor available.
+CubiCapture will not be able to detect fast movements.
 
 ### 100, "ARCore session is initializing"
 Received if the ARCore session is initializing normally.
@@ -821,3 +850,12 @@ Only received when the recording has not been started. While recording, status c
 
 ### 102, "ARCore session has to be initialized first in order to start recording."
 Received when the record button is pressed and recording cannot be started because ARCore session is still initializing.
+
+### 105, "Unable to create ARCore session. Error: $error"
+Received if an internal error occurred while creating the ARCore session.
+You will receive code 5 after this.
+
+### 106, "Device is not compatible with ARCore."
+Received if the device is not compatible with ARCore. If encountered after completing the
+installation check, this usually indicates that ARCore has been side-loaded onto an incompatible
+device. You will receive code 5 after this.
