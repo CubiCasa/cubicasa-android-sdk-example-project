@@ -5,17 +5,19 @@
     <color name="colorAccent">#FFFFFF</color>
 
     <!--
-      To change the theme colors or alphas of the speech recognition 'View's and hint labels
-      re-define the colors here.
-      The colors can be defined with color notation `#RRGGBB`s or with a color notation
-      including a hexadecimal alpha value `#AARRGGBB`s.
+      To change the colors or alphas of the default CubiCapture graphics you have to redefine the
+      colors here.
+      The colors can be defined with color notation '#RRGGBB's or with a color notation
+      including a hexadecimal alpha value '#AARRGGBB's.
+      Redefining a color of a redefined drawable resource does nothing. For example, redefining
+      the record button colors does nothing if the record button drawables are also redefined.
 
       Note:
-      You don't have to re-define the color here if you're not changing it.
-      Colors here are re-defined to the same default values just for example.
+      You don't have to redefine the color here if you're not changing it.
+      Colors here are redefined to the default values just for example.
      -->
 
-    <!-- Speech recognition text color -->
+    <!-- Speech recognition and end recording slider text color -->
     <color name="ccTextColor">#FFFFFF</color>
 
     <!-- Hint label's background and stroke color -->
@@ -38,4 +40,16 @@
     <!-- Recognition results view's colors -->
     <color name="ccResultColor">#CC569789</color>
     <color name="ccCancelColor">#808080</color>
+
+    <!-- Recording button colors -->
+    <color name="ccRecordingColor">#D83B31</color>
+    <color name="ccNotRecordingColor">#565656</color>
+    <color name="ccRecButtonBorderColor">#AAAAAA</color>
+
+    <!-- End recording slider background color -->
+    <color name="ccSliderColor">#C8D83B31</color>
+
+    <!-- Status border colors -->
+    <color name="ccStatusTrackingColor">#569789</color>
+    <color name="ccStatusFailureColor">#FAB40E</color>
 </resources>

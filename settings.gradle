@@ -1,3 +1,3 @@
-include ':cubicapture-release-2.4.0'
+include ':cubicapture-release-2.5.0'
 include ':app'
 rootProject.name='ExampleProject'

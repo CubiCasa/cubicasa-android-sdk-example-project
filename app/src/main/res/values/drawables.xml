@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      To change CubiCapture's default drawables you have to redefine the drawables here.
+
+      Note:
+      You don't have to redefine the drawable here if you're not changing it.
+      Drawables here are redefined to the default values just for example.
+     -->
+
+    <!-- Record button, hint label and end recording slider background -->
+    <drawable name="cc_not_recording">@drawable/cc_not_recording_original</drawable>
+    <drawable name="cc_recording">@drawable/cc_recording_original</drawable>
+    <drawable name="cc_hint_label_background">@drawable/cc_hint_label_background_original</drawable>
+    <drawable name="cc_slider_background">@drawable/cc_slider_background_original</drawable>
+
+    <!-- Status borders -->
+    <drawable name="cc_status_border_tracking">@drawable/cc_status_border_tracking_original</drawable>
+    <drawable name="cc_status_border_failure">@drawable/cc_status_border_failure_original</drawable>
+
+    <!-- Warning and guide icons -->
+    <drawable name="cc_turn_device_icon">@drawable/cc_turn_device_original</drawable>
+    <drawable name="cc_rotate_device_icon">@drawable/cc_rotate_device_original</drawable>
+    <drawable name="cc_turn_left_icon">@drawable/cc_warning_arrow_left_original</drawable>
+    <drawable name="cc_turn_right_icon">@drawable/cc_warning_arrow_right_original</drawable>
+    <drawable name="cc_ceiling_icon">@drawable/cc_warning_arrow_down_original</drawable>
+    <drawable name="cc_horizontal_icon">@drawable/cc_horizontal_original</drawable>
+    <drawable name="cc_floor_icon">@drawable/cc_warning_arrow_original</drawable>
+    <drawable name="cc_fast_movement_icon">@drawable/cc_fast_movement_original</drawable>
+    <drawable name="cc_too_close_icon">@drawable/cc_too_close_original</drawable>
+
+    <!-- Warning and guide backgrounds, which are just colors by default -->
+    <drawable name="cc_warning_background">#66F90066</drawable>
+    <drawable name="cc_guide_background">#D9163241</drawable>
+
+    <!-- Processing screen background -->
+    <drawable name="cc_processing_background">@drawable/cc_processing_background_original</drawable>
+
+    <!-- Location Services reminder icon and background -->
+    <drawable name="cc_location_icon">@drawable/cc_location_icon_original</drawable>
+    <drawable name="cc_location_background">@drawable/cc_location_reminder_background_original</drawable>
+</resources>
