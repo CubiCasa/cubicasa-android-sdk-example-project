@@ -1,27 +1,101 @@
 <resources>
     <!--
-      To change the hint label and low storage texts you have to override the library's default
-      strings 'recordHintString', 'speakHintString' and 'lowStorageString' by re-defining the
-      strings here.
+      To change CubiCapture's default texts you have to redefine the strings here.
 
       Note:
-      You don't have to re-define the string here if you're not changing it.
-      Strings here are re-defined to the same default values just for example.
+      You don't have to redefine the string here if you're not changing it.
+      Strings here are redefined to the default values just for example.
      -->
+
     <!-- Hint label texts -->
-    <string name="recordHintString"><i>1. Start scanning</i></string>
-    <string name="speakHintString"><i>2. Say the room name</i></string>
+    <string name="cc_record_hint_text"><i>1. Start scanning</i></string>
+    <string name="cc_speech_hint_text"><i>2. Say the room name</i></string>
 
-    <!--
-      Low storage warning text
-      Always include '%1$d' in the string. It's a placeholder for the value of the available minutes
-    -->
-    <string name="lowStorageString">Low storage: %1$d minutes left!</string>
+    <!-- Low storage warning text.
+    Always include '%1$d' in the string. It's a placeholder for the value of the available minutes -->
+    <string name="cc_low_storage_text">Low storage: %1$d minutes left!</string>
 
-    <!-- App name -->
+    <!-- Slider text -->
+    <string name="cc_slider_text"><i>Slide to end</i></string>
+
+    <!-- Processing text -->
+    <string name="cc_processing_text">Processing scan.\nPlease do not exit the application.</string>
+
+    <!-- Back button texts -->
+    <string name="cc_back_button_text">Back</string>
+    <string name="cc_back_button_confirm_text">Are you sure?</string>
+
+    <!-- Text of the cancel button in speech recognition results view -->
+    <string name="cc_cancel_button_text">Cancel</string>
+
+    <!-- Speech recognition pop-up texts -->
+    <string name="cc_ready_for_speech_text">Say the room name</string>
+    <string name="cc_speech_no_results_text">No results</string>
+
+    <!-- ARCore tracking status texts -->
+    <string name="cc_excessive_motion_text">You are moving too fast</string>
+    <string name="cc_insufficient_features_text">We have trouble tracking your position
+        \nbecause there are not enough visual features here
+    </string>
+    <string name="cc_insufficient_light_text">We have trouble tracking your position
+        \nbecause it is too dark here
+    </string>
+    <string name="cc_initializing_text">Move your device to start tracking</string>
+
+    <!-- Recognition results over the max length text.
+    Always include '%1$d' in the string. It's a placeholder for the value of the maximum characters -->
+    <string name="cc_results_over_max_length_text">Space name exceeded %1$d characters</string>
+
+    <!-- Displayed title for the sideways warning -->
+    <string name="cc_warning_sideways_title">Do not walk sideways</string>
+    <!-- Displayed info text for sideways left warning -->
+    <string name="cc_warning_sideways_left_info">Turn left and point the camera in your walking direction.\nWalk along the wall.</string>
+    <!-- Displayed info text for sideways right warning -->
+    <string name="cc_warning_sideways_right_info">Turn right and point the camera in your walking direction.\nWalk along the wall.</string>
+
+    <!-- Displayed info text for the rotate warning -->
+    <string name="cc_warning_rotate_info">Rotate your device 180°.\nMake sure the record button is on the right.</string>
+
+    <!-- Displayed title for ceiling scanning warning -->
+    <string name="cc_warning_ceiling_title">Do not scan ceilings</string>
+    <!-- Displayed info text for ceiling scanning warning -->
+    <string name="cc_warning_ceiling_info">We can lose track of your position if ceilings are scanned.</string>
+
+    <!-- Displayed title for floor scanning warning -->
+    <string name="cc_warning_floor_title">Tilt the device back a bit</string>
+    <!-- Displayed info text for floor scanning warning -->
+    <string name="cc_warning_floor_info">Point the camera approximately 8ft / 2.5m in front of you.\nKeep at least 3ft / 1m distance from all objects.</string>
+
+    <!-- Displayed on the guide screen before the device is turned to landscape -->
+    <string name="cc_guide_turn_device_info">Turn your device left to landscape orientation</string>
+
+    <!-- Displayed on title in the warning view on too much horizontal scanning -->
+    <string name="cc_warning_tilt_down_title">Tilt the device forward a bit</string>
+    <!-- Displayed info text for too much horizontal scanning -->
+    <string name="cc_warning_tilt_down_info">Focus on the floor about 8ft / 2.5m in front of you.</string>
+
+    <!-- Displayed in the warning view title in fast rotation warning -->
+    <string name="cc_warning_fast_rotation_title">You are turning too fast</string>
+    <!-- Displayed in the warning view info text in fast rotation warning -->
+    <string name="cc_warning_fast_rotation_info">Avoid fast turns for best scanning results.</string>
+
+    <!-- Displayed on the warning view title when user is scanning too close to objects -->
+    <string name="cc_warning_too_close_title">You are too close</string>
+    <!-- Displayed on the warning view info text when user is scanning too close to objects -->
+    <string name="cc_warning_too_close_info">Keep more distance from the objects you are scanning.</string>
+
+    <!-- Displayed on the Location Services reminder view info text -->
+    <string name="location_services_reminder_text">Turn on <b>Location Services</b> from
+        <b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
+    <!-- Displayed on the Location Services reminder view settings button text -->
+    <string name="open_settings_text"><u>Go to <b>Settings</b></u></string>
+
+    <!-- ____________________________ End of CubiCapture strings! ____________________________ -->
+
+    <!-- Example app's name -->
     <string name="app_name">ExampleProject</string>
 
-    <!-- String values used in 'activity_scan_info' where we fill in the order information -->
+    <!-- Strings used in ExampleProject's 'activity_scan_info' where we fill in the order information -->
     <string name="street"><i>Street | required</i></string>
     <string name="number"><i>Street number</i></string>
     <string name="suite"><i>Suite number</i></string>

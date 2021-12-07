@@ -10,11 +10,8 @@ import cubi.casa.cubicapture.CubiCapture
 import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
-/** Read the CubiCapture documentation at:
- * https://www.cubi.casa/developers/cubicasa-android-sdk */
-
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.4.0 library module */
+ * and use of the CubiCapture 2.5.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -32,8 +29,8 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
     private var errorMessage: String? = null
 
-    /** CubiCapture requires CAMERA and WRITE_EXTERNAL_STORAGE permissions to be granted.
-     * Remember to request those permissions before you start your scanning Activity.
+    /** CubiCapture requires CAMERA permission to be granted.
+     * Remember to request the permission before you start your scanning Activity.
      * To avoid crashes you should also check that the device's ARCore version is up-to-date. */
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +53,10 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /* 'trueNorth' set to 'ENABLED' to enable True North detection.
         'ACCESS_FINE_LOCATION' permission is requested on the app side (in ScanInfoActivity.kt) */
         cubiCapture.trueNorth = TrueNorth.ENABLED // 'ENABLED_AND_REQUEST' by default
+
+        /* Show Location Services reminder -view if Location Services are turned off
+        and Location permission is granted for the app */
+        cubiCapture.requestLocationServices = locationPermissionGranted(this)
 
         // Add information about your app's version to be written to the scan data (Optional)
         cubiCapture.appVersion = BuildConfig.VERSION_NAME
@@ -103,64 +104,22 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         /** To set the enabled status of the record button 'View': */
         // cubiCapture.recordButtonEnabled(false)
 
-        /** To change CubiCapture's ARCore tracking error texts: */
-        // cubiCapture.excessiveMotionErrorText = "Excessive motion!"
-        // cubiCapture.insufficientErrorText = "Insufficient visual features or poor lighting!"
-        // cubiCapture.initializingErrorText = "AR Session is initializing normally."
-
-        /** To change speech recognition's pop-up texts: */
-        // cubiCapture.speechNoResultsText = "No results"
-        // cubiCapture.readyForSpeechText = "Say the room name"
-
         /** To change the warning sound call: */
         // cubiCapture.setWarningSound(R.raw.new_warning_sound)
 
-        /**
-         * The following CubiCapture Views are customizable:
-         * statusBorder: ImageView          // Changing image resource
-         * sidewaysWarning: ImageView       // Changing image resource
-         * floorWarning: ImageView
-         * ceilingWarning: ImageView
-         * horizontalWarning: ImageView
-         * orientationWarning: ImageView    // Changing image resource
-         * fastMovementWarning: ImageView
-         * statusText: TextView
-         *
-         * 'Changing image resource' means that View's image resource might change during the
-         * scan. For example the statusBorder's image resource changes when there's changes in
-         * ARCore's TrackingState during a scan. */
-
-        /** To replace some CubiCapture View with your own View (example): */
+        /** To replace the CubiCapture's 'statusText: TextView' with your own 'TextView':*/
         // val newView: TextView = findViewById(R.id.newStatusText)
         // cubiCapture.setNewView(cubiCapture.statusText, newView)
 
-        /** To change image resource of some CubiCapture view call (example): */
-        // cubiCapture.ceilingWarning.setImageResource(R.drawable.new_ceiling_warning)
+        /** CubiCapture's default colors, layouts and graphics can be modified by using the
+         * 'colors.xml', 'dimens.xml' and 'drawables.xml' files.
+         * To see how to do that, see the comments in those files or the documentation
+         * (ExampleProject's README.md file) of this library module version. */
 
-        /**
-         * The following image resources might be set to a 'View' which is private and/or has
-         * changing image resources:
-         * recordingImage        // Set to private record button
-         * notRecordingImage     // Set to private record button
-         * hintLabelBackground   // Set to private hint labels
-         * rotate180Image        // Set to orientationWarning: ImageView
-         * trackingStatusBorders // Set to statusBorder: ImageView
-         * failureStatusBorders  // Set to statusBorder: ImageView
-         * turnLeftImage         // Set to sidewaysWarning: ImageView
-         * turnRightImage        // Set to sidewaysWarning: ImageView
-         *
-         * For example, when the user clicks the record button the image resource of the view is set
-         * to 'recordingImage'.
-         * In this case you can change the image resource like this (example): */
-        // cubiCapture.recordingImage = R.drawable.new_recording
-
-        /** Speech recognition UI can be modified by using the 'colors.xml' and 'dimens.xml' files.
-         * To see how to customize the graphics, size of the views and layout margins read the
-         * comments in those files or the documentation of this library module version. */
-
-        /** Hint label texts can be changed by redefining the strings in the 'strings.xml' file.
+        /** CubiCapture's default texts can be changed by redefining the strings in the
+         * 'strings.xml' file.
          * To see how to do that, see the comments in the 'strings.xml' file or the documentation
-         * of this library module version. */
+         * (ExampleProject's README.md file) of this library module version. */
 
         /** ----------------- ABOUT AUTOMATIC AND MANUAL ZIPPING BELOW ----------------- */
 

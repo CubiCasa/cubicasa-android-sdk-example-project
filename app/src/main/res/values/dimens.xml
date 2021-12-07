@@ -2,14 +2,14 @@
 <resources>
     <!--
       To change the default size or layout margins of the speech recognition 'View's and hint labels
-      re-define the dimensions here.
-      Dimensions 'button_record_size' and 'button_record_margin_end' affects the size or layout
-      margins of the record button and the speech recognition button, since speech recognition
-      button is set relative to the record button.
+      redefine the dimensions here.
+      Dimensions 'button_record_size' and 'button_record_margin_end' define the size or layout
+      margins of the record button, end recording slider and speech recognition button,
+      since end recording slider and speech recognition button are set relative to the record button.
 
       Note:
-      You don't have to re-define the dimension here if you're not changing it.
-      Dimensions here are re-defined to the same default values just for example.
+      You don't have to redefine the dimension here if you're not changing it.
+      Dimensions here are redefined to the default values just for example.
      -->
 
     <dimen name="button_record_size">72dp</dimen>

@@ -10,9 +10,6 @@ import android.widget.MediaController
 import kotlinx.android.synthetic.main.activity_view_scan.*
 import java.io.File
 
-/** Read the CubiCapture documentary at:
- * https://www.cubi.casa/developers/cubicasa-android-sdk */
-
 /** Example Activity for watching the video produced by the CubiCapture and deleting the scan. */
 
 class ViewScanActivity : AppCompatActivity() {

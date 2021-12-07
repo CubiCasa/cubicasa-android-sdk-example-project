@@ -16,35 +16,37 @@ import androidx.core.content.ContextCompat
 import com.google.ar.core.ArCoreApk
 import kotlinx.android.synthetic.main.activity_scan_info.*
 
-/** Read the CubiCapture documentary at:
- * https://www.cubi.casa/developers/cubicasa-android-sdk */
-
 /** Example Activity for setting the scan folder name and filling the Order info.
  * String value of the streetInput (EditText) is used as the <scanFolderName> */
 
 class ScanInfoActivity : AppCompatActivity() {
 
-    private var permissionsGranted = false
     private var mUserRequestedInstall = true
-    private val requestPermissionCode = 0
     private val REQUEST_DISPLAY_ERROR = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan_info)
 
-        /** CubiCapture requires CAMERA and WRITE_EXTERNAL_STORAGE permissions to be granted.
-         * Remember to request those permissions before you start your scanning Activity.
+        /** CubiCapture requires CAMERA permission to be granted.
+         * Remember to request the permission before you start your scanning Activity.
          * To avoid crashes you should also check that the device's ARCore version is up-to-date. */
-        checkPermissionsAndArCore()
 
         /* Requesting 'ACCESS_FINE_LOCATION' permission on the app side because we've set
-        'CubiCapture.trueNorth' to 'TrueNorth.ENABLED' in ScanActivity.kt */
-        checkGpsPermission()
+         * 'CubiCapture.trueNorth' to 'TrueNorth.ENABLED' in ScanActivity.kt */
+        if (!locationPermissionGranted(this)) {
+            requestLocationPermission()
+        }
 
         startScanButton.setOnClickListener {
-            if (!permissionsGranted) {
-                requestPermissions()
+            /* Check if 'CAMERA' permission is granted, and ARCore is installed and up-to-date.
+             * You should also explain user why you need these permission,
+             * and handle a case where user denies a permission. */
+            if (!cameraPermissionGranted()) {
+                requestCameraPermission()
+                return@setOnClickListener
+            }
+            if (!arCoreIsInstalledAndUpToDate()) {
                 return@setOnClickListener
             }
 
@@ -66,8 +68,7 @@ class ScanInfoActivity : AppCompatActivity() {
             val country = countryInput.text.toString().trim()
             val postalCode = postalInput.text.toString().trim()
 
-            val orderInfo: Array<String> =
-                arrayOf(street, number, suite, city, state, country, postalCode)
+            val orderInfo = arrayOf(street, number, suite, city, state, country, postalCode)
 
             val scanIntent = Intent(baseContext, ScanActivity::class.java)
             scanIntent.putExtra("orderInfo", orderInfo)
@@ -111,67 +112,39 @@ class ScanInfoActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkPermissionsAndArCore() {
-        // Checking Camera and Storage permissions
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions()
-        } else {
-            permissionsGranted = true
-        }
-
-        // Request ARCore install if it's not installed
-        when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-            ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                mUserRequestedInstall = false
-                return
-            }
-        }
+    private fun cameraPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
-    // Requesting Camera and Storage permissions
-    private fun requestPermissions() {
+    private fun requestCameraPermission() {
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ),
-            requestPermissionCode
+            arrayOf(Manifest.permission.CAMERA),
+            123
         )
     }
 
-    // Called when permission is granted or not
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    private fun requestLocationPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            321
+        )
+    }
 
-        if (requestCode == requestPermissionCode &&
-            grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-            grantResults[1] == PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsGranted = true
+    /* Checks if the ARCore installed and is up-to-date. Returns true if it is, false otherwise.
+     * Also requests install or update if needed */
+    private fun arCoreIsInstalledAndUpToDate(): Boolean {
+        return when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
+            ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
+                mUserRequestedInstall = false
+                false
+            }
+            ArCoreApk.InstallStatus.INSTALLED -> { true }
+            else -> { false }
         }
     }
 
-    // Requests ACCESS_FINE_LOCATION permission if it's not granted
-    private fun checkGpsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1
-            )
-        }
-    }
-
-    override fun onBackPressed() { } // Disabling Navigation bar's back press
+    override fun onBackPressed() { } // Disabling Navigation bar back press
 }
