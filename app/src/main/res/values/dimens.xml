@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      To change the default size or layout margins of the speech recognition 'View's and hint labels
-      redefine the dimensions here.
+      To change the CubiCapture's default layout sizes, margins and text sizes redefine the
+      dimensions here.
       Dimensions 'button_record_size' and 'button_record_margin_end' define the size or layout
       margins of the record button, end recording slider and speech recognition button,
       since end recording slider and speech recognition button are set relative to the record button.
@@ -12,8 +12,57 @@
       Dimensions here are redefined to the default values just for example.
      -->
 
+    <!-- Size of the record and speech recognition buttons -->
     <dimen name="button_record_size">72dp</dimen>
+
+    <!-- Margin end of the record and speech recognition buttons -->
     <dimen name="button_record_margin_end">52dp</dimen>
+
+    <!-- Hint label width(s). Using '0dp' for the 'hint_label_width' wraps the label text -->
+    <dimen name="hint_label_width">0dp</dimen>
+
+    <!-- Hint label height(s) -->
     <dimen name="hint_label_height">52dp</dimen>
+
+    <!-- Margin end of the hint label(s) -->
     <dimen name="hint_label_margin_end">12dp</dimen>
+
+    <!-- Processing progress bar size scale -->
+    <dimen name="cc_progress_bar_size_scale">1.6</dimen>
+
+    <!-- Recording slider text size -->
+    <dimen name="cc_slider_text_size">20sp</dimen>
+
+    <!-- Hint label text size -->
+    <dimen name="cc_hint_label_text_size">16sp</dimen>
+
+    <!-- Speech recognition results text size -->
+    <dimen name="cc_recognition_results_text_size">20sp</dimen>
+
+    <!-- Speech recognition pop-up text size-->
+    <dimen name="cc_recognition_popup_text_size">16sp</dimen>
+
+    <!-- Status text size (Used for ARCore tracking errors for example) -->
+    <dimen name="cc_status_text_size">16sp</dimen>
+
+    <!-- Back button text size -->
+    <dimen name="cc_back_button_text_size">14sp</dimen>
+
+    <!-- Scan timer text size -->
+    <dimen name="cc_scan_timer_text_size">14sp</dimen>
+
+    <!-- Processing text size -->
+    <dimen name="cc_processing_text_size">16sp</dimen>
+
+    <!-- Processing percentage text size -->
+    <dimen name="cc_percentage_text_size">16sp</dimen>
+
+    <!-- Warning title text size -->
+    <dimen name="cc_warning_title_text_size">44sp</dimen>
+
+    <!-- Warning message text size -->
+    <dimen name="cc_warning_message_text_size">28sp</dimen>
+
+    <!-- Location Services reminder text size -->
+    <dimen name="cc_location_reminder_text_size">16sp</dimen>
 </resources>
