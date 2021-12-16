@@ -11,7 +11,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.5.0 library module */
+ * and use of the CubiCapture 2.5.1 library module */
 
 class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
 
@@ -111,8 +111,14 @@ class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
         // val newView: TextView = findViewById(R.id.newStatusText)
         // cubiCapture.setNewView(cubiCapture.statusText, newView)
 
-        /** CubiCapture's default colors, layouts and graphics can be modified by using the
-         * 'colors.xml', 'dimens.xml' and 'drawables.xml' files.
+        /** Set hint label widths to match the wider one ('true') or to wrap label text ('false').
+         * This is 'true' by default. This is ignored if the speech recognition is disabled.
+         * In this case the label width is set to wrap the label text if the 'hint_label_width' is
+         * not changed from the default '0dp' in 'dimens.xml'. */
+        // cubiCapture.matchHintLabelWidth = false
+
+        /** CubiCapture's default colors, layout sizes, margins, text sizes and graphics can be
+         * modified by using the 'colors.xml', 'dimens.xml' and 'drawables.xml' files.
          * To see how to do that, see the comments in those files or the documentation
          * (ExampleProject's README.md file) of this library module version. */
 

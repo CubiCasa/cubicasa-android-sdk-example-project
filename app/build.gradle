@@ -36,7 +36,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.jaredrummler:android-device-names:2.0.0'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
-    implementation project(":cubicapture-release-2.5.0")
+    implementation project(":cubicapture-release-2.5.1")
 
     // Implement the following if 'CubiCapture.trueNorth' is 'ENABLED' or 'ENABLED_AND_REQUEST':
     implementation 'com.google.android.gms:play-services-location:18.0.0'

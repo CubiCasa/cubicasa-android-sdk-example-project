@@ -1,18 +1,22 @@
-Example project using the CubiCapture 2.5.0 library module for Android
+Example project using the CubiCapture 2.5.1 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.5.0 library module.
+This project provides an example implementation and use of the CubiCapture 2.5.1 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.5.0 library module
+# CubiCapture 2.5.1 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device.
 
-## Updating to CubiCapture 2.5.0
-- Update your app to use the CubiCapture 2.5.0 library module
+## Updating to CubiCapture 2.5.1
+- Update your app to use the CubiCapture 2.5.1 library module
+- See [Release Notes](#headreleasenotes) if you want to customize CubiCapture's text sizes,
+hint label widths or the size of the processing progress bar
+
+**Note! If you've previously implemented version 2.5.0 you've probably done the next steps already:**
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - Customization of the CubiCapture has changed. See [Release Notes](#headreleasenotes) for
 information about deprecations and how the CubiCapture is customized now
@@ -54,6 +58,13 @@ see [Release Notes](#headreleasenotes) for more information
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.5.1:**
+- New variable `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one or to
+wrap label text. This is `true` by default. For more information, see [UI Settings](#headuisettings) below
+- New customization resources in `dimens.xml` for CubiCapture text sizes, hint label width and
+processing progress bar size. See [Dimensions](#headdimensions) below
+- Various bug fixes
 
 **2.5.0:**
 - Too close warning. A warning which will trigger if the user is scanning too close to objects.
@@ -170,15 +181,15 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## <a name="headimplementation"></a>Implementation
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.0.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.1.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.0.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.1.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.5.0")
+implementation project(":cubicapture-release-2.5.1")
 implementation 'com.google.ar:core:1.28.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
@@ -430,6 +441,14 @@ val newView: TextView = findViewById(R.id.newStatusText)
 cubiCapture.setNewView(cubiCapture.statusText, newView)
 ```
 
+Use `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one (`true`),
+or to wrap label text (`false`). This is `true` by default.
+This is ignored if the speech recognition is disabled. In this case the label width is set to wrap
+the label text if the `hint_label_width` is not changed from the default `0dp` in `dimens.xml`.
+```Kotlin
+cubiCapture.matchHintLabelWidth = false
+```
+
 #### Colors and alphas
 
 To change the colors or alphas of the default CubiCapture graphics you have to redefine the
@@ -484,19 +503,68 @@ you can define the new color in your applications `colors.xml` file like so:
 The colors can be defined with color notation `#RRGGBB`s or with a color notation
 including a hexadecimal alpha value `#AARRGGBB`s.
 
-#### Dimensions
+#### <a name="headdimensions"></a>Dimensions
 
-To change the default size or layout margins of the speech recognition `View`s and hint labels
+To change the CubiCapture's default layout sizes, margins and text sizes
 you have to override the library's default dimensions by defining the dimensions in your applications
 `dimens.xml` file. To override the library's default dimensions, you need to have the `dimens.xml` file created
 to the `values` directory where the `colors.xml` file is as well.
 
 Here's all the default dimensions defined in CubiCapture library:
 ```xml
+<!-- Size of the record and speech recognition buttons -->
 <dimen name="button_record_size">72dp</dimen>
+
+<!-- Margin end of the record and speech recognition buttons -->
 <dimen name="button_record_margin_end">52dp</dimen>
+
+<!-- Hint label width(s). Using '0dp' for the 'hint_label_width' wraps the label text -->
+<dimen name="hint_label_width">0dp</dimen>
+
+<!-- Hint label height(s) -->
 <dimen name="hint_label_height">52dp</dimen>
+
+<!-- Margin end of the hint label(s) -->
 <dimen name="hint_label_margin_end">12dp</dimen>
+
+<!-- Processing progress bar size scale -->
+<dimen name="cc_progress_bar_size_scale">1.6</dimen>
+
+<!-- Recording slider text size -->
+<dimen name="cc_slider_text_size">20sp</dimen>
+
+<!-- Hint label text size -->
+<dimen name="cc_hint_label_text_size">16sp</dimen>
+
+<!-- Speech recognition results text size -->
+<dimen name="cc_recognition_results_text_size">20sp</dimen>
+
+<!-- Speech recognition pop-up text size-->
+<dimen name="cc_recognition_popup_text_size">16sp</dimen>
+
+<!-- Status text size (Used for ARCore tracking errors for example) -->
+<dimen name="cc_status_text_size">16sp</dimen>
+
+<!-- Back button text size -->
+<dimen name="cc_back_button_text_size">14sp</dimen>
+
+<!-- Scan timer text size -->
+<dimen name="cc_scan_timer_text_size">14sp</dimen>
+
+<!-- Processing text size -->
+<dimen name="cc_processing_text_size">16sp</dimen>
+
+<!-- Processing percentage text size -->
+<dimen name="cc_percentage_text_size">16sp</dimen>
+
+<!-- Warning title text size -->
+<dimen name="cc_warning_title_text_size">44sp</dimen>
+
+<!-- Warning message text size -->
+<dimen name="cc_warning_message_text_size">28sp</dimen>
+
+<!-- Location Services reminder text size -->
+<dimen name="cc_location_reminder_text_size">16sp</dimen>
 ```
 
 **Note!** Dimensions `button_record_size` and `button_record_margin_end` define the size or layout margins of the
