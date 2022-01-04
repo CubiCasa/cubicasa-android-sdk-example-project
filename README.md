@@ -183,6 +183,8 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.1.aar).
 
+This implementation was made with Android Studio 4.1.2
+
 Add the CubiCapture library module to your project:
 `File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.1.aar"` file and choose it -> `Finish`
 
