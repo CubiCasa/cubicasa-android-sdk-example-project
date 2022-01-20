@@ -20,7 +20,7 @@ hint label widths or the size of the processing progress bar
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - Customization of the CubiCapture has changed. See [Release Notes](#headreleasenotes) for
 information about deprecations and how the CubiCapture is customized now
-- Check if you want to handle the new status codes: 37, 38, 85, 86 and 93
+- Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
 - If you want to show Location Services reminder -view when the Location Services are turned off
 see [Release Notes](#headreleasenotes) for more information
 - If your app is using speech recognition and targets Android 11 (API level 30) or above,
@@ -88,7 +88,7 @@ This is `false` by default (see the end of [Implementation](#headimplementation)
     `cc_record_hint_text`, `cc_speech_hint_text` and `cc_low_storage_text` in the file `strings.xml`
     - Default string values reviewed
     - For more information about the customization changes, see [UI Settings](#headuisettings) below
-- New status codes: 37, 38, 85, 86 and 93. Changes to the `description: String` of the code 24
+- New status codes: 37, 38, 85, 88 and 93. Changes to the `description: String` of the code 24
 - CubiCapture's `targetSdkVersion` has been updated to API level 30. Specifying a `targetSdkVersion`
 in your project's `build.gradle` or `AndroidManifest.xml` will override the CubiCapture's value
 - CubiCapture no longer use the `WRITE_EXTERNAL_STORAGE` permission or request the
@@ -1053,13 +1053,13 @@ while recording. `minutes: Int` is an estimation in minutes of the maximum scan 
 ### 85, "Scanning too close. Showing proximity warning."
 Received if the user is scanning too close to objects and too close warning is shown.
 
-### 86, "Scan range normal. Hiding proximity warning."
+### 87, "Too fast rotations. Showing fast movement warning."
+Received when the user turns around too fast while scanning and fast movement warning is shown.
+
+### 88, "Scan range normal. Hiding proximity warning."
 Received when the user is not scanning too close to objects anymore and the too close warning is hidden.
 Too close warning is always displayed for at least a certain amount of time to avoid quick flashes
 of warnings.
-
-### 87, "Too fast rotations. Showing fast movement warning."
-Received when the user turns around too fast while scanning and fast movement warning is shown.
 
 ### 89, "Not moving too fast anymore."
 Received when the user is not turning around too fast anymore and the fast movement warning is hidden.
