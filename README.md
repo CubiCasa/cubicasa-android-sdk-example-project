@@ -1,18 +1,25 @@
-Example project using the CubiCapture 2.5.1 library module for Android
+Example project using the CubiCapture 2.5.2 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.5.1 library module.
+This project provides an example implementation and use of the CubiCapture 2.5.2 library module.
 From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.5.1 library module
+# CubiCapture 2.5.2 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device.
 
-## Updating to CubiCapture 2.5.1
-- Update your app to use the CubiCapture 2.5.1 library module
+## Updating to CubiCapture 2.5.2
+- Update your app to use the CubiCapture 2.5.2 library module
+- Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
+- Check if you want to handle the new status codes: 70-76, 90 and 94
+- In previous library module documentation there was a typo where status code `88` was written as `86`.
+If you handle code `86`, change it to `88`. This code is received when the user is not scanning too
+close to objects anymore and the too close warning is hidden.
+
+**Note! If you've previously implemented version 2.5.1 you've probably done the next steps already:**
 - See [Release Notes](#headreleasenotes) if you want to customize CubiCapture's text sizes,
 hint label widths or the size of the processing progress bar
 
@@ -20,7 +27,7 @@ hint label widths or the size of the processing progress bar
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - Customization of the CubiCapture has changed. See [Release Notes](#headreleasenotes) for
 information about deprecations and how the CubiCapture is customized now
-- Check if you want to handle the new status codes: 37, 38, 85, 86 and 93
+- Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
 - If you want to show Location Services reminder -view when the Location Services are turned off
 see [Release Notes](#headreleasenotes) for more information
 - If your app is using speech recognition and targets Android 11 (API level 30) or above,
@@ -59,6 +66,14 @@ see [Release Notes](#headreleasenotes) for more information
 
 ## <a name="headreleasenotes"></a>Release Notes
 
+**2.5.2:**
+- Thermal state monitoring. Changes in thermal state can be listened by using status codes 70-76
+- Scan log (extra information about the scanning session, included in the zip)
+- Changes to the click area of the CubiCapture's back button to prevent accidental clicks
+- `CubiCapture.CubiEventListener` interface implementation is now `CubiEventListener`
+- New status codes: 70-76, 90 and 94
+- Improvements to scan data
+
 **2.5.1:**
 - New variable `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one or to
 wrap label text. This is `true` by default. For more information, see [UI Settings](#headuisettings) below
@@ -88,7 +103,7 @@ This is `false` by default (see the end of [Implementation](#headimplementation)
     `cc_record_hint_text`, `cc_speech_hint_text` and `cc_low_storage_text` in the file `strings.xml`
     - Default string values reviewed
     - For more information about the customization changes, see [UI Settings](#headuisettings) below
-- New status codes: 37, 38, 85, 86 and 93. Changes to the `description: String` of the code 24
+- New status codes: 37, 38, 85, 88 and 93. Changes to the `description: String` of the code 24
 - CubiCapture's `targetSdkVersion` has been updated to API level 30. Specifying a `targetSdkVersion`
 in your project's `build.gradle` or `AndroidManifest.xml` will override the CubiCapture's value
 - CubiCapture no longer use the `WRITE_EXTERNAL_STORAGE` permission or request the
@@ -180,16 +195,17 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 
 ## <a name="headimplementation"></a>Implementation
+This implementation was made with Android Studio 4.1.2
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.2.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.1.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.2.aar"` file and choose it -> `Finish`
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.5.1")
+implementation project(":cubicapture-release-2.5.2")
 implementation 'com.google.ar:core:1.28.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
@@ -238,7 +254,7 @@ cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as Cubi
 
 Implement `CubiEventListener` interface to your scanning `Activity` - Example:
 ```Kotlin
-class ExampleActivity : AppCompatActivity(), CubiCapture.CubiEventListener
+class ExampleActivity : AppCompatActivity(), CubiEventListener
 ```
 
 Register `CubiEventListener`'s interface callback in `onCreate()`:
@@ -718,26 +734,27 @@ then define the drawables in your applications `drawables.xml` file like so:
 <drawable name="cc_recording">@drawable/recording_new</drawable>
 ```
 
-#### About warnings which use the ARCore's `Pose`
+## About warning priorities
 
-The following warnings use the ARCore's `Pose` (excluding fast movement warning which uses the
-gyroscope sensor) to detect bad scanning styles.
-These warnings have different priority levels.
+During a scan, CubiCapture shows a warning to the user if it detects
+bad scanning styles or any issues with the tracking.
+All the warnings are divided into priority level groups.
 Higher priority warnings will override and hide any lower priority warning in order to
-only display the higher priority warning. As an exception, ceiling warning will override horizontal
+only show the higher priority warning. As an exception, ceiling warning will override horizontal
 warning, although they have the same priority level.
 Priority level `1` is the highest priority, `2` is the second highest priority and so on.
 
 Priority level | Warnings
 ---------------|---------
-1 | Rotate device
-2 | Sideways walking, Fast movement
-3 | Ceiling scanning, Floor scanning, Horizontal scanning
+1 | Not tracking*
+2 | Rotate device
+3 | Sideways walking, Fast movement, Too close
+4 | Ceiling scanning, Floor scanning, Horizontal scanning
 
-**Note!** If ARCore's `TrackingState` is anything other than `TRACKING` all these warnings will be
-hidden because the ARCore Pose should not be considered useful.
-In this case, we also want to prioritize the tracking status error messages displayed in
-`statusText: TextView` so that we can get the device tracking again as quickly as possible.
+*Not tracking: ARCore's `TrackingState` is **not** `TRACKING`,
+and the position of the device can not be determined.
+In this case, CubiCapture shows a tracking status error message (e.g. `cc_insufficient_features_text`)
+in `statusText: TextView` so that we can get the device tracking again as quickly as possible.
 
 ## Automatic and manual zipping
 
@@ -766,6 +783,7 @@ folders `ExampleStreet 123` and `AnotherStreet 10`:
     │   ├── config.json
     │   ├── video.mp4
     │   ├── feedback.json
+    │   ├── scanLog.json
     │   ├── intrinsics.json
     │   └── allDepthFrames.bin
     └── AnotherStreet 10
@@ -773,6 +791,7 @@ folders `ExampleStreet 123` and `AnotherStreet 10`:
         ├── config.json
         ├── video.mp4
         ├── feedback.json
+        ├── scanLog.json
         ├── intrinsics.json
         └── allDepthFrames.bin
 ```
@@ -1029,7 +1048,8 @@ The scan files will be deleted (code 15) and CubiCapture will be finished after 
 Received if the frame processing fails.
 
 ### 66, "Unable to get correct values for the device's position."
-Received if ARCore is unable to return correct values for the device's position.
+Received if ARCore has been unable to return correct values for the device's position for a certain
+amount of time.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
 ### 67, "Location Services are off."
@@ -1045,6 +1065,27 @@ Received if the sensor is reporting true north data with low or unreliable accur
 cannot be trusted so true north detection is not saving these values. Only received if true north
 detection is enabled and running.
 
+### 70, "Thermal state nominal"
+Received if thermal state changes to nominal.
+
+### 71,	"Thermal state light"
+Received if thermal state changes to light.
+
+### 72,	"Thermal state moderate"
+Received if thermal state changes to moderate.
+
+### 73,	"Thermal state severe"
+Received if thermal state changes to severe.
+
+### 74,	"Thermal state critical"
+Received if thermal state changes to critical.
+
+### 75,	"Thermal state emergency"
+Received if thermal state changes to emergency.
+
+### 76,	"Thermal state shutdown"
+Received if thermal state changes to shutdown.
+
 ### 78, "Storage: $minutes minutes left"
 Received once on start when the fragment's activity has been created and in certain intervals during a scan
 while recording. `minutes: Int` is an estimation in minutes of the maximum scan length the device can store.
@@ -1052,18 +1093,21 @@ while recording. `minutes: Int` is an estimation in minutes of the maximum scan 
 ### 85, "Scanning too close. Showing proximity warning."
 Received if the user is scanning too close to objects and too close warning is shown.
 
-### 86, "Scan range normal. Hiding proximity warning."
+### 87, "Too fast rotations. Showing fast movement warning."
+Received when the user turns around too fast while scanning and fast movement warning is shown.
+
+### 88, "Scan range normal. Hiding proximity warning."
 Received when the user is not scanning too close to objects anymore and the too close warning is hidden.
 Too close warning is always displayed for at least a certain amount of time to avoid quick flashes
 of warnings.
-
-### 87, "Too fast rotations. Showing fast movement warning."
-Received when the user turns around too fast while scanning and fast movement warning is shown.
 
 ### 89, "Not moving too fast anymore."
 Received when the user is not turning around too fast anymore and the fast movement warning is hidden.
 Fast movement warning is always displayed for at least a certain amount of time to avoid quick
 flashes of warnings.
+
+### 90, "Failed to write scan log data. $exception"
+Received if writing of the `scanLog.json` file to scan folder fails.
 
 ### 91, "Failed to write feedback data. $exception"
 Received if writing of the `feedback.json` file to scan folder fails.
@@ -1074,6 +1118,10 @@ CubiCapture will not be able to detect fast movements.
 
 ### 93, "Proximity detection exception: $exception"
 Received if the proximity detection fails.
+
+### 94, "Rotation vector sensor is not supported. Using accelerometer and magnetometer instead."
+Received if the rotation vector sensor is not supported on device. True north data will be acquired
+by using accelerometer and magnetometer instead.
 
 ### 100, "ARCore session is initializing"
 Received if the ARCore session is initializing normally.

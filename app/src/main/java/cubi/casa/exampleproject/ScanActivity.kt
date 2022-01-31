@@ -7,13 +7,14 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
+import cubi.casa.cubicapture.CubiEventListener
 import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.5.1 library module */
+ * and use of the CubiCapture 2.5.2 library module */
 
-class ScanActivity : AppCompatActivity(), CubiCapture.CubiEventListener {
+class ScanActivity : AppCompatActivity(), CubiEventListener {
 
     // Create lateinit variable for CubiCapture
     private lateinit var cubiCapture: CubiCapture
