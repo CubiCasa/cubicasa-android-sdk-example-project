@@ -11,11 +11,12 @@
     <string name="cc_record_hint_text"><i>1. Start scanning</i></string>
     <string name="cc_speech_hint_text"><i>2. Say the room name</i></string>
 
-    <!-- Low storage warning text.
+    <!-- Low storage warning text. Shown in the `statusText: TextView` for 5 seconds in certain intervals
+    during a scan if the estimation of the maximum scan length the device can store is less than 10 minutes.
     Always include '%1$d' in the string. It's a placeholder for the value of the available minutes -->
     <string name="cc_low_storage_text">Low storage: %1$d minutes left!</string>
 
-    <!-- Slider text -->
+    <!-- End recording slider text -->
     <string name="cc_slider_text"><i>Slide to end</i></string>
 
     <!-- Processing text -->
@@ -35,10 +36,10 @@
     <!-- ARCore tracking status texts -->
     <string name="cc_excessive_motion_text">You are moving too fast</string>
     <string name="cc_insufficient_features_text">We have trouble tracking your position
-        \nbecause there are not enough visual features here
+	\nbecause there are not enough visual features here
     </string>
     <string name="cc_insufficient_light_text">We have trouble tracking your position
-        \nbecause it is too dark here
+	\nbecause it is too dark here
     </string>
     <string name="cc_initializing_text">Move your device to start tracking</string>
 
@@ -84,11 +85,52 @@
     <!-- Displayed on the warning view info text when user is scanning too close to objects -->
     <string name="cc_warning_too_close_info">Keep more distance from the objects you are scanning.</string>
 
-    <!-- Displayed on the Location Services reminder view info text -->
-    <string name="location_services_reminder_text">Turn on <b>Location Services</b> from
-        <b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
-    <!-- Displayed on the Location Services reminder view settings button text -->
-    <string name="open_settings_text"><u>Go to <b>Settings</b></u></string>
+    <!-- Displayed on the Location Services reminder view's info text when Location Services are
+    turned off -->
+    <string name="cc_location_services_reminder_text">Turn on <b>Location Services</b> from
+	<b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
+    <!-- Displayed on the location permission reminder view's info text when location permission
+    is not granted -->
+    <string name="cc_location_permission_reminder_text">Allow <b>Location</b> permission from
+	<b>App permission settings</b> to enable a compass in the floor plan</string>
+    <!-- Displayed on the reminder view's settings button text when Location Services are turned off
+    or location permission is not granted -->
+    <string name="cc_open_location_settings_text"><u>Go to <b>Settings</b></u></string>
+
+    <!-- Scan playback speed spinner text. Always include '%1$s' in the string. -->
+    <string name="cc_playback_speed_text">Playback speed: %1$s</string>
+    <!-- Scan playback speed spinner text for normal speed -->
+    <string name="cc_playback_normal_speed_text">Normal</string>
+
+    <!-- Scan playback events header text -->
+    <string name="cc_playback_events_header_text">Events</string>
+
+    <!-- Scan playback frame text. Always include the '%1$s' in the string!-->
+    <string name="cc_playback_frame_text">Frame: %1$s</string>
+    <!-- Scan playback time text. Always include the '%1$s' in the string!-->
+    <string name="cc_playback_time_text">Time: %1$s</string>
+
+    <!-- Scan playback active event texts -->
+    <string name="cc_playback_excessive_motion">Moving too fast</string>
+    <string name="cc_playback_insufficient">Insufficient lighting or features</string>
+    <string name="cc_playback_sideways">Walking sideways</string>
+    <string name="cc_playback_floor">Scanning floor</string>
+    <string name="cc_playback_ceiling">Scanning ceiling</string>
+    <string name="cc_playback_horizontal">Scanning horizontally</string>
+    <string name="cc_playback_wrong_orientation">Wrong device orientation</string>
+    <string name="cc_playback_fast_rotation">Turning too fast</string>
+    <string name="cc_playback_too_close">Too close</string>
+
+    <!-- Displayed on the speech recognition pop-up view if microphone button is
+    pressed while recording and microphone permission is not granted and can't be requested -->
+    <string name="cc_microphone_permission_not_granted">Microphone permission not granted</string>
+    <!-- Displayed on the microphone permission reminder view's info text when the microphone
+    button is pressed while not recording and microphone permission is not granted and can't be
+    requested -->
+    <string name="cc_microphone_permission_settings_text">Allow <b>Microphone</b> permission from
+	<b>App permission settings</b></string>
+    <!-- Displayed on the microphone permission reminder view's settings button text -->
+    <string name="cc_open_microphone_settings_text"><u>Go to <b>App settings</b></u></string>
 
     <!-- ____________________________ End of CubiCapture strings! ____________________________ -->
 

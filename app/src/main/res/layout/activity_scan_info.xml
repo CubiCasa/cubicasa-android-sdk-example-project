@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scanInfoConstraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#569789">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -21,7 +21,7 @@
             android:id="@+id/streetInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()"
             android:focusable="true"
             android:hint="@string/street"
@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789"
             android:focusable="true"
             android:hint="@string/number"
@@ -56,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM "
             android:focusable="true"
             android:hint="@string/suite"
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM "
             android:focusable="true"
             android:hint="@string/city"
@@ -90,7 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM- "
             android:focusable="true"
             android:hint="@string/state"
@@ -107,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM "
             android:focusable="true"
             android:hint="@string/country"
@@ -124,7 +124,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:background="#163241"
+            android:background="@drawable/edittext_background"
             android:digits="0123456789"
             android:ems="10"
             android:focusable="true"
@@ -140,13 +140,17 @@
 
     <Button
         android:id="@+id/startScanButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#163241"
+        android:background="@drawable/button_background"
         android:text="Start scanning"
+        android:textSize="22sp"
         android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        android:layout_marginHorizontal="24dp"
+        android:textAllCaps="false"
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

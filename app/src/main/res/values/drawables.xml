@@ -33,10 +33,19 @@
     <drawable name="cc_warning_background">#66F90066</drawable>
     <drawable name="cc_guide_background">#D9163241</drawable>
 
-    <!-- Processing screen background -->
-    <drawable name="cc_processing_background">@drawable/cc_processing_background_original</drawable>
+    <!-- Processing screen background, which is just a color by default -->
+    <drawable name="cc_processing_background">#071d29</drawable>
 
-    <!-- Location Services reminder icon and background -->
+    <!-- Icon for Location Services and location permission reminders -->
     <drawable name="cc_location_icon">@drawable/cc_location_icon_original</drawable>
-    <drawable name="cc_location_background">@drawable/cc_location_reminder_background_original</drawable>
+    <!-- Icon for microphone permission reminder -->
+    <drawable name="cc_microphone_icon">@drawable/cc_microphone_icon_original</drawable>
+    <!-- Background for reminder view -->
+    <drawable name="cc_reminder_background">@drawable/cc_location_reminder_background_original</drawable>
+
+    <!-- Scan playback timeline thumb -->
+    <drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
+
+    <!-- Scan playback back arrow -->
+    <drawable name="cc_playback_back_arrow">@drawable/cc_back_arrow_original</drawable>
 </resources>

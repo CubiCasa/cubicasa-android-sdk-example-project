@@ -1,5 +1,6 @@
 package cubi.casa.exampleproject
 
+import android.Manifest
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
@@ -12,7 +13,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.5.2 library module */
+ * and use of the CubiCapture 2.6.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -57,7 +58,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
 
         /* Show Location Services reminder -view if Location Services are turned off
         and Location permission is granted for the app */
-        cubiCapture.requestLocationServices = locationPermissionGranted(this)
+        cubiCapture.requestLocationServices =
+            permissionIsGranted(Manifest.permission.ACCESS_FINE_LOCATION)
 
         // Add information about your app's version to be written to the scan data (Optional)
         cubiCapture.appVersion = BuildConfig.VERSION_NAME
@@ -188,7 +190,7 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
                 if (saved && scanFolder != null) {
                     // Scan successful. Starting ViewScanActivity to view its video
                     val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
-                    viewScanIntent.putExtra("folderPath", scanFolder?.path)
+                    viewScanIntent.putExtra("scanFolder", scanFolder)
                     startActivity(viewScanIntent)
                 } else if (errorMessage != null) {
                     // Not successful scan - 'errorMessage' will be displayed in ScanInfoActivity
