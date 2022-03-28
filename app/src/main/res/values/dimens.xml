@@ -30,7 +30,7 @@
     <!-- Processing progress bar size scale -->
     <dimen name="cc_progress_bar_size_scale">1.6</dimen>
 
-    <!-- Recording slider text size -->
+    <!-- End recording slider text size -->
     <dimen name="cc_slider_text_size">20sp</dimen>
 
     <!-- Hint label text size -->
@@ -63,6 +63,15 @@
     <!-- Warning message text size -->
     <dimen name="cc_warning_message_text_size">28sp</dimen>
 
-    <!-- Location Services reminder text size -->
-    <dimen name="cc_location_reminder_text_size">16sp</dimen>
+    <!-- Text size reminder view's texts -->
+    <dimen name="cc_reminder_text_size">16sp</dimen>
+
+    <!-- Scan playback controller button width percent -->
+    <dimen name="cc_controller_button_width_percent">0.10</dimen>
+
+    <!-- Scan playback small text size (Used for all texts except active events) -->
+    <dimen name="cc_playback_text_size_small">14sp</dimen>
+
+    <!-- Scan playback big text size (Used for active events) -->
+    <dimen name="cc_playback_text_size_big">20sp</dimen>
 </resources>

@@ -3,6 +3,7 @@
     <color name="colorPrimary">#569789</color>
     <color name="colorPrimaryDark">#163241</color>
     <color name="colorAccent">#FFFFFF</color>
+    <color name="secondaryBlue">#1E4357</color>
 
     <!--
       To change the colors or alphas of the default CubiCapture graphics you have to redefine the
@@ -52,4 +53,35 @@
     <!-- Status border colors -->
     <color name="ccStatusTrackingColor">#569789</color>
     <color name="ccStatusFailureColor">#FAB40E</color>
+
+    <!-- Scan playback text color for events and playback speed spinner -->
+    <color name="ccPlaybackMainTextColor">#FFFFFF</color>
+
+    <!-- Scan playback text color for "Events", "Frame" and "Time" texts -->
+    <color name="ccPlaybackControllerTextColor">#569789</color>
+
+    <!-- Scan playback main background color -->
+    <color name="ccPlaybackBackgroundColor">#071d29</color>
+
+    <!-- Scan playback top bar background color -->
+    <color name="ccPlaybackTopBarBackgroundColor">#80071d29</color>
+
+    <!-- Scan playback controller background color -->
+    <color name="ccPlaybackControllerBackgroundColor">#163241</color>
+
+    <!-- Scan playback controller button tint -->
+    <color name="ccPlaybackControllerButtonTint">#569789</color>
+
+    <!-- Scan playback event colors -->
+    <color name="ccPlaybackWarningColor">#EC1667</color>
+    <color name="ccPlaybackSpaceLabelColor">#569789</color>
+
+    <!-- Scan playback timeline colors -->
+    <color name="ccTimelineBackgroundColor">#3A3A3A</color>
+    <color name="ccTimelineWarningColor">#80EC1667</color>
+    <color name="ccTimelineSpaceLabelColor">#CC569789</color>
+    <color name="ccTimelineThumbColor">#FFFFFF</color>
+
+    <!-- Scan playback scrollbar color -->
+    <color name="ccPlaybackScrollbarColor">#FFFFFF</color>
 </resources>

@@ -10,7 +10,7 @@
     <!-- Declare the 'ACCESS_FINE_LOCATION' permission if you use True North detection -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
-    <!-- For apps targeting Android 11 (API level 30)  or above, interaction with a speech recognition
+    <!-- For apps targeting Android 11 (API level 30) or above, interaction with a speech recognition
     service requires element to be added to the manifest file: -->
     <queries>
         <intent>
@@ -38,17 +38,14 @@
         -->
         <activity
             android:name=".ScanActivity"
+            android:exported="false"
             android:configChanges="orientation|screenSize"
             android:largeHeap="true"
-            android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+            android:screenOrientation="landscape" />
+        
         <activity
             android:name=".ScanInfoActivity"
+            android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,12 +55,8 @@
 
         <activity
             android:name=".ViewScanActivity"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <!-- "AR Required" app, requires "Google Play Services for AR" (ARCore)
          to be installed, as the app does not include any non-AR features. -->

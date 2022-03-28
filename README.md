@@ -1,18 +1,35 @@
-Example project using the CubiCapture 2.5.2 library module for Android
+Example project using the CubiCapture 2.6.0 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.5.2 library module.
-From this project you can get the basic idea of how to implement the scanning with CubiCapture to your app.
+This project provides an example implementation and use of the CubiCapture 2.6.0 library module.
+From this project you can get the basic idea of how to implement the scanning and scan playback with
+CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.5.2 library module
+# CubiCapture 2.6.0 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
-with an Android device.
+with an Android device. The scanning `Fragment` saves scan files into a zip file, which your app can
+upload to the CubiCasa back-end for processing. CubiCapture also provides a scan playback `Fragment`
+which can be used to review the scan and to see any warnings that were shown during the scan, as well
+as any room labels that were added.
 
-## Updating to CubiCapture 2.5.2
-- Update your app to use the CubiCapture 2.5.2 library module
+## Updating to CubiCapture 2.6.0
+- Update your app to use the CubiCapture 2.6.0 library module
+- Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
+- Update your `targetSdkVersion` to API level 31
+- If you want to implement the new scan playback `Fragment` to your application,
+see [Scan playback](#headscanplayback) and new resources for customization
+- If you want to show a reminder view for microphone or location permissions when the permission
+can't be requested via Android OS, see [Reminder view](#headreminderview) and new resources for
+customization
+- If you have customized the texts, text size or background of the reminder view for Location
+Services, see [Release Notes](#headreleasenotes) for resource name changes
+- Check if you want to handle the new status codes: 95-98. If you handle codes 37 or 38, see the
+changes to those status codes
+
+**Note! If you've previously implemented version 2.5.2 you've probably done the next steps already:**
 - Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
 - Check if you want to handle the new status codes: 70-76, 90 and 94
 - In previous library module documentation there was a typo where status code `88` was written as `86`.
@@ -24,7 +41,6 @@ close to objects anymore and the too close warning is hidden.
 hint label widths or the size of the processing progress bar
 
 **Note! If you've previously implemented version 2.5.0 you've probably done the next steps already:**
-- Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - Customization of the CubiCapture has changed. See [Release Notes](#headreleasenotes) for
 information about deprecations and how the CubiCapture is customized now
 - Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
@@ -65,6 +81,24 @@ see [Release Notes](#headreleasenotes) for more information
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.6.0:**
+- New scan playback `Fragment` available, which can be used to review the scan and to see any warnings
+that were shown during the scan, as well as any room labels that were added. See
+[Scan playback](#headscanplayback) for more information
+- Reminder view for microphone and location permission. See [Reminder view](#headreminderview)
+for more information
+- New customization resources for scan playback and reminder view
+- Resource names `open_settings_text`, `cc_location_background`, `cc_location_reminder_text_size`
+and `location_services_reminder_text` renamed as `cc_open_location_settings_text`,
+`cc_reminder_background`, `cc_reminder_text_size` and `cc_location_services_reminder_text`
+- Default processing background `cc_processing_background` is now a color (previously a PNG format
+image)
+- CubiCapture's `targetSdkVersion` has been updated to API level 31
+- New status codes: 95-98. Changes to the status codes 37 and 38
+- Updated dependencies and added new dependencies for the scan playback
+(see [Implementation](#headimplementation) below)
+- Various bug fixes and optimizations
 
 **2.5.2:**
 - Thermal state monitoring. Changes in thermal state can be listened by using status codes 70-76
@@ -197,22 +231,28 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 ## <a name="headimplementation"></a>Implementation
 This implementation was made with Android Studio 4.1.2
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.5.2.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.6.0.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.5.2.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.6.0.aar"` file and choose it -> `Finish`
+
+Set the `targetSdkVersion` to API level `31` in app level `build.gradle`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.5.2")
-implementation 'com.google.ar:core:1.28.0'
+implementation project(":cubicapture-release-2.6.0")
+implementation 'com.google.ar:core:1.29.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
-implementation 'com.google.android.gms:play-services-location:18.0.0'
+implementation 'com.google.android.gms:play-services-location:19.0.1'
+
+// Implement the following if using 'ScanPlayback':
+implementation 'com.google.android.exoplayer:exoplayer:2.17.0'
+implementation 'androidx.recyclerview:recyclerview:1.2.1'
 ```
 
 Add the following lines to the app level `build.gradle` inside the `android` branch:
@@ -226,20 +266,21 @@ compileOptions {
 Add CubiCapture fragment to your projects scanning layout .xml file
 ```xml
 <fragment
-        android:id="@+id/cubiFragment"
-        android:name="cubi.casa.cubicapture.CubiCapture"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    android:id="@+id/cubiFragment"
+    android:name="cubi.casa.cubicapture.CubiCapture"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 ```
 
 To allow your scanning `Activity` to consume more RAM, to lock screen orientation to landscape
 and to prevent multiple `onCreate()` calls add the following code to your `AndroidManifest` file
 inside your scanning `Activity`'s `activity` tag - Example:
 ```xml
-<activity android:name=".ExampleActivity"
-          android:largeHeap="true"
-          android:screenOrientation="landscape"
-          android:configChanges="orientation|screenSize">
+<activity
+    android:name=".ExampleActivity"
+    android:largeHeap="true"
+    android:screenOrientation="landscape"
+    android:configChanges="orientation|screenSize">
 ```
 
 Create lateinit variable for CubiCapture to your scanning `Activity`:
@@ -334,7 +375,7 @@ override fun onBackPressed() {
 }
 ```
 
-To keep the screen turned on and in landscape orientation add the following lines below `setContentView()`v in `onCreate()`:
+To keep the screen turned on and in landscape orientation add the following lines below `setContentView()` in `onCreate()`:
 ```Kotlin
 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -375,6 +416,11 @@ requires element to be added to the `AndroidManifest.xml` file:
 
 #### True north detection
 
+True north detection can be used to enable the CubiCapture to capture the heading relative to the
+"true north" to the scan. This information can then be used to add the information the floor plan
+(e.g. compass). In order to the true north data to be collected, the Location Services must be
+turned on and the location permission must be granted. No position data is collected by the CubiCapture.
+
 True north detection `trueNorth` has the following three settings:
 
 Name | Description
@@ -388,21 +434,20 @@ Example, where we enable the true north detection:
 cubiCapture.trueNorth = TrueNorth.ENABLED
 ```
 
-True north detection is enabled and location permission is requested by CubiCapture
-(`trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST`) by default. If you are going to use
-true north detection you need to declare the `ACCESS_FINE_LOCATION` permission in your app's
-manifest file. You also need to implement the Google Play services' location library by adding it
-to the app level `build.gradle` dependencies
+`trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST` by default. If using this setting and location
+permission is not granted, CubiCapture will try to request the permission via Android OS.
+If the permission can't be requested, CubiCapture will inform the user about the not granted
+permission with a reminder view. Pressing the reminder view opens application settings, where user
+can grant the permission.
+
+If you are going to use true north detection you need to declare the `ACCESS_FINE_LOCATION`
+permission in your app's manifest file. You also need to implement the Google Play services' location
+library by adding it to the app level `build.gradle` dependencies
 (see the `build.gradle` implementation in the start of [Implementation](#headimplementation) above).
 
 If you're going to use the `TrueNorth.ENABLED` setting, you should request the `ACCESS_FINE_LOCATION`
 permission on application side. This gives you the possibility to explain the user why your
 applications needs the permission before requesting it.
-
-#### Feedback data gathering
-
-During a scan, CubiCapture collects data about user's scanning technique.
-In the future this data will be used to improve the user's scanning technique.
 
 #### Get available storage space estimation
 
@@ -415,19 +460,89 @@ Example:
 ```Kotlin
 val availableMinutes = CubiCapture().getAvailableStorageMinutes(mainStorage)
 if (availableMinutes <= 60) {
-	showLowStorageWarning(availableMinutes)
+    showLowStorageWarning(availableMinutes)
 }
 ```
 
-#### Location Services reminder
+#### <a name="headscanplayback"></a>Scan playback
 
-Location Services reminder is a view shown by CubiCapture which reminds the user to turn on
-Location Services. Location Services are required to enable a compass in the floor plan.
-To enable the Location Services reminder, set the `requestLocationServices: Boolean` to `true`
-(this is `false` by default). True north detection needs to be enabled as well.
-The reminder is shown if Location Services are turned off before starting recording a scan.
-Pressing the reminder view opens the device's Location settings. The reminder disappears by pressing
-it or when the recording is started.
+Scan playback is a `Fragment` which can be used to review the scan and to see any warnings that were
+shown during the scan, as well as any room labels that were added.
+The `Fragment` has a media control panel which can be used to play/pause, jump between scan events
+and video frames one by one. All the scan events can be found in the Events list, which can be used
+to easily jump between the events. The active events are displayed in the area above the Events
+list. The video playback speed can be changed from the top bar which appears when the video is in
+paused state.
+
+To implement the ScanPlayback, first add the required dependencies
+(see [Implementation](#headimplementation)).
+
+Add `ScanPlayback` `Fragment` to your projects scan playback's XML layout file:
+```xml
+<fragment
+	android:id="@+id/scanPlayback"
+	android:name="cubi.casa.cubicapture.ScanPlayback"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent" />
+```
+
+Create lateinit variable for `ScanPlayback` to your scan playback `Activity`:
+```Kotlin
+private lateinit var scanPlayback: ScanPlayback
+```
+
+Initialize your `ScanPlayback` lateinit variable in `onCreate()`:
+```Kotlin
+scanPlayback = supportFragmentManager.findFragmentById(R.id.scanPlayback) as ScanPlayback
+```
+
+Implement `ScanPlaybackListener` interface to your scan playback `Activity` - Example:
+```Kotlin
+class ViewScanActivity : AppCompatActivity(), ScanPlaybackListener
+```
+
+Add the following function to receive updates when the playing state changes (playing/paused):
+```Kotlin
+override fun onIsPlayingChanged(isPlaying: Boolean) { }
+```
+
+Set the scan folder of the scan you want to playback with `setScanFolder(scanFolder: File)` in `onCreate()`.
+This function will return `true` if the scan folder has a video file, otherwise `false`. Example:
+```Kotlin
+scanPlayback.setScanFolder(scanFolder)
+```
+
+Set on `View.OnClickListener` for the top bar's back button. Example:
+```Kotlin
+scanPlayback.setOnBackButtonClickListener {
+	finish()
+}
+```
+
+#### <a name="headreminderview"></a>Reminder view
+
+Reminder view is a view shown by CubiCapture which can be used to remind the user to turn on
+Location Services or to grant location or microphone (record audio) permissions.
+Note that multiple reminders can be shown at the same time. Reminder view for permission(s) is
+shown when the permission can't be requested via Android OS. On Android 11 and later the
+permission can't be requested again with the Android's own dialog if the permission has been
+denied on the first request.
+
+Reminder view is shown when the device is turned to landscape orientation or
+when the speech recognition button is pressed while not recording, and when the conditions for
+showing the reminder view apply (e.g. permission is not granted, can't be requested and reminder
+is enabled). Pressing the reminder view opens the device's Location settings if the reminder view
+is for Location Services or Application settings if the reminder view is for location or microphone
+permission. Reminder view disappears by pressing it, when its permission is granted or when the
+recording it started.
+
+To enable the reminder view for Location Services, set the `requestLocationServices: Boolean` to
+`true` (this is `false` by default), and enable true north detection.
+To enable the reminder view for location permission, set the `trueNorth` to `TrueNorth.ENABLED_AND_REQUEST`.
+To enable the reminder view for microphone permission, set the `speechRecognitionEnabled` to `true`.
+
+Location Services and location permission are required to enable a compass in the floor plan, and
+Microphone permission is required for the speech recognition.
 
 ## <a name="headuisettings"></a>UI settings
 
@@ -507,6 +622,37 @@ Here's all the default colors and alphas defined in CubiCapture library:
 <!-- Status border colors -->
 <color name="ccStatusTrackingColor">#569789</color>
 <color name="ccStatusFailureColor">#FAB40E</color>
+
+<!-- Scan playback text color for events and playback speed spinner -->
+<color name="ccPlaybackMainTextColor">#FFFFFF</color>
+
+<!-- Scan playback text color for "Events", "Frame" and "Time" texts -->
+<color name="ccPlaybackControllerTextColor">#569789</color>
+
+<!-- Scan playback main background color -->
+<color name="ccPlaybackBackgroundColor">#071d29</color>
+
+<!-- Scan playback top bar background color -->
+<color name="ccPlaybackTopBarBackgroundColor">#80071d29</color>
+
+<!-- Scan playback controller background color -->
+<color name="ccPlaybackControllerBackgroundColor">#163241</color>
+
+<!-- Scan playback controller button tint -->
+<color name="ccPlaybackControllerButtonTint">#569789</color>
+
+<!-- Scan playback event colors -->
+<color name="ccPlaybackWarningColor">#EC1667</color>
+<color name="ccPlaybackSpaceLabelColor">#569789</color>
+
+<!-- Scan playback timeline colors -->
+<color name="ccTimelineBackgroundColor">#3A3A3A</color>
+<color name="ccTimelineWarningColor">#80EC1667</color>
+<color name="ccTimelineSpaceLabelColor">#CC569789</color>
+<color name="ccTimelineThumbColor">#FFFFFF</color>
+
+<!-- Scan playback scrollbar color -->
+<color name="ccPlaybackScrollbarColor">#FFFFFF</color>
 ```
 
 For example, if you want to change the color and alpha of the volume/dB circle
@@ -579,13 +725,22 @@ Here's all the default dimensions defined in CubiCapture library:
 <!-- Warning message text size -->
 <dimen name="cc_warning_message_text_size">28sp</dimen>
 
-<!-- Location Services reminder text size -->
-<dimen name="cc_location_reminder_text_size">16sp</dimen>
+<!-- Text size reminder view's texts -->
+<dimen name="cc_reminder_text_size">16sp</dimen>
+
+<!-- Scan playback controller button width percent -->
+<dimen name="cc_controller_button_width_percent">0.10</dimen>
+
+<!-- Scan playback small text size (Used for all texts except active events) -->
+<dimen name="cc_playback_text_size_small">14sp</dimen>
+
+<!-- Scan playback big text size (Used for active events) -->
+<dimen name="cc_playback_text_size_big">20sp</dimen>
 ```
 
-**Note!** Dimensions `button_record_size` and `button_record_margin_end` define the size or layout margins of the
-the record button, end recording slider and speech recognition button, since end recording slider
-and speech recognition button are set relative to the record button.
+**Note!** Dimensions `button_record_size` and `button_record_margin_end` define the size or layout
+margins of the the record button, end recording slider and speech recognition button, since end
+recording slider and speech recognition button are set relative to the record button.
 
 For example, if you want to change the size of the record and speech recognition buttons
 you can define the new size in your applications `dimens.xml` file like so:
@@ -629,10 +784,10 @@ Always include '%1$d' in the string. It's a placeholder for the value of the ava
 <!-- ARCore tracking status texts -->
 <string name="cc_excessive_motion_text">You are moving too fast</string>
 <string name="cc_insufficient_features_text">We have trouble tracking your position
-    \nbecause there are not enough visual features here
+	\nbecause there are not enough visual features here
 </string>
 <string name="cc_insufficient_light_text">We have trouble tracking your position
-    \nbecause it is too dark here
+	\nbecause it is too dark here
 </string>
 <string name="cc_initializing_text">Move your device to start tracking</string>
 
@@ -678,11 +833,52 @@ Always include '%1$d' in the string. It's a placeholder for the value of the max
 <!-- Displayed on the warning view info text when user is scanning too close to objects -->
 <string name="cc_warning_too_close_info">Keep more distance from the objects you are scanning.</string>
 
-<!-- Displayed on the Location Services reminder view info text -->
-<string name="location_services_reminder_text">Turn on <b>Location Services</b> from
-    <b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
-<!-- Displayed on the Location Services reminder view settings button text -->
-<string name="open_settings_text"><u>Go to <b>Settings</b></u></string>
+<!-- Displayed on the Location Services reminder view's info text when Location Services are
+turned off -->
+<string name="cc_location_services_reminder_text">Turn on <b>Location Services</b> from
+	<b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
+<!-- Displayed on the location permission reminder view's info text when location permission
+is not granted -->
+<string name="cc_location_permission_reminder_text">Allow <b>Location</b> permission from
+	<b>App permission settings</b> to enable a compass in the floor plan</string>
+<!-- Displayed on the reminder view's settings button text when Location Services are turned off
+or location permission is not granted -->
+<string name="cc_open_location_settings_text"><u>Go to <b>Settings</b></u></string>
+
+<!-- Scan playback speed spinner text. Always include '%1$s' in the string. -->
+<string name="cc_playback_speed_text">Playback speed: %1$s</string>
+<!-- Scan playback speed spinner text for normal speed -->
+<string name="cc_playback_normal_speed_text">Normal</string>
+
+<!-- Scan playback events header text -->
+<string name="cc_playback_events_header_text">Events</string>
+
+<!-- Scan playback frame text. Always include the '%1$s' in the string!-->
+<string name="cc_playback_frame_text">Frame: %1$s</string>
+<!-- Scan playback time text. Always include the '%1$s' in the string!-->
+<string name="cc_playback_time_text">Time: %1$s</string>
+
+<!-- Scan playback active event texts -->
+<string name="cc_playback_excessive_motion">Moving too fast</string>
+<string name="cc_playback_insufficient">Insufficient lighting or features</string>
+<string name="cc_playback_sideways">Walking sideways</string>
+<string name="cc_playback_floor">Scanning floor</string>
+<string name="cc_playback_ceiling">Scanning ceiling</string>
+<string name="cc_playback_horizontal">Scanning horizontally</string>
+<string name="cc_playback_wrong_orientation">Wrong device orientation</string>
+<string name="cc_playback_fast_rotation">Turning too fast</string>
+<string name="cc_playback_too_close">Too close</string>
+
+<!-- Displayed on the speech recognition pop-up view if microphone button is
+pressed while recording and microphone permission is not granted and can't be requested -->
+<string name="cc_microphone_permission_not_granted">Microphone permission not granted</string>
+<!-- Displayed on the microphone permission reminder view's info text when the microphone
+button is pressed while not recording and microphone permission is not granted and can't be
+requested -->
+<string name="cc_microphone_permission_settings_text">Allow <b>Microphone</b> permission from
+	<b>App permission settings</b></string>
+<!-- Displayed on the microphone permission reminder view's settings button text -->
+<string name="cc_open_microphone_settings_text"><u>Go to <b>App settings</b></u></string>
 ```
 
 #### Drawable graphics
@@ -718,12 +914,21 @@ Here's all the default drawables defined in CubiCapture library:
 <drawable name="cc_warning_background">#66F90066</drawable>
 <drawable name="cc_guide_background">#D9163241</drawable>
 
-<!-- Processing screen background -->
-<drawable name="cc_processing_background">@drawable/cc_processing_background_original</drawable>
+<!-- Processing screen background, which is just a color by default -->
+<drawable name="cc_processing_background">#071d29</drawable>
 
-<!-- Location Services reminder icon and background -->
+<!-- Icon for Location Services and location permission reminders -->
 <drawable name="cc_location_icon">@drawable/cc_location_icon_original</drawable>
-<drawable name="cc_location_background">@drawable/cc_location_reminder_background_original</drawable>
+<!-- Icon for microphone permission reminder -->
+<drawable name="cc_microphone_icon">@drawable/cc_microphone_icon_original</drawable>
+<!-- Background for reminder view -->
+<drawable name="cc_reminder_background">@drawable/cc_location_reminder_background_original</drawable>
+
+<!-- Scan playback timeline thumb -->
+<drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
+
+<!-- Scan playback back arrow -->
+<drawable name="cc_playback_back_arrow">@drawable/cc_back_arrow_original</drawable>
 ```
 
 For example, if you want to change the default record button drawable graphics to your own drawables,
@@ -948,12 +1153,14 @@ Received when user has denied the `ACCESS_FINE_LOCATION` permission and `trueNor
 Received when the `ACCESS_FINE_LOCATION` permission is not granted and `trueNorth` is set to
 `TrueNorth.ENABLED`. Not saving true north.
 
-### 37, "Showing Location Services reminder view."
-Received when the Location Services reminder view is shown. The reminder view disappears
-by pressing it or when the recording is started.
+### 37, "Showing Location reminder view."
+Received when the Location reminder view is shown. Location reminder view is used for both Location
+Services and location permission. The reminder view disappears by pressing it, when the recording is
+started or when the location permission is granted if the reminder view was for location permission.
 
-### 38, "Location Services reminder view pressed. Opening Location Settings."
-Received when the Location Services reminder view is pressed. Opening Location Settings.
+### 38, "Location reminder view pressed. Opening settings."
+Received when the Location reminder view is pressed. Opening Location Settings if reminder view is
+for Location Services or application settings if the reminder view is for location permission.
 
 ### 39, "Unable to start listening for speech. Error: $error"
 Received if the speech recognition service fails to allow access to start listening for speech.
@@ -1122,6 +1329,25 @@ Received if the proximity detection fails.
 ### 94, "Rotation vector sensor is not supported. Using accelerometer and magnetometer instead."
 Received if the rotation vector sensor is not supported on device. True north data will be acquired
 by using accelerometer and magnetometer instead.
+
+### 95, "Speech recognition service is not available on the system."
+Received when the speech recognition service is not available on the system. Speech recognition will
+be disabled and the speech recognition user interface will not be displayed.
+
+### 96, "LOCATION permission can't be requested. Location reminder view will be displayed later."
+Received when the location permission can't be requested via Android OS and `trueNorth` is set to
+`TrueNorth.ENABLED_AND_REQUEST`. Reminder view for location permission will be displayed when the
+device is turned to landscape orientation.
+
+### 97, "RECORD_AUDIO permission can't be requested. Informing user."
+Received when the speech recognition button is pressed but the record audio permission can't be
+requested via Android OS. If not recording, a reminder view for record audio permission will be
+displayed. If recording, a speech recognition pop-up view will be displayed with the text of the
+string resource `cc_microphone_permission_not_granted`.
+
+### 98, "Microphone open settings view pressed. Opening settings."
+Received when the reminder view for record audio permission is pressed. Opening application settings
+where user can grant the record audio permission.
 
 ### 100, "ARCore session is initializing"
 Received if the ARCore session is initializing normally.
