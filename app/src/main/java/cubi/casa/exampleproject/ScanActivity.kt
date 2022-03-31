@@ -13,7 +13,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.6.0 library module */
+ * and use of the CubiCapture 2.6.1 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
