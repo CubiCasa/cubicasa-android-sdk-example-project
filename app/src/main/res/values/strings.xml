@@ -145,4 +145,13 @@
     <string name="state"><i>State</i></string>
     <string name="country"><i>Country</i></string>
     <string name="postalCode"><i>Postal code</i></string>
+    <string name="start_scanning_text">Start scanning</string>
+
+    <string-array name="propertyTypes">
+        <item>Property type</item>
+        <item>Single Unit Residential</item>
+        <item>Townhouse</item>
+        <item>Apartment</item>
+        <item>Other</item>
+    </string-array>
 </resources>

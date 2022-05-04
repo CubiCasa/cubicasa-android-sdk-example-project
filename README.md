@@ -1,13 +1,13 @@
-Example project using the CubiCapture 2.6.1 library module for Android
+Example project using the CubiCapture 2.6.3 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.6.1 library module.
+This project provides an example implementation and use of the CubiCapture 2.6.3 library module.
 From this project you can get the basic idea of how to implement the scanning and scan playback with
 CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.6.1 library module
+# CubiCapture 2.6.3 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device. The scanning `Fragment` saves scan files into a zip file, which your app can
@@ -15,12 +15,14 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.6.1
+## Updating to CubiCapture 2.6.3
 
-- Update your app to use the CubiCapture 2.6.1 library module
+- Update your app to use the CubiCapture 2.6.3 library module
+- Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
+- If you want property type written to the scan data
+(see variable `propertyType` from [Implementation](#headimplementation) below)
 
 **Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
-- Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
 - Update your `targetSdkVersion` to API level 31
 - If you want to implement the new scan playback `Fragment` to your application,
 see [Scan playback](#headscanplayback) and new resources for customization
@@ -84,6 +86,14 @@ see [Release Notes](#headreleasenotes) for more information
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.6.3:**
+- Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
+(see [Implementation](#headimplementation) below)
+- Patch to prevent majority of the native ARCore crashes. Too close -warning is disabled for the
+time being and will be enabled again once Google has fixed the issue
+- Updated dependencies (see [Implementation](#headimplementation) below)
+- Various bug fixes
 
 **2.6.1:**
 - Bug fix: Fixed record button not being vertically centered when speech recognition was disabled
@@ -237,18 +247,18 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 ## <a name="headimplementation"></a>Implementation
 This implementation was made with Android Studio 4.1.2
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.6.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.6.3.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.6.1.aar"` file and choose it -> `Finish`
+`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.6.3.aar"` file and choose it -> `Finish`
 
 Set the `targetSdkVersion` to API level `31` in app level `build.gradle`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.6.1")
-implementation 'com.google.ar:core:1.29.0'
+implementation project(":cubicapture-release-2.6.3")
+implementation 'com.google.ar:core:1.30.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
@@ -257,7 +267,7 @@ implementation 'com.facebook.shimmer:shimmer:0.5.0'
 implementation 'com.google.android.gms:play-services-location:19.0.1'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'com.google.android.exoplayer:exoplayer:2.17.0'
+implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
 implementation 'androidx.recyclerview:recyclerview:1.2.1'
 ```
 
@@ -353,6 +363,13 @@ cubiCapture.setOrderInfo(
     "12345" // postalCode
 )
 ```
+
+Add property type to be written to the scan data (Optional). Example:
+```Kotlin
+cubiCapture.propertyType = PropertyType.APARTMENT
+```
+Possible values for the `propertyType: PropertyType` are
+`SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`,`APARTMENT`, `OTHER` and `null` (not written).
 
 Add information about your app's version to be written to the scan data (Optional). Example:
 ```Kotlin
