@@ -9,11 +9,12 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
 import cubi.casa.cubicapture.CubiEventListener
+import cubi.casa.cubicapture.PropertyType
 import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.6.1 library module */
+ * and use of the CubiCapture 2.6.3 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -86,6 +87,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
             orderInfo[5], // country
             orderInfo[6] // postalCode
         )
+
+        cubiCapture.propertyType = intent.extras?.get("propertyType") as PropertyType?
 
         /** -------------------------- SPEECH RECOGNITION BELOW -------------------------- */
 
