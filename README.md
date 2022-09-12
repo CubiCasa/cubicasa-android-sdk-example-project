@@ -1,13 +1,13 @@
-Example project using the CubiCapture 2.6.3 library module for Android
+Example project using the CubiCapture 2.7.0 library module for Android
 ======================
-This project provides an example implementation and use of the CubiCapture 2.6.3 library module.
+This project provides an example implementation and use of the CubiCapture 2.7.0 library module.
 From this project you can get the basic idea of how to implement the scanning and scan playback with
 CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.6.3 library module
+# CubiCapture 2.7.0 library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device. The scanning `Fragment` saves scan files into a zip file, which your app can
@@ -15,10 +15,12 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.6.3
+## Updating to CubiCapture 2.7.0
 
-- Update your app to use the CubiCapture 2.6.3 library module
+- Update your app to use the CubiCapture 2.7.0 library module
 - Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
+
+**Note! If you've previously implemented version 2.6.3 you've probably done the next steps already:**
 - If you want property type written to the scan data
 (see variable `propertyType` from [Implementation](#headimplementation) below)
 
@@ -86,6 +88,10 @@ see [Release Notes](#headreleasenotes) for more information
 
 
 ## <a name="headreleasenotes"></a>Release Notes
+
+**2.7.0:**
+- Ceiling warning adjustments
+- Updated dependencies (see [Implementation](#headimplementation) below)
 
 **2.6.3:**
 - Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
@@ -245,33 +251,41 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 
 ## <a name="headimplementation"></a>Implementation
-This implementation was made with Android Studio 4.1.2
+This implementation was made with Android Studio Chipmunk | 2021.2.1 Patch 2
+using Gradle plugin version 7.2.2.
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.6.3.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.7.0.aar).
 
 Add the CubiCapture library module to your project:
-`File` -> `New` -> `New Module` -> `Import .JAR/.AAR Package` -> Locate to `"cubicapture-release-2.6.3.aar"` file and choose it -> `Finish`
+1. Place the `cubicapture-release-2.7.0.aar` file to your project's `app/libs/` folder.
+2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
+In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.7.0.aar` and
+select `implementation` as configuration. -> Press `OK`.
+4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
+`implementation files('libs/cubicapture-release-2.7.0.aar')`.
 
 Set the `targetSdkVersion` to API level `31` in app level `build.gradle`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation project(":cubicapture-release-2.6.3")
-implementation 'com.google.ar:core:1.30.0'
+implementation files('libs/cubicapture-release-2.7.0.aar')
+implementation 'com.google.ar:core:1.32.0'
 implementation 'com.google.code.gson:gson:2.8.6'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
-implementation 'com.google.android.gms:play-services-location:19.0.1'
+implementation 'com.google.android.gms:play-services-location:20.0.0'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 implementation 'androidx.recyclerview:recyclerview:1.2.1'
 ```
 
-Add the following lines to the app level `build.gradle` inside the `android` branch:
+If your Gradle plugin version is 4.1.0 or earlier, add the following lines to the app level
+`build.gradle` inside the `android` branch:
 ```Groovy
 compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -463,9 +477,9 @@ If the permission can't be requested, CubiCapture will inform the user about the
 permission with a reminder view. Pressing the reminder view opens application settings, where user
 can grant the permission.
 
-If you are going to use true north detection you need to declare the `ACCESS_FINE_LOCATION`
-permission in your app's manifest file. You also need to implement the Google Play services' location
-library by adding it to the app level `build.gradle` dependencies
+If you are going to use true north detection you need to declare the `ACCESS_COARSE_LOCATION` and
+`ACCESS_FINE_LOCATION` permissions in your app's manifest file. You also need to implement the
+Google Play services' location library by adding it to the app level `build.gradle` dependencies
 (see the `build.gradle` implementation in the start of [Implementation](#headimplementation) above).
 
 If you're going to use the `TrueNorth.ENABLED` setting, you should request the `ACCESS_FINE_LOCATION`
