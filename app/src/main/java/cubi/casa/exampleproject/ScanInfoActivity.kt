@@ -29,8 +29,6 @@ import cubi.casa.exampleproject.databinding.ActivityScanInfoBinding
 
 class ScanInfoActivity : AppCompatActivity() {
 
-    private var mUserRequestedInstall = true
-
     private lateinit var binding: ActivityScanInfoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -183,18 +181,10 @@ class ScanInfoActivity : AppCompatActivity() {
         }
     }
 
-    /* Checks if the ARCore installed and is up-to-date. Returns true if it is, false otherwise.
+    /** Checks if the ARCore installed and is up-to-date. Returns true if it is, false otherwise.
      * Also requests install or update if needed */
-    private fun arCoreIsInstalledAndUpToDate(): Boolean {
-        return when (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
-            ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                mUserRequestedInstall = false
-                false
-            }
-            ArCoreApk.InstallStatus.INSTALLED -> { true }
-            else -> { false }
-        }
-    }
+    private fun arCoreIsInstalledAndUpToDate(): Boolean =
+        ArCoreApk.getInstance().requestInstall(this, true) == ArCoreApk.InstallStatus.INSTALLED
 
     override fun onBackPressed() { } // Disabling Navigation bar back press
 }

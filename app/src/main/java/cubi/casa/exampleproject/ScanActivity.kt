@@ -14,7 +14,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.6.3 library module */
+ * and use of the CubiCapture 2.7.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -88,6 +88,7 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
             orderInfo[6] // postalCode
         )
 
+        // Add property type to be written to the scan data (Optional)
         cubiCapture.propertyType = intent.extras?.get("propertyType") as PropertyType?
 
         /** -------------------------- SPEECH RECOGNITION BELOW -------------------------- */

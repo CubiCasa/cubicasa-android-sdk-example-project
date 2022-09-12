@@ -1,2 +1,0 @@
-configurations.maybeCreate("default")
-artifacts.add("default", file('cubicapture-release-2.6.1.aar'))

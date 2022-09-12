@@ -7,8 +7,10 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
 
-    <!-- Declare the 'ACCESS_FINE_LOCATION' permission if you use True North detection -->
+    <!-- Declare the 'ACCESS_COARSE_LOCATION' and 'ACCESS_FINE_LOCATION' permissions
+    if you use True North detection -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!-- For apps targeting Android 11 (API level 30) or above, interaction with a speech recognition
     service requires element to be added to the manifest file: -->
