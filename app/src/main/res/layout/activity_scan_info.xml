@@ -7,138 +7,201 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        android:scrollbarThumbVertical="@android:color/white"
+        android:fadingEdgeLength="48dp"
+        android:requiresFadingEdge="vertical"
+        android:layout_marginVertical="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/safeModeLayout">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="24dp">
+
+            <EditText
+                android:id="@+id/streetInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,-_()!+;'"
+                android:hint="@string/street"
+                android:imeOptions="actionDone"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/numberInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/number"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080"
+                tools:ignore="TextFields" />
+
+            <EditText
+                android:id="@+id/suiteInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/suite"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080" />
+
+            <EditText
+                android:id="@+id/cityInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/city"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080" />
+
+            <EditText
+                android:id="@+id/stateInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/state"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080" />
+
+            <EditText
+                android:id="@+id/countryInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/country"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080" />
+
+            <EditText
+                android:id="@+id/postalInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"
+                android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
+                android:hint="@string/postalCode"
+                android:inputType="textCapWords"
+                android:maxLines="1"
+                android:padding="12dp"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#808080" />
+
+            <Spinner
+                android:id="@+id/propertyTypeSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overlapAnchor="false"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/edit_text_background"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/safeModeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
-        android:focusableInTouchMode="true"
-        android:orientation="vertical"
+        android:visibility="gone"
         android:layout_marginHorizontal="24dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/startScanButton">
 
-        <EditText
-            android:id="@+id/streetInput"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/safeModeTitle"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,-_()!+;'"
-            android:hint="@string/street"
-            android:imeOptions="actionDone"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
+            android:gravity="start"
+            android:text="@string/safe_mode_title"
             android:textColor="#FFFFFF"
-            android:textColorHint="#808080"
-            android:textStyle="bold" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/safeModeSwitch"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/numberInput"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/safeModeText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/number"
-            android:imeOptions="actionNext"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
+            android:gravity="start"
+            android:text="@string/safe_mode_text"
             android:textColor="#FFFFFF"
-            android:textColorHint="#808080"
-            tools:ignore="TextFields" />
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/safeModeSwitch"
+            app:layout_constraintStart_toStartOf="@id/safeModeTitle"
+            app:layout_constraintTop_toBottomOf="@id/safeModeTitle" />
 
-        <EditText
-            android:id="@+id/suiteInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/suite"
-            android:imeOptions="actionNext"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/safeModeSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
             android:textColor="#FFFFFF"
-            android:textColorHint="#808080" />
+            android:paddingHorizontal="24dp"
+            android:checked="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/safeModeTitle"
+            app:layout_constraintBottom_toBottomOf="@+id/safeModeText"/>
 
-        <EditText
-            android:id="@+id/cityInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/city"
-            android:imeOptions="actionNext"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#808080" />
-
-        <EditText
-            android:id="@+id/stateInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/state"
-            android:imeOptions="actionNext"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#808080" />
-
-        <EditText
-            android:id="@+id/countryInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/country"
-            android:imeOptions="actionNext"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#808080" />
-
-        <EditText
-            android:id="@+id/postalInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"
-            android:digits="0123456789qwertzuiopasdfghjklyxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM .,/:*|-_()?!+;'"
-            android:hint="@string/postalCode"
-            android:inputType="textCapWords"
-            android:maxLines="1"
-            android:padding="12dp"
-            android:singleLine="true"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#808080" />
-
-        <Spinner
-            android:id="@+id/propertyTypeSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:overlapAnchor="false"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/edit_text_background"/>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <Button
         android:id="@+id/startScanButton"
@@ -151,9 +214,9 @@
         android:textAllCaps="false"
         android:paddingVertical="16dp"
         android:paddingHorizontal="32dp"
+        android:layout_marginBottom="48dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

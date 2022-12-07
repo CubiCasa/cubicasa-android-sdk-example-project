@@ -1,13 +1,41 @@
-Example project using the CubiCapture 2.7.0 library module for Android
-======================
-This project provides an example implementation and use of the CubiCapture 2.7.0 library module.
+# Table of Contents
+
+* [Table of Contents](#table-of-contents)
+* [Example Project](#example-project)
+* [CubiCapture library module](#cubicapture-library-module)
+  * [Updating to CubiCapture 2.8.0](#updating-to-cubicapture-280)
+  * [Release Notes](#release-notes)
+  * [Glossary](#glossary)
+  * [Implementation](#implementation)
+    * [Setting up](#setting-up)
+    * [True north detection](#true-north-detection)
+    * [Get available storage space estimation](#get-available-storage-space-estimation)
+    * [Scan playback](#scan-playback)
+    * [Reminder view](#reminder-view)
+    * [Safe mode](#safe-mode)
+    * [Warning sound](#warning-sound)
+    * [Automatic and manual zipping](#automatic-and-manual-zipping)
+  * [UI settings](#ui-settings)
+    * [General](#general)
+    * [Colors and alphas](#colors-and-alphas)
+    * [Dimensions](#dimensions)
+    * [Texts](#texts)
+    * [Drawable graphics](#drawable-graphics)
+  * [About warning priorities](#about-warning-priorities)
+  * [Status codes](#status-codes)
+  * [Archived Update Guides](#archived-update-guides)
+  * [Archived Release Notes](#archived-release-notes)
+
+# Example Project
+
+This project provides an example implementation and use of the CubiCapture library module.
 From this project you can get the basic idea of how to implement the scanning and scan playback with
 CubiCapture to your app.
 
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture 2.7.0 library module
+# CubiCapture library module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device. The scanning `Fragment` saves scan files into a zip file, which your app can
@@ -15,90 +43,54 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.7.0
+## Updating to CubiCapture 2.8.0
 
-- Update your app to use the CubiCapture 2.7.0 library module
-- Update the new app level `build.gradle` dependencies (see [Implementation](#headimplementation) below)
+- Update your app to use the CubiCapture 2.8.0 library module
+- Update the new app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- Check the new `safeMode` variable, and if you want to implement a [Safe mode](#safe-mode) setting
+to your app
+- Handle the new status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
+to show user an error message after the scan
 
 **Note! If you've previously implemented version 2.6.3 you've probably done the next steps already:**
 - If you want property type written to the scan data
-(see variable `propertyType` from [Implementation](#headimplementation) below)
+(see variable `propertyType` from [Implementation](#implementation) below)
 
 **Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
 - Update your `targetSdkVersion` to API level 31
 - If you want to implement the new scan playback `Fragment` to your application,
-see [Scan playback](#headscanplayback) and new resources for customization
+see [Scan playback](#scan-playback) and new resources for customization
 - If you want to show a reminder view for microphone or location permissions when the permission
-can't be requested via Android OS, see [Reminder view](#headreminderview) and new resources for
+can't be requested via Android OS, see [Reminder view](#reminder-view) and new resources for
 customization
 - If you have customized the texts, text size or background of the reminder view for Location
-Services, see [Release Notes](#headreleasenotes) for resource name changes
+Services, see [Release Notes](#release-notes) for resource name changes
 - Check if you want to handle the new status codes: 95-98. If you handle codes 37 or 38, see the
 changes to those status codes
 
-**Note! If you've previously implemented version 2.5.2 you've probably done the next steps already:**
-- Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
-- Check if you want to handle the new status codes: 70-76, 90 and 94
-- In previous library module documentation there was a typo where status code `88` was written as `86`.
-If you handle code `86`, change it to `88`. This code is received when the user is not scanning too
-close to objects anymore and the too close warning is hidden.
+For older update guides, see [Archived Update Guides](#archived-update-guides)
 
-**Note! If you've previously implemented version 2.5.1 you've probably done the next steps already:**
-- See [Release Notes](#headreleasenotes) if you want to customize CubiCapture's text sizes,
-hint label widths or the size of the processing progress bar
+## Release Notes
 
-**Note! If you've previously implemented version 2.5.0 you've probably done the next steps already:**
-- Customization of the CubiCapture has changed. See [Release Notes](#headreleasenotes) for
-information about deprecations and how the CubiCapture is customized now
-- Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
-- If you want to show Location Services reminder -view when the Location Services are turned off
-see [Release Notes](#headreleasenotes) for more information
-- If your app is using speech recognition and targets Android 11 (API level 30) or above,
-you need to query `android.speech.RecognitionService` in your app's `AndroidManifest.xml` file
-
-**Note! If you've previously implemented version 2.4.0 you've probably done the next steps already:**
-- Remove deprecated `feedbackGatheringEnabled: Boolean` if you used it
-- Check if you want to handle the new status codes (codes 39, 87, 89, 92, 105 and 106)
-
-**Note! If you've previously implemented version 2.3.1 you've probably done the next steps already:**
-- Set `allScansFolder: File?` which replaced `allScansFolderName: String`
-(see [Implementation](#headimplementation) below)
-- If you want to get an estimation in minutes of the maximum scan length the device can store,
-see [Release Notes](#headreleasenotes) for more information
-- Check if you want to handle the new status codes (codes 78, 91 and 100-102)
-
-**Note! If you've previously implemented version 2.3.0 you've probably done the next steps already:**
-- See how to enable/disable the true north detection
-(see the end of [Implementation](#headimplementation) below)
-- Check if you want to handle the new status codes (codes 31-36 and 67-69)
-
-**Note! If you've previously implemented version 2.2.2 you've probably done the next steps already:**
-- If you want to set the enabled status of the record button `View` see
-[Release Notes](#headreleasenotes) for more information
-
-**Note! If you've previously implemented version 2.2.1 you've probably done the next steps already:**
-- Check if you want to handle the new status codes (codes 65 and 66)
-- See if you want to add information about your app's version to be written to the scan data
-(see variables `appVersion` and `appBuild` from [Implementation](#headimplementation) below)
-
-**Note! If you've previously implemented version 2.2.0 you've probably done the next steps already:**
-- See how to enable/disable speech recognition (see the end of [Implementation](#headimplementation) below)
-- Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
-- Check if you want to handle the new status codes (codes 40-49 and 59-64)
-
-
-## <a name="headreleasenotes"></a>Release Notes
+**2.8.0:**
+- Re-enabled Too close -warning for Depth API supported devices
+- Added new `safeMode` variable for enabling/disabling Depth API. See [Safe mode](#safe-mode) for
+more information
+- Aborting scan when device runs out of storage space
+- New status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
+- Margins of the scan back button now match the margins of the scan timer
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.7.0:**
 - Ceiling warning adjustments
-- Updated dependencies (see [Implementation](#headimplementation) below)
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.6.3:**
 - Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
-(see [Implementation](#headimplementation) below)
+(see [Implementation](#implementation) below)
 - Patch to prevent majority of the native ARCore crashes. Too close -warning is disabled for the
 time being and will be enabled again once Google has fixed the issue
-- Updated dependencies (see [Implementation](#headimplementation) below)
+- Updated dependencies (see [Implementation](#implementation) below)
 - Various bug fixes
 
 **2.6.1:**
@@ -107,8 +99,8 @@ time being and will be enabled again once Google has fixed the issue
 **2.6.0:**
 - New scan playback `Fragment` available, which can be used to review the scan and to see any warnings
 that were shown during the scan, as well as any room labels that were added. See
-[Scan playback](#headscanplayback) for more information
-- Reminder view for microphone and location permission. See [Reminder view](#headreminderview)
+[Scan playback](#scan-playback) for more information
+- Reminder view for microphone and location permission. See [Reminder view](#reminder-view)
 for more information
 - New customization resources for scan playback and reminder view
 - Resource names `open_settings_text`, `cc_location_background`, `cc_location_reminder_text_size`
@@ -119,126 +111,10 @@ image)
 - CubiCapture's `targetSdkVersion` has been updated to API level 31
 - New status codes: 95-98. Changes to the status codes 37 and 38
 - Updated dependencies and added new dependencies for the scan playback
-(see [Implementation](#headimplementation) below)
+(see [Implementation](#implementation) below)
 - Various bug fixes and optimizations
 
-**2.5.2:**
-- Thermal state monitoring. Changes in thermal state can be listened by using status codes 70-76
-- Scan log (extra information about the scanning session, included in the zip)
-- Changes to the click area of the CubiCapture's back button to prevent accidental clicks
-- `CubiCapture.CubiEventListener` interface implementation is now `CubiEventListener`
-- New status codes: 70-76, 90 and 94
-- Improvements to scan data
-
-**2.5.1:**
-- New variable `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one or to
-wrap label text. This is `true` by default. For more information, see [UI Settings](#headuisettings) below
-- New customization resources in `dimens.xml` for CubiCapture text sizes, hint label width and
-processing progress bar size. See [Dimensions](#headdimensions) below
-- Various bug fixes
-
-**2.5.0:**
-- Too close warning. A warning which will trigger if the user is scanning too close to objects.
-This warning is currently only available on
-[devices which support Depth API](https://developers.google.com/ar/devices#google_play_devices)
-- End scan confirmation slider. In order to end the scan, user now has to slide the record button
-from right to left to the end of the slider. This feature was added to prevent the scan from being
-accidentally ended
-- Location Services reminder and a new variable `requestLocationServices: Boolean`. Settings this to
-`true` will show the Location Services reminder -view if Location Services are turned off.
-This is `false` by default (see the end of [Implementation](#headimplementation) below).
-- Changes to the customization of the CubiCapture
-    - Most of the customization is now done in the following resource files:
-    `colors.xml`, `dimens.xml`, `drawables.xml` and `strings.xml`
-    - Deprecated public scan warning `ImageView`s, error and speech recognition text `CharSequence`s
-    and image resource id `Int`s. All of these are now customizable via the resource files listed above
-    - Scan warnings and guides are now combination of `drawable` icons, `string` resources and
-    `drawable` backgrounds instead of being `ImageView`s. This allows better customization and the
-    warnings can be localizable to any language
-    - String resource names `recordHintString`, `speakHintString` and `lowStorageString` renamed as
-    `cc_record_hint_text`, `cc_speech_hint_text` and `cc_low_storage_text` in the file `strings.xml`
-    - Default string values reviewed
-    - For more information about the customization changes, see [UI Settings](#headuisettings) below
-- New status codes: 37, 38, 85, 88 and 93. Changes to the `description: String` of the code 24
-- CubiCapture's `targetSdkVersion` has been updated to API level 30. Specifying a `targetSdkVersion`
-in your project's `build.gradle` or `AndroidManifest.xml` will override the CubiCapture's value
-- CubiCapture no longer use the `WRITE_EXTERNAL_STORAGE` permission or request the
-`requestLegacyExternalStorage` attribute
-- Default scan warning background is now more translucent
-- Various bug fixes
-- Updated dependencies and new dependency `com.facebook.shimmer:shimmer:0.5.0` for the end scan
-confirmation slider (see [Implementation](#headimplementation) below)
-
-**2.4.0:**
-- Fast rotation warning. A warning which will trigger if the user turns around too fast while
-scanning. This is a customizable `View` `fastMovementWarning: ImageView`
-- Deprecated `feedbackGatheringEnabled: Boolean` option
-- New status codes (codes 39, 87, 89, 92, 105 and 106)
-- UI improvements
-- Various bug fixes
-- Updated ARCore version to 1.25.0
-
-**2.3.1:**
-- Replaced `allScansFolderName: String` with `allScansFolder: File?` (see [Implementation](#headimplementation) below)
-- AR Session initializing indication text. This text can be customized by changing the value of
-`initializingErrorText: CharSequence`
-- Low storage warning. Low storage warning text can be changed by redefining the string in your applications
-`strings.xml` file (see [UI Settings](#headuisettings) below)
-- New function `getAvailableStorageMinutes(File)` which returns an estimation in minutes of the maximum scan
-length the device can store (see the end of [Implementation](#headimplementation) below)
-- New variable `feedbackGatheringEnabled: Boolean` to toggle the feedback data gathering, this is `true` by default
-- Various bug fixes and optimizations
-- New status codes (codes 78, 91 and 100-102)
-- Changes to the description message of the error code 45. It now contains the error code of the SpeechRecognizer
-- Updated ARCore version to 1.24.0
-
-**2.3.0:**
-- Horizontal scanning warning. This is a customizable `View` `horizontalWarning: ImageView`
-- True north detection (see the end of [Implementation](#headimplementation) below)
-- New status codes (codes 31-36 and 67-69)
-- Dropped values from the `arkitData.json` (scan data file). Saving of the scan files is now faster
-- Changes to the device orientation detection (landscape, portrait etc)
-- Memory optimization
-- Fixes to scaling of depth camera intrinsics
-
-**2.2.2:**
-- Hint label texts can be changed by redefining the strings in your applications `strings.xml` file
-(see the end of [UI Settings](#headuisettings) below)
-- New variables `speechNoResultsText` and `readyForSpeechText` to change speech recognition's pop-up texts
-(type: `CharSequence`, default values: `"No results"` and `"Say the room name"`)
-- New function `recordButtonEnabled(Boolean)` to set the enabled status of the record button `View`
-- Updated ARCore version to 1.23.0
-
-**2.2.1:**
-- Possibility to add information about your app's version with new variables
-`appVersion` and `appBuild`. These will be written to the scan data
-- New status codes (codes 65 and 66)
-- Various bug fixes
-
-**2.2.0:**
-- Depth capturing support for the following devices; `Galaxy S20 Ultra 5G`, `Galaxy S20+ 5G` and `Galaxy S10 5G`
-- Speech recognition for room labels
-- Optimized frame-rate handling (more stable capturing frame-rate)
-- New status codes (codes 40-49 and 59-64)
-- Updated dependencies
-- CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()` have been removed,
-those are now handled by CubiCapture. Note that `onWindowFocusChanged()` function is still required
-- Views `buttonRecord` and `buttonRecordHint` are now private and part of the speech recognition UI.
-Customizing these Views now works differently, for example, the `setNewView()` function for those Views
-will no longer work
-- Speech recognition UI can be modified by using the `colors.xml` and `dimens.xml` files.
-See the end of [UI Settings](#headuisettings) below to see how to customize the graphics,
-size of the views and layout margins
-- New image resource variables `hintLabelBackground` and `notRecordingImage`
-- Record button hint label `buttonRecordHint` is now TextView
-- Default record button drawables have a new look and are now vector drawables for higher quality
-(previously a PNG format image)
-- Default status border drawables `trackingStatusBorders` and `failureStatusBorders` now as vector drawables
-for higher quality (previously a PNG format image)
-- Fixed `sidewaysWarning` status codes (codes 25 and 26) not being sent when image resource changes between
-`turnLeftImage` and `turnRightImage` when `sidewaysWarning` is already set to visible
-- Fixed video encoder crashes
-
+For older release notes, see [Archived Release Notes](#archived-release-notes)
 
 ## Glossary
 
@@ -249,35 +125,37 @@ ARCore | Google's Augmented Reality library that is used in CubiCapture library 
 Tracking | The process of aligning the device to it's surroundings properly. We use ARCore to track where the phone is relative to the world around it.
 Sideways walk | An error which occurs during a scan when the user walks sideways. Walking sideways makes it hard to track the position of the device and can affect the quality of the scan.
 
+## Implementation
 
-## <a name="headimplementation"></a>Implementation
 This implementation was made with Android Studio Chipmunk | 2021.2.1 Patch 2
 using Gradle plugin version 7.2.2.
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.7.0.aar).
+#### Setting up
+
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.8.0.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-2.7.0.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-2.8.0.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.7.0.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.8.0.aar` and
 select `implementation` as configuration. -> Press `OK`.
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-2.7.0.aar')`.
+`implementation files('libs/cubicapture-release-2.8.0.aar')`.
 
 Set the `targetSdkVersion` to API level `31` in app level `build.gradle`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-2.7.0.aar')
-implementation 'com.google.ar:core:1.32.0'
-implementation 'com.google.code.gson:gson:2.8.6'
+implementation files('libs/cubicapture-release-2.8.0.aar')
+implementation 'com.google.ar:core:1.34.0'
+implementation 'com.google.code.gson:gson:2.8.9'
 implementation 'com.jaredrummler:android-device-names:2.0.0'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
-implementation 'com.google.android.gms:play-services-location:20.0.0'
+implementation 'com.google.android.gms:play-services-location:21.0.1'
 
 // Implement the following if using 'ScanPlayback':
 implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
@@ -480,7 +358,7 @@ can grant the permission.
 If you are going to use true north detection you need to declare the `ACCESS_COARSE_LOCATION` and
 `ACCESS_FINE_LOCATION` permissions in your app's manifest file. You also need to implement the
 Google Play services' location library by adding it to the app level `build.gradle` dependencies
-(see the `build.gradle` implementation in the start of [Implementation](#headimplementation) above).
+(see the `build.gradle` implementation in the start of [Implementation](#implementation) above).
 
 If you're going to use the `TrueNorth.ENABLED` setting, you should request the `ACCESS_FINE_LOCATION`
 permission on application side. This gives you the possibility to explain the user why your
@@ -501,7 +379,7 @@ if (availableMinutes <= 60) {
 }
 ```
 
-#### <a name="headscanplayback"></a>Scan playback
+#### Scan playback
 
 Scan playback is a `Fragment` which can be used to review the scan and to see any warnings that were
 shown during the scan, as well as any room labels that were added.
@@ -512,7 +390,7 @@ list. The video playback speed can be changed from the top bar which appears whe
 paused state.
 
 To implement the ScanPlayback, first add the required dependencies
-(see [Implementation](#headimplementation)).
+(see [Implementation](#implementation)).
 
 Add `ScanPlayback` `Fragment` to your projects scan playback's XML layout file:
 ```xml
@@ -556,7 +434,7 @@ scanPlayback.setOnBackButtonClickListener {
 }
 ```
 
-#### <a name="headreminderview"></a>Reminder view
+#### Reminder view
 
 Reminder view is a view shown by CubiCapture which can be used to remind the user to turn on
 Location Services or to grant location or microphone (record audio) permissions.
@@ -581,7 +459,84 @@ To enable the reminder view for microphone permission, set the `speechRecognitio
 Location Services and location permission are required to enable a compass in the floor plan, and
 Microphone permission is required for the speech recognition.
 
-## <a name="headuisettings"></a>UI settings
+#### Safe mode
+
+Safe mode can be used to disable the ARCore's Depth API to prevent any native ARCore crashes caused
+by any possible bugs in ARCore's Depth API.
+We recommend implementing a Safe mode setting to your app. The setting should only be visible to
+users with a Depth API supported device, and user should enable the Safe mode if they are
+experiencing stability issues while scanning.
+Enabling the Safe mode will disable the Depth API and Too close -warning.
+
+To check if the device is Depth API supported, check the value of `depthApiSupported: Boolean` after
+receiving code `1` from `getStatus(code: Int, description: String)`. Save this value to, for example,
+SharedPreferences. And then use the saved value to determine if the Safe mode setting should be
+visible to the user or not.
+
+Then enable or disable the Safe mode based on the user's selection. Example:
+```Kotlin
+val settings = getSharedPreferences("settings", 0)
+cubiCapture.safeMode = settings.getBoolean("safeMode", false)
+```
+
+`safeMode: Boolean` is set to `false` by default. Value is ignored on devices which do not support
+Depth API, because the Depth API and Too close -warning is disabled on those devices by default.
+
+#### Warning sound
+
+Warning sound is played when the ARCore's `TrackingState` is **not** `TRACKING`.
+
+To change the warning sound call:
+```Kotlin
+cubiCapture.setWarningSound(R.raw.new_warning_sound)
+```
+
+#### Automatic and manual zipping
+
+To disable the automatic zipping after a scan call:
+```Kotlin
+cubiCapture.setAutoZippingEnabled(false) // true (auto zips) by default
+```
+
+Zipping scan folder if automatic zipping is disabled. This can be called after scan files are
+saved successfully. This returns the Zip file if it's is successful or null if zipping failed.
+```Kotlin
+val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
+```
+
+Manual zipping `zipScan()` method expects the scan folder to contain the following files;
+`arkitData.json`, `config.json` and `video.mp4`.
+If any of the files above doesn't exist, `zipScan()` returns `null`.
+
+Here's an example directory structure where `zipScan()` method would successfully zip the scan
+folders `ExampleStreet 123` and `AnotherStreet 10`:
+```.
+.
+└── AllScansFolder
+    ├── ExampleStreet 123
+    │   ├── arkitData.json
+    │   ├── config.json
+    │   ├── video.mp4
+    │   ├── feedback.json
+    │   ├── scanLog.json
+    │   ├── intrinsics.json
+    │   └── allDepthFrames.bin
+    └── AnotherStreet 10
+        ├── arkitData.json
+        ├── config.json
+        ├── video.mp4
+        ├── feedback.json
+        ├── scanLog.json
+        ├── intrinsics.json
+        └── allDepthFrames.bin
+```
+
+Please note that the `allDepthFrames.bin` will be only present for devices which support depth
+capturing.
+
+## UI settings
+
+#### General
 
 To set the visibility of scan timer call:
 ```Kotlin
@@ -596,11 +551,6 @@ cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
 To set the enabled status of the record button `View`:
 ```Kotlin
 cubiCapture.recordButtonEnabled(false)
-```
-
-To change the warning sound call:
-```Kotlin
-cubiCapture.setWarningSound(R.raw.new_warning_sound)
 ```
 
 To replace the CubiCapture's 'statusText: TextView' with your own 'TextView' (example):
@@ -702,7 +652,7 @@ you can define the new color in your applications `colors.xml` file like so:
 The colors can be defined with color notation `#RRGGBB`s or with a color notation
 including a hexadecimal alpha value `#AARRGGBB`s.
 
-#### <a name="headdimensions"></a>Dimensions
+#### Dimensions
 
 To change the CubiCapture's default layout sizes, margins and text sizes
 you have to override the library's default dimensions by defining the dimensions in your applications
@@ -998,49 +948,6 @@ and the position of the device can not be determined.
 In this case, CubiCapture shows a tracking status error message (e.g. `cc_insufficient_features_text`)
 in `statusText: TextView` so that we can get the device tracking again as quickly as possible.
 
-## Automatic and manual zipping
-
-To disable the automatic zipping after a scan call:
-```Kotlin
-cubiCapture.setAutoZippingEnabled(false) // true (auto zips) by default
-```
-
-Zipping scan folder if automatic zipping is disabled. This can be called after scan files are
-saved successfully. This returns the Zip file if it's is successful or null if zipping failed.
-```Kotlin
-val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
-```
-
-Manual zipping `zipScan()` method expects the scan folder to contain the following files;
-`arkitData.json`, `config.json` and `video.mp4`.
-If any of the files above doesn't exist, `zipScan()` returns `null`.
-
-Here's an example directory structure where `zipScan()` method would successfully zip the scan
-folders `ExampleStreet 123` and `AnotherStreet 10`:
-```.
-.
-└── AllScansFolder
-    ├── ExampleStreet 123
-    │   ├── arkitData.json
-    │   ├── config.json
-    │   ├── video.mp4
-    │   ├── feedback.json
-    │   ├── scanLog.json
-    │   ├── intrinsics.json
-    │   └── allDepthFrames.bin
-    └── AnotherStreet 10
-        ├── arkitData.json
-        ├── config.json
-        ├── video.mp4
-        ├── feedback.json
-        ├── scanLog.json
-        ├── intrinsics.json
-        └── allDepthFrames.bin
-```
-
-Please note that the `allDepthFrames.bin` will be only present for devices which support depth
-capturing.
-
 ## Status codes
 
 ### 0, "Device turned to landscape orientation."
@@ -1334,6 +1241,10 @@ Received if thermal state changes to shutdown.
 Received once on start when the fragment's activity has been created and in certain intervals during a scan
 while recording. `minutes: Int` is an estimation in minutes of the maximum scan length the device can store.
 
+### 79, "Device ran out of storage space"
+Received if the device runs out of storage space while scanning.
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
 ### 85, "Scanning too close. Showing proximity warning."
 Received if the user is scanning too close to objects and too close warning is shown.
 
@@ -1407,3 +1318,174 @@ You will receive code 5 after this.
 Received if the device is not compatible with ARCore. If encountered after completing the
 installation check, this usually indicates that ARCore has been side-loaded onto an incompatible
 device. You will receive code 5 after this.
+
+## Archived Update Guides
+
+**Note! If you've previously implemented version 2.5.2 you've probably done the next steps already:**
+- Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
+- Check if you want to handle the new status codes: 70-76, 90 and 94
+- In previous library module documentation there was a typo where status code `88` was written as `86`.
+  If you handle code `86`, change it to `88`. This code is received when the user is not scanning too
+  close to objects anymore and the too close warning is hidden.
+
+**Note! If you've previously implemented version 2.5.1 you've probably done the next steps already:**
+- See [Archived Release Notes](#archived-release-notes) if you want to customize CubiCapture's text sizes,
+  hint label widths or the size of the processing progress bar
+
+**Note! If you've previously implemented version 2.5.0 you've probably done the next steps already:**
+- Customization of the CubiCapture has changed. See [Archived Release Notes](#archived-release-notes) for
+  information about deprecations and how the CubiCapture is customized now
+- Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
+- If you want to show Location Services reminder -view when the Location Services are turned off
+  see [Archived Release Notes](#archived-release-notes) for more information
+- If your app is using speech recognition and targets Android 11 (API level 30) or above,
+  you need to query `android.speech.RecognitionService` in your app's `AndroidManifest.xml` file
+
+**Note! If you've previously implemented version 2.4.0 you've probably done the next steps already:**
+- Remove deprecated `feedbackGatheringEnabled: Boolean` if you used it
+- Check if you want to handle the new status codes (codes 39, 87, 89, 92, 105 and 106)
+
+**Note! If you've previously implemented version 2.3.1 you've probably done the next steps already:**
+- Set `allScansFolder: File?` which replaced `allScansFolderName: String`
+  (see [Implementation](#implementation))
+- If you want to get an estimation in minutes of the maximum scan length the device can store,
+  see [Archived Release Notes](#archived-release-notes) for more information
+- Check if you want to handle the new status codes (codes 78, 91 and 100-102)
+
+**Note! If you've previously implemented version 2.3.0 you've probably done the next steps already:**
+- See how to enable/disable the true north detection
+  (see [Implementation](#implementation))
+- Check if you want to handle the new status codes (codes 31-36 and 67-69)
+
+**Note! If you've previously implemented version 2.2.2 you've probably done the next steps already:**
+- If you want to set the enabled status of the record button `View` see
+  [Archived Release Notes](#archived-release-notes) for more information
+
+**Note! If you've previously implemented version 2.2.1 you've probably done the next steps already:**
+- Check if you want to handle the new status codes (codes 65 and 66)
+- See if you want to add information about your app's version to be written to the scan data
+  (see variables `appVersion` and `appBuild` from [Implementation](#implementation))
+
+**Note! If you've previously implemented version 2.2.0 you've probably done the next steps already:**
+- See how to enable/disable speech recognition (see [Implementation](#implementation))
+- Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
+- Check if you want to handle the new status codes (codes 40-49 and 59-64)
+
+## Archived Release Notes
+
+**2.5.2:**
+- Thermal state monitoring. Changes in thermal state can be listened by using status codes 70-76
+- Scan log (extra information about the scanning session, included in the zip)
+- Changes to the click area of the CubiCapture's back button to prevent accidental clicks
+- `CubiCapture.CubiEventListener` interface implementation is now `CubiEventListener`
+- New status codes: 70-76, 90 and 94
+- Improvements to scan data
+
+**2.5.1:**
+- New variable `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one or to
+  wrap label text. This is `true` by default. For more information, see [UI Settings](#ui-settings)
+- New customization resources in `dimens.xml` for CubiCapture text sizes, hint label width and
+  processing progress bar size. See [Dimensions](#dimensions)
+- Various bug fixes
+
+**2.5.0:**
+- Too close warning. A warning which will trigger if the user is scanning too close to objects.
+  This warning is currently only available on
+  [devices which support Depth API](https://developers.google.com/ar/devices#google_play_devices)
+- End scan confirmation slider. In order to end the scan, user now has to slide the record button
+  from right to left to the end of the slider. This feature was added to prevent the scan from being
+  accidentally ended
+- Location Services reminder and a new variable `requestLocationServices: Boolean`. Settings this to
+  `true` will show the Location Services reminder -view if Location Services are turned off.
+  This is `false` by default (see [Implementation](#implementation)).
+- Changes to the customization of the CubiCapture
+  - Most of the customization is now done in the following resource files:
+    `colors.xml`, `dimens.xml`, `drawables.xml` and `strings.xml`
+  - Deprecated public scan warning `ImageView`s, error and speech recognition text `CharSequence`s
+    and image resource id `Int`s. All of these are now customizable via the resource files listed above
+  - Scan warnings and guides are now combination of `drawable` icons, `string` resources and
+    `drawable` backgrounds instead of being `ImageView`s. This allows better customization and the
+    warnings can be localizable to any language
+  - String resource names `recordHintString`, `speakHintString` and `lowStorageString` renamed as
+    `cc_record_hint_text`, `cc_speech_hint_text` and `cc_low_storage_text` in the file `strings.xml`
+  - Default string values reviewed
+  - For more information about the customization changes, see [UI Settings](#ui-settings)
+- New status codes: 37, 38, 85, 88 and 93. Changes to the `description: String` of the code 24
+- CubiCapture's `targetSdkVersion` has been updated to API level 30. Specifying a `targetSdkVersion`
+  in your project's `build.gradle` or `AndroidManifest.xml` will override the CubiCapture's value
+- CubiCapture no longer use the `WRITE_EXTERNAL_STORAGE` permission or request the
+  `requestLegacyExternalStorage` attribute
+- Default scan warning background is now more translucent
+- Various bug fixes
+- Updated dependencies and new dependency `com.facebook.shimmer:shimmer:0.5.0` for the end scan
+  confirmation slider (see [Implementation](#implementation))
+
+**2.4.0:**
+- Fast rotation warning. A warning which will trigger if the user turns around too fast while
+  scanning. This is a customizable `View` `fastMovementWarning: ImageView`
+- Deprecated `feedbackGatheringEnabled: Boolean` option
+- New status codes (codes 39, 87, 89, 92, 105 and 106)
+- UI improvements
+- Various bug fixes
+- Updated ARCore version to 1.25.0
+
+**2.3.1:**
+- Replaced `allScansFolderName: String` with `allScansFolder: File?` (see [Implementation](#implementation))
+- AR Session initializing indication text. This text can be customized by changing the value of
+  `initializingErrorText: CharSequence`
+- Low storage warning. Low storage warning text can be changed by redefining the string in your applications
+  `strings.xml` file (see [UI Settings](#ui-settings))
+- New function `getAvailableStorageMinutes(File)` which returns an estimation in minutes of the maximum scan
+  length the device can store (see [Implementation](#implementation))
+- New variable `feedbackGatheringEnabled: Boolean` to toggle the feedback data gathering, this is `true` by default
+- Various bug fixes and optimizations
+- New status codes (codes 78, 91 and 100-102)
+- Changes to the description message of the error code 45. It now contains the error code of the SpeechRecognizer
+- Updated ARCore version to 1.24.0
+
+**2.3.0:**
+- Horizontal scanning warning. This is a customizable `View` `horizontalWarning: ImageView`
+- True north detection (see [Implementation](#implementation))
+- New status codes (codes 31-36 and 67-69)
+- Dropped values from the `arkitData.json` (scan data file). Saving of the scan files is now faster
+- Changes to the device orientation detection (landscape, portrait etc)
+- Memory optimization
+- Fixes to scaling of depth camera intrinsics
+
+**2.2.2:**
+- Hint label texts can be changed by redefining the strings in your applications `strings.xml` file
+  (see [UI Settings](#ui-settings))
+- New variables `speechNoResultsText` and `readyForSpeechText` to change speech recognition's pop-up texts
+  (type: `CharSequence`, default values: `"No results"` and `"Say the room name"`)
+- New function `recordButtonEnabled(Boolean)` to set the enabled status of the record button `View`
+- Updated ARCore version to 1.23.0
+
+**2.2.1:**
+- Possibility to add information about your app's version with new variables
+  `appVersion` and `appBuild`. These will be written to the scan data
+- New status codes (codes 65 and 66)
+- Various bug fixes
+
+**2.2.0:**
+- Depth capturing support for the following devices; `Galaxy S20 Ultra 5G`, `Galaxy S20+ 5G` and `Galaxy S10 5G`
+- Speech recognition for room labels
+- Optimized frame-rate handling (more stable capturing frame-rate)
+- New status codes (codes 40-49 and 59-64)
+- Updated dependencies
+- CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()` have been removed,
+  those are now handled by CubiCapture. Note that `onWindowFocusChanged()` function is still required
+- Views `buttonRecord` and `buttonRecordHint` are now private and part of the speech recognition UI.
+  Customizing these Views now works differently, for example, the `setNewView()` function for those Views
+  will no longer work
+- Speech recognition UI can be modified by using the `colors.xml` and `dimens.xml` files.
+  See [UI Settings](#ui-settings) to see how to customize the graphics,
+  size of the views and layout margins
+- New image resource variables `hintLabelBackground` and `notRecordingImage`
+- Record button hint label `buttonRecordHint` is now TextView
+- Default record button drawables have a new look and are now vector drawables for higher quality
+  (previously a PNG format image)
+- Default status border drawables `trackingStatusBorders` and `failureStatusBorders` now as vector drawables
+  for higher quality (previously a PNG format image)
+- Fixed `sidewaysWarning` status codes (codes 25 and 26) not being sent when image resource changes between
+  `turnLeftImage` and `turnRightImage` when `sidewaysWarning` is already set to visible
+- Fixed video encoder crashes

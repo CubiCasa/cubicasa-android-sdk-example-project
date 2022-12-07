@@ -14,7 +14,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.7.0 library module */
+ * and use of the CubiCapture 2.8.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -30,7 +30,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
     // File 'scanFolder' is set after successful scan
     private var scanFolder: File? = null
 
-    private var errorMessage: String? = null
+    // SharedPreferences for Settings
+    private val settings by lazy { getSharedPreferences("settings", 0) }
 
     /** CubiCapture requires CAMERA permission to be granted.
      * Remember to request the permission before you start your scanning Activity.
@@ -90,6 +91,14 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
 
         // Add property type to be written to the scan data (Optional)
         cubiCapture.propertyType = intent.extras?.get("propertyType") as PropertyType?
+
+        /* Enabling or disabling the safe mode based on the user's selection.
+         * Safe mode disables the ARCore's Depth API to prevent any native ARCore crashes caused by
+         * any possible bugs in ARCore's Depth API.
+         * Safe mode setting should only be shown for users with Depth API supported devices.
+         * User with a Depth API supported device should turn on Safe mode if they are experiencing
+         * stability issues while scanning. */
+        cubiCapture.safeMode = intent.getBooleanExtra("safeMode", false)
 
         /** -------------------------- SPEECH RECOGNITION BELOW -------------------------- */
 
@@ -171,12 +180,15 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         Log.d("DEBUGTAG", "code: $code, description: $description") // Logging status updates
 
         when (code) {
+            1 -> { // Started recording
+                /* Setting the 'showSafeModeSwitch' Boolean based on if device is Depth API
+                * supported or not. */
+                val editor = settings.edit()
+                editor.putBoolean("showSafeModeSwitch", cubiCapture.depthApiSupported)
+                editor.apply()
+            }
             2 -> { // Finished recording
                 saving = true
-            }
-            3 -> { // Not enough data
-                /** You will receive code 5 after this */
-                errorMessage = description
             }
             4 -> { // Saving finished
                 saved = true
@@ -192,41 +204,33 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
                  * When a scan is not successful you will not receive code 4, but instead you will
                  * receive an error code (e.g. code 3, "Finished recording - Not enough data."). */
                 if (saved && scanFolder != null) {
-                    // Scan successful. Starting ViewScanActivity to view its video
+                    // Scan was successful. Starting ViewScanActivity to view its video
                     val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
                     viewScanIntent.putExtra("scanFolder", scanFolder)
                     startActivity(viewScanIntent)
-                } else if (errorMessage != null) {
-                    // Not successful scan - 'errorMessage' will be displayed in ScanInfoActivity
-                    val displayErrorIntent = Intent()
-                    displayErrorIntent.putExtra("errorMessage", errorMessage)
-                    setResult(RESULT_OK, displayErrorIntent)
                 }
                 finish()
-            }
-            12 -> { // MediaFormat and MediaCodec failed to be configured and started
-                /** You will receive code 5 after this code */
-                errorMessage = description
-            }
-            13 -> { // Scan drifted
-                /** You will receive code 5 after this code */
-                errorMessage = description
             }
             19 -> { // Back button pressed twice
                 finish()
             }
-            28 -> { // ARCore was unable to start tracking during the first five seconds
-                /** You will receive code 5 after this code */
-                errorMessage = description
-            }
-            54, 64, 66, 105, 106 -> {
-                /* 54, Writing of scan data failed: <e>
-                 * 64, Unable to start saving. Error: <e>
-                 * 66, Unable to get correct values for the device's position
-                 * 105, Unable to create ARCore session. Error: <e>
+            3, 12, 13, 28, 54, 64, 66, 79, 105, 106 -> {
+                /* 3, Finished recording - Not enough data.
+                 * 12, MediaFormat and MediaCodec failed to be configured and started.
+                 * 13, Scan drifted! Position changed by over 10 meters during 2 second interval.
+                 * 28, ARCore was unable to start tracking during the first five seconds.
+                 * 54, Writing of scan data failed: $exception
+                 * 64, Unable to start saving. Error: $error
+                 * 66, Unable to get correct values for the device's position.
+                 * 79, Device ran out of storage space
+                 * 105, Unable to create ARCore session. Error: $error
                  * 106, Device is not compatible with ARCore. */
+
+                // Scan was not successful. Error message will be displayed in ScanInfoActivity
+                val displayErrorIntent = Intent()
+                displayErrorIntent.putExtra("errorMessage", description)
+                setResult(RESULT_OK, displayErrorIntent)
                 /** You will receive code 5 after this code */
-                errorMessage = description
             }
         }
     }

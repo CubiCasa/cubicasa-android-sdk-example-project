@@ -145,6 +145,8 @@
     <string name="state"><i>State</i></string>
     <string name="country"><i>Country</i></string>
     <string name="postalCode"><i>Postal code</i></string>
+    <string name="safe_mode_title">Safe mode</string>
+    <string name="safe_mode_text">Enable this if you are experiencing stability issues while scanning</string>
     <string name="start_scanning_text">Start scanning</string>
 
     <string-array name="propertyTypes">
