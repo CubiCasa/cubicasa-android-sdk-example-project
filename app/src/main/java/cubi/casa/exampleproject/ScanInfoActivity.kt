@@ -89,7 +89,14 @@ class ScanInfoActivity : AppCompatActivity() {
             val scanIntent = Intent(baseContext, ScanActivity::class.java)
             scanIntent.putExtra("orderInfo", orderInfo)
             scanIntent.putExtra("propertyType", getSelectedPropertyType())
+            scanIntent.putExtra("safeMode", binding.safeModeSwitch.isChecked)
             resultLauncher.launch(scanIntent)
+        }
+
+        // Showing Safe mode switch if device is Depth API supported
+        val settings = getSharedPreferences("settings", 0)
+        if (settings.getBoolean("showSafeModeSwitch", false)) {
+            binding.safeModeLayout.visibility = View.VISIBLE
         }
 
         setupPropertyTypeSpinner()

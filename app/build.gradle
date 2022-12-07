@@ -29,14 +29,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
-    implementation files('libs/cubicapture-release-2.7.0.aar')
-    implementation 'com.google.ar:core:1.32.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation files('libs/cubicapture-release-2.8.0.aar')
+    implementation 'com.google.ar:core:1.34.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.jaredrummler:android-device-names:2.0.0'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
     // Implement the following if 'CubiCapture.trueNorth' is 'ENABLED' or 'ENABLED_AND_REQUEST':
-    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     // Implement the following if using 'ScanPlayback':
     implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
