@@ -3,11 +3,12 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture library module](#cubicapture-library-module)
-  * [Updating to CubiCapture 2.8.0](#updating-to-cubicapture-280)
+  * [Updating to CubiCapture 2.9.0](#updating-to-cubicapture-290)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
     * [Setting up](#setting-up)
+    * [Speech Recognition for Room Labels](#speech-recognition-for-room-labels)
     * [True north detection](#true-north-detection)
     * [Get available storage space estimation](#get-available-storage-space-estimation)
     * [Scan playback](#scan-playback)
@@ -43,34 +44,46 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.8.0
+## Updating to CubiCapture 2.9.0
 
-- Update your app to use the CubiCapture 2.8.0 library module
-- Update the new app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- Update your app to use the CubiCapture 2.9.0 library module
+- Update your `minSdkVersion` to API level `29` or higher
+- Update the app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- Implement the new `CubiEventListener` method `getPropertyType(): PropertyType` to set the `PropertyType`
+(see [Implementation](#implementation) below)
+- Remove deprecated `propertyType: PropertyType` if you used it
+- Rename `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods as
+as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
+- If you want to disable the low storage warnings, see the new `storageWarningsEnabled` below
+[General](#general) UI settings
+- If you want to customize the processing screen text color or the progress bar color,
+see `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
+- Check if you want to handle the new status code [103, "Missing callback"](#103-missing-callback)
+
+**Note! If you've previously implemented version 2.8.0 you've probably done the next steps already:**
 - Check the new `safeMode` variable, and if you want to implement a [Safe mode](#safe-mode) setting
 to your app
 - Handle the new status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
 to show user an error message after the scan
 
-**Note! If you've previously implemented version 2.6.3 you've probably done the next steps already:**
-- If you want property type written to the scan data
-(see variable `propertyType` from [Implementation](#implementation) below)
-
-**Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
-- Update your `targetSdkVersion` to API level 31
-- If you want to implement the new scan playback `Fragment` to your application,
-see [Scan playback](#scan-playback) and new resources for customization
-- If you want to show a reminder view for microphone or location permissions when the permission
-can't be requested via Android OS, see [Reminder view](#reminder-view) and new resources for
-customization
-- If you have customized the texts, text size or background of the reminder view for Location
-Services, see [Release Notes](#release-notes) for resource name changes
-- Check if you want to handle the new status codes: 95-98. If you handle codes 37 or 38, see the
-changes to those status codes
-
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**2.9.0:**
+- Setting the property type is now required. Added a new `CubiEventListener` method
+`getPropertyType(): PropertyType` which must be used to set the `PropertyType`
+- `propertyType: PropertyType` variable is now deprecated
+- `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods renamed
+as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
+- Added new `storageWarningsEnabled` variable for enabling/disabling low storage warnings.
+See [General](#general) UI settings for more information
+- Added new customization options for processing screen text color and progress bar color.
+See `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
+- New status code [103, "Missing callback"](#103-missing-callback)
+- CubiCapture's `minSdkVersion` and `targetSdkVersion` have been updated to API levels `29` and `33`,
+respectively
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.8.0:**
 - Re-enabled Too close -warning for Depth API supported devices
@@ -87,7 +100,6 @@ more information
 
 **2.6.3:**
 - Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
-(see [Implementation](#implementation) below)
 - Patch to prevent majority of the native ARCore crashes. Too close -warning is disabled for the
 time being and will be enabled again once Google has fixed the issue
 - Updated dependencies (see [Implementation](#implementation) below)
@@ -95,24 +107,6 @@ time being and will be enabled again once Google has fixed the issue
 
 **2.6.1:**
 - Bug fix: Fixed record button not being vertically centered when speech recognition was disabled
-
-**2.6.0:**
-- New scan playback `Fragment` available, which can be used to review the scan and to see any warnings
-that were shown during the scan, as well as any room labels that were added. See
-[Scan playback](#scan-playback) for more information
-- Reminder view for microphone and location permission. See [Reminder view](#reminder-view)
-for more information
-- New customization resources for scan playback and reminder view
-- Resource names `open_settings_text`, `cc_location_background`, `cc_location_reminder_text_size`
-and `location_services_reminder_text` renamed as `cc_open_location_settings_text`,
-`cc_reminder_background`, `cc_reminder_text_size` and `cc_location_services_reminder_text`
-- Default processing background `cc_processing_background` is now a color (previously a PNG format
-image)
-- CubiCapture's `targetSdkVersion` has been updated to API level 31
-- New status codes: 95-98. Changes to the status codes 37 and 38
-- Updated dependencies and added new dependencies for the scan playback
-(see [Implementation](#implementation) below)
-- Various bug fixes and optimizations
 
 For older release notes, see [Archived Release Notes](#archived-release-notes)
 
@@ -127,39 +121,39 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## Implementation
 
-This implementation was made with Android Studio Chipmunk | 2021.2.1 Patch 2
+This implementation was made with Android Studio Electric Eel | 2022.1.1 Patch 2
 using Gradle plugin version 7.2.2.
 
 #### Setting up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.8.0.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.9.0.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-2.8.0.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-2.9.0.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.8.0.aar` and
-select `implementation` as configuration. -> Press `OK`.
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.9.0.aar` and
+select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-2.8.0.aar')`.
+`implementation files('libs/cubicapture-release-2.9.0.aar')`.
 
-Set the `targetSdkVersion` to API level `31` in app level `build.gradle`.
+Set the `targetSdkVersion` to API level `31` or higher in app level `build.gradle`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-2.8.0.aar')
-implementation 'com.google.ar:core:1.34.0'
-implementation 'com.google.code.gson:gson:2.8.9'
-implementation 'com.jaredrummler:android-device-names:2.0.0'
+implementation files('libs/cubicapture-release-2.9.0.aar')
+implementation 'com.google.ar:core:1.36.0'
+implementation 'com.google.code.gson:gson:2.10.1'
+implementation 'com.jaredrummler:android-device-names:2.1.1'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
 implementation 'com.google.android.gms:play-services-location:21.0.1'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
-implementation 'androidx.recyclerview:recyclerview:1.2.1'
+implementation 'com.google.android.exoplayer:exoplayer:2.18.5'
+implementation 'androidx.recyclerview:recyclerview:1.3.0'
 ```
 
 If your Gradle plugin version is 4.1.0 or earlier, add the following lines to the app level
@@ -213,13 +207,20 @@ cubiCapture.registerCallback(this)
 
 Add the following function to receive status updates from `CubiEventListener`:
 ```Kotlin
-override fun getStatus(code: Int, description: String) { }
+override fun onStatus(code: Int, description: String) { }
 ```
 
 Add the following function to receive scan folder and zip file as `File` from `CubiEventListener`:
 ```Kotlin
-override fun getFile(code: Int, file: File) { }
+override fun onFile(code: Int, file: File) { }
 ```
+
+Add the following function so that CubiCapture is able to get the property type to be written to
+the scan data:
+```Kotlin
+override fun getPropertyType(): PropertyType { }
+```
+Possible values for the `PropertyType` are `SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`,`APARTMENT`, `OTHER`.
 
 Before scanning with CubiCapture you first have to set folder name `scanFolderName: String`
 where we store the scan files.
@@ -256,13 +257,6 @@ cubiCapture.setOrderInfo(
 )
 ```
 
-Add property type to be written to the scan data (Optional). Example:
-```Kotlin
-cubiCapture.propertyType = PropertyType.APARTMENT
-```
-Possible values for the `propertyType: PropertyType` are
-`SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`,`APARTMENT`, `OTHER` and `null` (not written).
-
 Add information about your app's version to be written to the scan data (Optional). Example:
 ```Kotlin
 cubiCapture.appVersion = BuildConfig.VERSION_NAME // e.g. String "1.2.3"
@@ -279,14 +273,16 @@ override fun onWindowFocusChanged(hasFocus: Boolean) {
 }
 ```
 
-You should also prevent Navigation bar back presses during saving:
+You should also prevent Navigation bar back presses during saving. Example:
 ```Kotlin
-override fun onBackPressed() {
-    // Navigation bar's back button press is disabled during saving.
-    if (!saving) {
-        super.onBackPressed()
+// Overriding the back press to move the app to background when saving
+onBackPressedDispatcher.addOnClickListener(this) {
+    if (saving) {
+        moveTaskToBack(true)
+    } else {
+        finish()
     }
-    // The saving variable is set to true when getStatus() receives code 2.
+    // The saving variable is set to true when onStatus() receives code 2.
 }
 ```
 
@@ -310,6 +306,11 @@ to be installed, as the app does not include any non-AR features. -->
 
 Remember to always call `finish()` when your activity is done and should be closed to avoid memory leaks.
 You should call `finish()` when you receive status code 5 or 19.
+
+#### Speech Recognition for Room Labels
+
+CubiCapture utilizes speech recognition. During a scan your users can use the speech recognition to
+add room labels.
 
 To disable the speech recognition and hide its `View`s call:
 ```Kotlin
@@ -469,7 +470,7 @@ experiencing stability issues while scanning.
 Enabling the Safe mode will disable the Depth API and Too close -warning.
 
 To check if the device is Depth API supported, check the value of `depthApiSupported: Boolean` after
-receiving code `1` from `getStatus(code: Int, description: String)`. Save this value to, for example,
+receiving code `1` from `onStatus(code: Int, description: String)`. Save this value to, for example,
 SharedPreferences. And then use the saved value to determine if the Safe mode setting should be
 visible to the user or not.
 
@@ -550,7 +551,12 @@ cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
 
 To set the enabled status of the record button `View`:
 ```Kotlin
-cubiCapture.recordButtonEnabled(false)
+cubiCapture.recordButtonEnabled(false) // Enabled (true) by default
+```
+
+To disable low storage warnings:
+```Kotlin
+cubiCapture.storageWarningsEnabled = false // Enabled (true) by default
 ```
 
 To replace the CubiCapture's 'statusText: TextView' with your own 'TextView' (example):
@@ -640,6 +646,10 @@ Here's all the default colors and alphas defined in CubiCapture library:
 
 <!-- Scan playback scrollbar color -->
 <color name="ccPlaybackScrollbarColor">#FFFFFF</color>
+
+<!-- Processing screen text and progress bar color -->
+<color name="ccProcessingTextColor">#FFFFFF</color>
+<color name="ccProgressBarColor">#FFFFFF</color>
 ```
 
 For example, if you want to change the color and alpha of the volume/dB circle
@@ -985,13 +995,13 @@ receive an error code (e.g. code 3, "Finished recording - Not enough data.").
 Received when the saving of the scan files is finished.
 The description will contain a path to the scan folder.
 To receive the scan folder as a `File` use the `CubiEventListener`'s
-`getFile(code: Int, file: File)` method where code 1 receives the scan folder.
+`onFile(code: Int, file: File)` method where code 1 receives the scan folder.
 
 ### 7, "Zipping is done. Zip file: $zipFilePath"
 Received when the zipping of the scan files is finished.
 The description will contain a path to the zip file.
 To receive the zip file as a `File` use the `CubiEventListener`'s
-`getFile(code: Int, file: File)` method where code 2 receives the zip file.
+`onFile(code: Int, file: File)` method where code 2 receives the zip file.
 
 ### 8, "ARCore TrackingFailureReason: INSUFFICIENT_LIGHT"
 Received when ARCore motion tracking is lost due to poor lighting conditions.
@@ -1310,6 +1320,9 @@ Only received when the recording has not been started. While recording, status c
 ### 102, "ARCore session has to be initialized first in order to start recording."
 Received when the record button is pressed and recording cannot be started because ARCore session is still initializing.
 
+### 103, "Missing callback"
+Received if the `CubiEventListener`'s interface callback has not been registered.
+
 ### 105, "Unable to create ARCore session. Error: $error"
 Received if an internal error occurred while creating the ARCore session.
 You will receive code 5 after this.
@@ -1320,6 +1333,18 @@ installation check, this usually indicates that ARCore has been side-loaded onto
 device. You will receive code 5 after this.
 
 ## Archived Update Guides
+
+**Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
+- Update your `targetSdkVersion` to API level 31 or higher
+- If you want to implement the new scan playback `Fragment` to your application,
+  see [Scan playback](#scan-playback) and new resources for customization
+- If you want to show a reminder view for microphone or location permissions when the permission
+  can't be requested via Android OS, see [Reminder view](#reminder-view) and new resources for
+  customization
+- If you have customized the texts, text size or background of the reminder view for Location
+  Services, see [Release Notes](#release-notes) for resource name changes
+- Check if you want to handle the new status codes: 95-98. If you handle codes 37 or 38, see the
+  changes to those status codes
 
 **Note! If you've previously implemented version 2.5.2 you've probably done the next steps already:**
 - Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
@@ -1372,6 +1397,24 @@ device. You will receive code 5 after this.
 - Check if you want to handle the new status codes (codes 40-49 and 59-64)
 
 ## Archived Release Notes
+
+**2.6.0:**
+- New scan playback `Fragment` available, which can be used to review the scan and to see any warnings
+  that were shown during the scan, as well as any room labels that were added. See
+  [Scan playback](#scan-playback) for more information
+- Reminder view for microphone and location permission. See [Reminder view](#reminder-view)
+  for more information
+- New customization resources for scan playback and reminder view
+- Resource names `open_settings_text`, `cc_location_background`, `cc_location_reminder_text_size`
+  and `location_services_reminder_text` renamed as `cc_open_location_settings_text`,
+  `cc_reminder_background`, `cc_reminder_text_size` and `cc_location_services_reminder_text`
+- Default processing background `cc_processing_background` is now a color (previously a PNG format
+  image)
+- CubiCapture's `targetSdkVersion` has been updated to API level 31
+- New status codes: 95-98. Changes to the status codes 37 and 38
+- Updated dependencies and added new dependencies for the scan playback
+  (see [Implementation](#implementation))
+- Various bug fixes and optimizations
 
 **2.5.2:**
 - Thermal state monitoring. Changes in thermal state can be listened by using status codes 70-76

@@ -14,7 +14,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.8.0 library module */
+ * and use of the CubiCapture 2.9.0 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -89,9 +89,6 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
             orderInfo[6] // postalCode
         )
 
-        // Add property type to be written to the scan data (Optional)
-        cubiCapture.propertyType = intent.extras?.get("propertyType") as PropertyType?
-
         /* Enabling or disabling the safe mode based on the user's selection.
          * Safe mode disables the ARCore's Depth API to prevent any native ARCore crashes caused by
          * any possible bugs in ARCore's Depth API.
@@ -99,6 +96,15 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
          * User with a Depth API supported device should turn on Safe mode if they are experiencing
          * stability issues while scanning. */
         cubiCapture.safeMode = intent.getBooleanExtra("safeMode", false)
+
+        // Overriding the back press to move the app to background when saving
+        onBackPressedDispatcher.addOnClickListener(this) {
+            if (saving) {
+                moveTaskToBack(true)
+            } else {
+                finish()
+            }
+        }
 
         /** -------------------------- SPEECH RECOGNITION BELOW -------------------------- */
 
@@ -111,14 +117,17 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
 
         /** -------------------------- UI SETTINGS BELOW -------------------------- */
 
-        /** To hide scan timer call: */
+        /** To show/hide scan timer. Visible (true) by default */
         // cubiCapture.setTimerEnabled(false) // Visible (true) by default
 
-        /** To hide CubiCapture's back button call: */
-        // cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
+        /** To show/hide the CubiCapture's back button. Visible (true) by default */
+        // cubiCapture.setBackButtonEnabled(false)
 
-        /** To set the enabled status of the record button 'View': */
+        /** To enable/disable the record button. Enabled (true) by default */
         // cubiCapture.recordButtonEnabled(false)
+
+        /** To enable/disable low storage warnings. Enabled (true) by default */
+        // cubiCapture.storageWarningsEnabled = false
 
         /** To change the warning sound call: */
         // cubiCapture.setWarningSound(R.raw.new_warning_sound)
@@ -165,8 +174,13 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         // val minutes: Int = cubiCapture.getAvailableStorageMinutes(getExternalFilesDir(null)!!)
     }
 
-    /** Receives Scan folder and Zip file from CubiEventListener */
-    override fun getFile(code: Int, file: File) {
+    /** Gets the property type to be written to the scan data */
+    override fun getPropertyType(): PropertyType {
+        return intent.getSerializable("propertyType")!!
+    }
+
+    /** Receives the scan folder and the scan zip file */
+    override fun onFile(code: Int, file: File) {
         when (code) {
             1 -> { // Scan folder as File
                 scanFolder = file
@@ -175,8 +189,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         }
     }
 
-    /** Receives status updates from CubiEventListener */
-    override fun getStatus(code: Int, description: String) {
+    /** Receives status updates of the scan */
+    override fun onStatus(code: Int, description: String) {
         Log.d("DEBUGTAG", "code: $code, description: $description") // Logging status updates
 
         when (code) {
@@ -241,13 +255,6 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         cubiCapture.onWindowFocusChanged(hasFocus, this)
-    }
-
-    override fun onBackPressed() {
-        /** Navigation bar's back button press is disabled during saving. */
-        if (!saving) {
-            super.onBackPressed()
-        }
     }
 
     // Returns order info as Array<String>
