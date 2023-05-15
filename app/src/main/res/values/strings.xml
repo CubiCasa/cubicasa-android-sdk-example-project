@@ -150,7 +150,7 @@
     <string name="start_scanning_text">Start scanning</string>
 
     <string-array name="propertyTypes">
-        <item>Property type</item>
+        <item>Property type | required</item>
         <item>Single Unit Residential</item>
         <item>Townhouse</item>
         <item>Apartment</item>

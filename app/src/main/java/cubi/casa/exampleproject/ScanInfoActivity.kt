@@ -74,6 +74,16 @@ class ScanInfoActivity : AppCompatActivity() {
              * and in this case that the String 'street' is a valid File name! */
             if (street.isBlank()) {
                 binding.streetInput.error = "Required."
+                binding.scrollView.smoothScrollTo(0, binding.streetInput.top)
+                return@setOnClickListener
+            }
+
+            val propertyTypeIndex = binding.propertyTypeSpinner.selectedItemPosition - 1
+            val propertyType = PropertyType.values().getOrNull(propertyTypeIndex)
+            if (propertyType == null) {
+                val spinnerTextView = binding.propertyTypeSpinner.selectedView as TextView
+                spinnerTextView.error = "Required."
+                binding.scrollView.smoothScrollTo(0, binding.propertyTypeSpinner.top)
                 return@setOnClickListener
             }
 
@@ -88,7 +98,7 @@ class ScanInfoActivity : AppCompatActivity() {
 
             val scanIntent = Intent(baseContext, ScanActivity::class.java)
             scanIntent.putExtra("orderInfo", orderInfo)
-            scanIntent.putExtra("propertyType", getSelectedPropertyType())
+            scanIntent.putExtra("propertyType", propertyType)
             scanIntent.putExtra("safeMode", binding.safeModeSwitch.isChecked)
             resultLauncher.launch(scanIntent)
         }
@@ -100,6 +110,11 @@ class ScanInfoActivity : AppCompatActivity() {
         }
 
         setupPropertyTypeSpinner()
+
+        // Overriding the back press to move the app to background
+        onBackPressedDispatcher.addOnClickListener(this) {
+            moveTaskToBack(true)
+        }
     }
 
     private fun setupPropertyTypeSpinner() {
@@ -149,10 +164,6 @@ class ScanInfoActivity : AppCompatActivity() {
             }
     }
 
-    private fun getSelectedPropertyType(): PropertyType? {
-        return PropertyType.values().getOrNull(binding.propertyTypeSpinner.selectedItemPosition - 1)
-    }
-
     // Displays an error dialog - e.g. when the scan was too short (not enough data)
     private fun displayErrorDialog(errorMessage: String) {
         val builder = AlertDialog.Builder(this)
@@ -192,6 +203,4 @@ class ScanInfoActivity : AppCompatActivity() {
      * Also requests install or update if needed */
     private fun arCoreIsInstalledAndUpToDate(): Boolean =
         ArCoreApk.getInstance().requestInstall(this, true) == ArCoreApk.InstallStatus.INSTALLED
-
-    override fun onBackPressed() { } // Disabling Navigation bar back press
 }

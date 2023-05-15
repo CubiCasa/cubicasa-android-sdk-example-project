@@ -84,4 +84,8 @@
 
     <!-- Scan playback scrollbar color -->
     <color name="ccPlaybackScrollbarColor">#FFFFFF</color>
+
+    <!-- Processing screen text and progress bar color -->
+    <color name="ccProcessingTextColor">#FFFFFF</color>
+    <color name="ccProgressBarColor">#FFFFFF</color>
 </resources>
