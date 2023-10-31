@@ -14,7 +14,7 @@ import cubi.casa.cubicapture.TrueNorth
 import java.io.File
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 2.9.0 library module */
+ * and use of the CubiCapture 2.10.1 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -71,11 +71,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         cubiCapture.scanFolderName = orderInfo[0]
 
         /* You also need to set the File (directory) which contains all the scan folders.
-        Android 11 Storage updates will restrict where your app can store data.
         We suggest the directory returned by 'getExternalFilesDir(null)' for storing scan data.
-        Just make sure that the storage is available and that the returned File is not null.
-        Read more about Android 11 storage updates from here:
-        https://developer.android.com/about/versions/11/privacy/storage */
+        Just make sure that the storage is available and that the returned File is not null. */
         cubiCapture.allScansFolder = getExternalFilesDir(null)
 
         // Before starting the scan you can add order information (not required)
@@ -228,7 +225,7 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
             19 -> { // Back button pressed twice
                 finish()
             }
-            3, 12, 13, 28, 54, 64, 66, 79, 105, 106 -> {
+            3, 12, 13, 28, 54, 64, 66, 79, 105, 106, 107 -> {
                 /* 3, Finished recording - Not enough data.
                  * 12, MediaFormat and MediaCodec failed to be configured and started.
                  * 13, Scan drifted! Position changed by over 10 meters during 2 second interval.
@@ -238,7 +235,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
                  * 66, Unable to get correct values for the device's position.
                  * 79, Device ran out of storage space
                  * 105, Unable to create ARCore session. Error: $error
-                 * 106, Device is not compatible with ARCore. */
+                 * 106, Device is not compatible with ARCore.
+                 * 107, Device is too hot to start scanning. */
 
                 // Scan was not successful. Error message will be displayed in ScanInfoActivity
                 val displayErrorIntent = Intent()

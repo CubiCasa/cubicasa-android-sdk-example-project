@@ -3,7 +3,7 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture library module](#cubicapture-library-module)
-  * [Updating to CubiCapture 2.9.0](#updating-to-cubicapture-290)
+  * [Updating to CubiCapture 2.10.1](#updating-to-cubicapture-2101)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
@@ -44,11 +44,17 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.9.0
+## Updating to CubiCapture 2.10.1
 
-- Update your app to use the CubiCapture 2.9.0 library module
-- Update your `minSdkVersion` to API level `29` or higher
+- Update your app to use the CubiCapture 2.10.1 library module
 - Update the app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- Replace the `CubiCapture` and `ScanPlayback` `<fragment>` tags with the
+`<androidx.fragment.app.FragmentContainerView>` tags
+- Handle the new status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
+to show user an error message after the aborted scan
+
+**Note! If you've previously implemented version 2.9.0 you've probably done the next steps already:**
+- Update your `minSdkVersion` to API level `29` or higher
 - Implement the new `CubiEventListener` method `getPropertyType(): PropertyType` to set the `PropertyType`
 (see [Implementation](#implementation) below)
 - Remove deprecated `propertyType: PropertyType` if you used it
@@ -60,15 +66,17 @@ as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)
 see `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
 - Check if you want to handle the new status code [103, "Missing callback"](#103-missing-callback)
 
-**Note! If you've previously implemented version 2.8.0 you've probably done the next steps already:**
-- Check the new `safeMode` variable, and if you want to implement a [Safe mode](#safe-mode) setting
-to your app
-- Handle the new status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
-to show user an error message after the scan
-
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**2.10.1:**
+- `CubiCapture` and `ScanPlayback` `Fragments` now support the
+`<androidx.fragment.app.FragmentContainerView>` tag instead of the `<fragment>` tag
+- Scan is now aborted if the thermal state is critical or higher on startup
+- New status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
+- Scan data is no longer affected by enabled code shrinking
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.9.0:**
 - Setting the property type is now required. Added a new `CubiEventListener` method
@@ -94,20 +102,6 @@ more information
 - Margins of the scan back button now match the margins of the scan timer
 - Updated dependencies (see [Implementation](#implementation) below)
 
-**2.7.0:**
-- Ceiling warning adjustments
-- Updated dependencies (see [Implementation](#implementation) below)
-
-**2.6.3:**
-- Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
-- Patch to prevent majority of the native ARCore crashes. Too close -warning is disabled for the
-time being and will be enabled again once Google has fixed the issue
-- Updated dependencies (see [Implementation](#implementation) below)
-- Various bug fixes
-
-**2.6.1:**
-- Bug fix: Fixed record button not being vertically centered when speech recognition was disabled
-
 For older release notes, see [Archived Release Notes](#archived-release-notes)
 
 ## Glossary
@@ -121,29 +115,27 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## Implementation
 
-This implementation was made with Android Studio Electric Eel | 2022.1.1 Patch 2
-using Gradle plugin version 7.2.2.
+This implementation was made with Android Studio Flamingo | 2022.2.1 Patch 1
+using Gradle plugin version 8.0.2.
 
 #### Setting up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.9.0.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.10.1.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-2.9.0.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-2.10.1.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.9.0.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.10.1.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-2.9.0.aar')`.
-
-Set the `targetSdkVersion` to API level `31` or higher in app level `build.gradle`.
+`implementation files('libs/cubicapture-release-2.10.1.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-2.9.0.aar')
-implementation 'com.google.ar:core:1.36.0'
+implementation files('libs/cubicapture-release-2.10.1.aar')
+implementation 'com.google.ar:core:1.39.0'
 implementation 'com.google.code.gson:gson:2.10.1'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
 implementation 'com.facebook.shimmer:shimmer:0.5.0'
@@ -152,22 +144,13 @@ implementation 'com.facebook.shimmer:shimmer:0.5.0'
 implementation 'com.google.android.gms:play-services-location:21.0.1'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'com.google.android.exoplayer:exoplayer:2.18.5'
-implementation 'androidx.recyclerview:recyclerview:1.3.0'
-```
-
-If your Gradle plugin version is 4.1.0 or earlier, add the following lines to the app level
-`build.gradle` inside the `android` branch:
-```Groovy
-compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-}
+implementation 'androidx.recyclerview:recyclerview:1.3.1'
+implementation 'androidx.media3:media3-exoplayer:1.1.1'
 ```
 
 Add CubiCapture fragment to your projects scanning layout .xml file
 ```xml
-<fragment
+<androidx.fragment.app.FragmentContainerView
     android:id="@+id/cubiFragment"
     android:name="cubi.casa.cubicapture.CubiCapture"
     android:layout_width="match_parent"
@@ -220,7 +203,7 @@ the scan data:
 ```Kotlin
 override fun getPropertyType(): PropertyType { }
 ```
-Possible values for the `PropertyType` are `SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`,`APARTMENT`, `OTHER`.
+Possible values for the `PropertyType` are `SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`, `APARTMENT`, and `OTHER`.
 
 Before scanning with CubiCapture you first have to set folder name `scanFolderName: String`
 where we store the scan files.
@@ -233,11 +216,9 @@ cubiCapture.scanFolderName = scanName
 ```
 
 Set the `allScansFolder: File?` to set the directory where CubiCapture will save all the
-scan folders. Android 11 Storage updates will restrict where your app can store data.
+scan folders.
 We suggest the directory returned by `getExternalFilesDir()` for storing scan data.
 Just make sure that the storage is available and that the returned `File` is not `null`.
-Read more about Android 11 storage updates from
-[here](https://developer.android.com/about/versions/11/privacy/storage).
 Example:
 ```Kotlin
 val mainStorage: File = getExternalFilesDir(null) ?: getBackupStorage()
@@ -247,7 +228,7 @@ cubiCapture.allScansFolder = mainStorage
 Before starting the scan you can add order information:
 ```Kotlin
 cubiCapture.setOrderInfo(
-    "ExampleStreet", //street
+    "ExampleStreet", // street
     "10", // number
     "ExampleSuite", // suite
     "ExampleCity", // city
@@ -320,8 +301,8 @@ Speech recognition is enabled (`speechRecognitionEnabled` is set to `true`) by d
 If you are going to use speech recognition you need to declare the
 `RECORD_AUDIO` and `INTERNET` permissions in your app's manifest file.
 
-For apps targeting Android 11 (API level 30) or above, interaction with a speech recognition service
-requires element to be added to the `AndroidManifest.xml` file:
+Interaction with a speech recognition service  requires the following element to be added to the
+`AndroidManifest.xml` file:
 ```xml
 <queries>
     <intent>
@@ -369,8 +350,8 @@ applications needs the permission before requesting it.
 
 `getAvailableStorageMinutes(File)` is a public function which returns an estimation in minutes
 of the maximum scan length the device can store.
-This will be useful in a case where user's available storage space is running low and you want to inform the user
-about it before starting your scanning activity.
+This will be useful in a case where user's available storage space is running low and you want to
+inform the user about it before starting your scanning activity.
 
 Example:
 ```Kotlin
@@ -384,7 +365,7 @@ if (availableMinutes <= 60) {
 
 Scan playback is a `Fragment` which can be used to review the scan and to see any warnings that were
 shown during the scan, as well as any room labels that were added.
-The `Fragment` has a media control panel which can be used to play/pause, jump between scan events
+The `Fragment` has a media control panel that can be used to play/pause, jump between scan events
 and video frames one by one. All the scan events can be found in the Events list, which can be used
 to easily jump between the events. The active events are displayed in the area above the Events
 list. The video playback speed can be changed from the top bar which appears when the video is in
@@ -393,9 +374,9 @@ paused state.
 To implement the ScanPlayback, first add the required dependencies
 (see [Implementation](#implementation)).
 
-Add `ScanPlayback` `Fragment` to your projects scan playback's XML layout file:
+Add `ScanPlayback` fragment to your projects scan playback's XML layout file:
 ```xml
-<fragment
+<androidx.fragment.app.FragmentContainerView
 	android:id="@+id/scanPlayback"
 	android:name="cubi.casa.cubicapture.ScanPlayback"
 	android:layout_width="match_parent"
@@ -1332,10 +1313,18 @@ Received if the device is not compatible with ARCore. If encountered after compl
 installation check, this usually indicates that ARCore has been side-loaded onto an incompatible
 device. You will receive code 5 after this.
 
+### 107, "Device is too hot to start scanning."
+Received if the thermal state is critical or higher on startup. You will receive code 5 after this.
+
 ## Archived Update Guides
 
+**Note! If you've previously implemented version 2.8.0 you've probably done the next steps already:**
+- Check the new `safeMode` variable, and if you want to implement a [Safe mode](#safe-mode) setting
+  to your app
+- Handle the new status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
+  to show user an error message after the scan
+
 **Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
-- Update your `targetSdkVersion` to API level 31 or higher
 - If you want to implement the new scan playback `Fragment` to your application,
   see [Scan playback](#scan-playback) and new resources for customization
 - If you want to show a reminder view for microphone or location permissions when the permission
@@ -1397,6 +1386,20 @@ device. You will receive code 5 after this.
 - Check if you want to handle the new status codes (codes 40-49 and 59-64)
 
 ## Archived Release Notes
+
+**2.7.0:**
+- Ceiling warning adjustments
+- Updated dependencies (see [Implementation](#implementation))
+
+**2.6.3:**
+- Property type can now be added to the scan data with the new variable `propertyType: PropertyType`
+- Patch to prevent majority of the native ARCore crashes. Too close -warning is disabled for the
+  time being and will be enabled again once Google has fixed the issue
+- Updated dependencies (see [Implementation](#implementation))
+- Various bug fixes
+
+**2.6.1:**
+- Bug fix: Fixed record button not being vertically centered when speech recognition was disabled
 
 **2.6.0:**
 - New scan playback `Fragment` available, which can be used to review the scan and to see any warnings

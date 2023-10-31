@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/scanPlayback"
         android:name="cubi.casa.cubicapture.ScanPlayback"
         android:layout_width="match_parent"
