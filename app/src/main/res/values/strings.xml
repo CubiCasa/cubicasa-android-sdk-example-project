@@ -1,103 +1,82 @@
 <resources>
     <!--
-      To change CubiCapture's default texts you have to redefine the strings here.
+      To change CubiCapture's default texts, you have to redefine the strings here.
 
       Note:
       You don't have to redefine the string here if you're not changing it.
-      Strings here are redefined to the default values just for example.
+      Strings here are redefined to the default values just as an example.
      -->
 
-    <!-- Hint label texts -->
-    <string name="cc_record_hint_text"><i>1. Start scanning</i></string>
-    <string name="cc_speech_hint_text"><i>2. Say the room name</i></string>
+    <!-- Displayed when the ARCore is initializing -->
+    <string name="cc_tracking_initializing_title">Start scanning</string>
+    <string name="cc_tracking_initializing_info">Move your device so we can begin tracking your position</string>
 
-    <!-- Low storage warning text. Shown in the `statusText: TextView` for 5 seconds in certain intervals
-    during a scan if the estimation of the maximum scan length the device can store is less than 10 minutes.
-    Always include '%1$d' in the string. It's a placeholder for the value of the available minutes -->
-    <string name="cc_low_storage_text">Low storage: %1$d minutes left!</string>
+    <!-- Displayed if tracking is lost due to excessive motion -->
+    <string name="cc_tracking_excessive_motion_title">Slow down</string>
+    <string name="cc_tracking_excessive_motion_info">You are moving too fast, try to move the device more slowly</string>
 
-    <!-- End recording slider text -->
-    <string name="cc_slider_text"><i>Slide to end</i></string>
+    <!-- Displayed if tracking is lost due to insufficient visual features -->
+    <string name="cc_tracking_insufficient_features_title">Not enough visual features</string>
+    <string name="cc_tracking_insufficient_features_info">We have trouble tracking your position</string>
 
-    <!-- Processing text -->
+    <!-- Displayed if tracking is lost due to poor lighting conditions -->
+    <string name="cc_tracking_insufficient_lighting_title">It is too dark here</string>
+    <string name="cc_tracking_insufficient_lighting_info">Please turn on the lights if possible</string>
+
+    <!-- Displayed if the user is walking sideways -->
+    <string name="cc_guide_sideways_title">Do not walk sideways</string>
+    <string name="cc_guide_sideways_left_info">Turn left and point the camera in your walking direction</string>
+    <string name="cc_guide_sideways_right_info">Turn right and point the camera in your walking direction</string>
+
+    <!-- Displayed title and info text for the rotate warning -->
+    <string name="cc_guide_rotate_title">Rotate your device</string>
+    <string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
+    <string name="cc_guide_rotate_landscape_info">Keep your device in landscape orientation</string>
+
+    <!-- Displayed if the device is tilted forward too much -->
+    <string name="cc_guide_raise_device_title">Raise the device</string>
+    <string name="cc_guide_raise_device_info">You are pointing too much at the floor. Please raise the device a bit</string>
+
+    <!-- Displayed if the user is rotating/turning too fast -->
+    <string name="cc_guide_fast_rotation_title">You are turning too fast</string>
+    <string name="cc_guide_fast_rotation_info">Avoid fast turns for best scanning results</string>
+
+    <!-- Displayed if the user is scanning too close to objects -->
+    <string name="cc_guide_too_close_title">You are too close</string>
+    <string name="cc_guide_too_close_info">Keep more distance from the objects you are scanning</string>
+
+    <!-- Displayed if the device's storage space is running low -->
+    <string name="cc_guide_low_storage_title">Low on storage</string>
+    <!-- Note! Always include the %1$d in the info string! -->
+    <string name="cc_guide_low_storage_info">Only %1$d minutes of scanning time left</string>
+
+    <!-- Displayed if the device experiences thermal throttling -->
+    <string name="cc_guide_throttling_title">Your device is getting hot</string>
+    <string name="cc_guide_throttling_info">You can continue scanning but go slowly</string>
+
+    <!-- Displayed if camera permission is not granted -->
+    <string name="cc_permission_camera_title">No camera access</string>
+    <string name="cc_permission_camera_info">Cannot scan without camera permission. Please allow access to the camera</string>
+
+    <!-- Displayed if permission is not granted -->
+    <string name="cc_permission_request_button_text">Turn on</string>
+
+    <!-- Displayed if record button is pressed to finish scan -->
+    <string name="cc_dialog_finish_scan_title">Finish scan?</string>
+    <string name="cc_dialog_finish_scan_info">Are you sure you want to finish this scan?</string>
+
+    <!-- Displayed if back button is pressed to cancel scan -->
+    <string name="cc_dialog_cancel_scan_title">Cancel scan?</string>
+    <string name="cc_dialog_cancel_scan_info">Are you sure you want to cancel this scan?</string>
+
+    <!-- Displayed positive and negative texts for scan dialogs -->
+    <string name="cc_dialog_button_positive_text">Yes</string>
+    <string name="cc_dialog_button_negative_text">No</string>
+
+    <!-- Displayed in the processing view after recording is finished -->
     <string name="cc_processing_text">Processing scan.\nPlease do not exit the application.</string>
 
-    <!-- Back button texts -->
-    <string name="cc_back_button_text">Back</string>
-    <string name="cc_back_button_confirm_text">Are you sure?</string>
-
-    <!-- Text of the cancel button in speech recognition results view -->
-    <string name="cc_cancel_button_text">Cancel</string>
-
-    <!-- Speech recognition pop-up texts -->
-    <string name="cc_ready_for_speech_text">Say the room name</string>
-    <string name="cc_speech_no_results_text">No results</string>
-
-    <!-- ARCore tracking status texts -->
-    <string name="cc_excessive_motion_text">You are moving too fast</string>
-    <string name="cc_insufficient_features_text">We have trouble tracking your position
-	\nbecause there are not enough visual features here
-    </string>
-    <string name="cc_insufficient_light_text">We have trouble tracking your position
-	\nbecause it is too dark here
-    </string>
-    <string name="cc_initializing_text">Move your device to start tracking</string>
-
-    <!-- Recognition results over the max length text.
-    Always include '%1$d' in the string. It's a placeholder for the value of the maximum characters -->
-    <string name="cc_results_over_max_length_text">Space name exceeded %1$d characters</string>
-
-    <!-- Displayed title for the sideways warning -->
-    <string name="cc_warning_sideways_title">Do not walk sideways</string>
-    <!-- Displayed info text for sideways left warning -->
-    <string name="cc_warning_sideways_left_info">Turn left and point the camera in your walking direction.\nWalk along the wall.</string>
-    <!-- Displayed info text for sideways right warning -->
-    <string name="cc_warning_sideways_right_info">Turn right and point the camera in your walking direction.\nWalk along the wall.</string>
-
-    <!-- Displayed info text for the rotate warning -->
-    <string name="cc_warning_rotate_info">Rotate your device 180°.\nMake sure the record button is on the right.</string>
-
-    <!-- Displayed title for ceiling scanning warning -->
-    <string name="cc_warning_ceiling_title">Do not scan ceilings</string>
-    <!-- Displayed info text for ceiling scanning warning -->
-    <string name="cc_warning_ceiling_info">We can lose track of your position if ceilings are scanned.</string>
-
-    <!-- Displayed title for floor scanning warning -->
-    <string name="cc_warning_floor_title">Tilt the device back a bit</string>
-    <!-- Displayed info text for floor scanning warning -->
-    <string name="cc_warning_floor_info">Point the camera approximately 8ft / 2.5m in front of you.\nKeep at least 3ft / 1m distance from all objects.</string>
-
-    <!-- Displayed on the guide screen before the device is turned to landscape -->
-    <string name="cc_guide_turn_device_info">Turn your device left to landscape orientation</string>
-
-    <!-- Displayed on title in the warning view on too much horizontal scanning -->
-    <string name="cc_warning_tilt_down_title">Tilt the device forward a bit</string>
-    <!-- Displayed info text for too much horizontal scanning -->
-    <string name="cc_warning_tilt_down_info">Focus on the floor about 8ft / 2.5m in front of you.</string>
-
-    <!-- Displayed in the warning view title in fast rotation warning -->
-    <string name="cc_warning_fast_rotation_title">You are turning too fast</string>
-    <!-- Displayed in the warning view info text in fast rotation warning -->
-    <string name="cc_warning_fast_rotation_info">Avoid fast turns for best scanning results.</string>
-
-    <!-- Displayed on the warning view title when user is scanning too close to objects -->
-    <string name="cc_warning_too_close_title">You are too close</string>
-    <!-- Displayed on the warning view info text when user is scanning too close to objects -->
-    <string name="cc_warning_too_close_info">Keep more distance from the objects you are scanning.</string>
-
-    <!-- Displayed on the Location Services reminder view's info text when Location Services are
-    turned off -->
-    <string name="cc_location_services_reminder_text">Turn on <b>Location Services</b> from
-	<b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
-    <!-- Displayed on the location permission reminder view's info text when location permission
-    is not granted -->
-    <string name="cc_location_permission_reminder_text">Allow <b>Location</b> permission from
-	<b>App permission settings</b> to enable a compass in the floor plan</string>
-    <!-- Displayed on the reminder view's settings button text when Location Services are turned off
-    or location permission is not granted -->
-    <string name="cc_open_location_settings_text"><u>Go to <b>Settings</b></u></string>
-
-    <!-- Scan playback speed spinner text. Always include '%1$s' in the string. -->
+    <!-- Scan playback speed spinner text. Always include the %1$s in the string!-->
     <string name="cc_playback_speed_text">Playback speed: %1$s</string>
     <!-- Scan playback speed spinner text for normal speed -->
     <string name="cc_playback_normal_speed_text">Normal</string>
@@ -105,9 +84,9 @@
     <!-- Scan playback events header text -->
     <string name="cc_playback_events_header_text">Events</string>
 
-    <!-- Scan playback frame text. Always include the '%1$s' in the string!-->
+    <!-- Scan playback frame text. Always include the %1$s in the string!-->
     <string name="cc_playback_frame_text">Frame: %1$s</string>
-    <!-- Scan playback time text. Always include the '%1$s' in the string!-->
+    <!-- Scan playback time text. Always include the %1$s in the string!-->
     <string name="cc_playback_time_text">Time: %1$s</string>
 
     <!-- Scan playback active event texts -->
@@ -121,30 +100,13 @@
     <string name="cc_playback_fast_rotation">Turning too fast</string>
     <string name="cc_playback_too_close">Too close</string>
 
-    <!-- Displayed on the speech recognition pop-up view if microphone button is
-    pressed while recording and microphone permission is not granted and can't be requested -->
-    <string name="cc_microphone_permission_not_granted">Microphone permission not granted</string>
-    <!-- Displayed on the microphone permission reminder view's info text when the microphone
-    button is pressed while not recording and microphone permission is not granted and can't be
-    requested -->
-    <string name="cc_microphone_permission_settings_text">Allow <b>Microphone</b> permission from
-	<b>App permission settings</b></string>
-    <!-- Displayed on the microphone permission reminder view's settings button text -->
-    <string name="cc_open_microphone_settings_text"><u>Go to <b>App settings</b></u></string>
-
     <!-- ____________________________ End of CubiCapture strings! ____________________________ -->
 
     <!-- Example app's name -->
     <string name="app_name">ExampleProject</string>
 
-    <!-- Strings used in ExampleProject's 'activity_scan_info' where we fill in the order information -->
-    <string name="street"><i>Street | required</i></string>
-    <string name="number"><i>Street number</i></string>
-    <string name="suite"><i>Suite number</i></string>
-    <string name="city"><i>City</i></string>
-    <string name="state"><i>State</i></string>
-    <string name="country"><i>Country</i></string>
-    <string name="postalCode"><i>Postal code</i></string>
+    <!-- Strings used in ExampleProject's 'activity_scan_info.xml' -->
+    <string name="property_type_title">Property type</string>
     <string name="safe_mode_title">Safe mode</string>
     <string name="safe_mode_text">Enable this if you are experiencing stability issues while scanning</string>
     <string name="start_scanning_text">Start scanning</string>

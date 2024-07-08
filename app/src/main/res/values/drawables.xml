@@ -1,51 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      To change CubiCapture's default drawables you have to redefine the drawables here.
+      To change CubiCapture's default drawables, you have to redefine the drawables here.
 
       Note:
       You don't have to redefine the drawable here if you're not changing it.
-      Drawables here are redefined to the default values just for example.
+      Drawables here are redefined to the default values just as an example.
      -->
 
-    <!-- Record button, hint label and end recording slider background -->
-    <drawable name="cc_not_recording">@drawable/cc_not_recording_original</drawable>
-    <drawable name="cc_recording">@drawable/cc_recording_original</drawable>
-    <drawable name="cc_hint_label_background">@drawable/cc_hint_label_background_original</drawable>
-    <drawable name="cc_slider_background">@drawable/cc_slider_background_original</drawable>
+    <!--
+        Scan back button icon and background.
+        Note: Background is only visible when fullscreen guide is shown
+    -->
+    <drawable name="cc_scan_button_back_icon">@drawable/cc_icon_arrow_left</drawable>
+    <drawable name="cc_scan_button_back_background">@drawable/cc_back_button_background</drawable>
 
-    <!-- Status borders -->
-    <drawable name="cc_status_border_tracking">@drawable/cc_status_border_tracking_original</drawable>
-    <drawable name="cc_status_border_failure">@drawable/cc_status_border_failure_original</drawable>
+    <!-- Scan timer background -->
+    <drawable name="cc_scan_timer_background">@drawable/cc_timer_background</drawable>
 
-    <!-- Warning and guide icons -->
-    <drawable name="cc_turn_device_icon">@drawable/cc_turn_device_original</drawable>
-    <drawable name="cc_rotate_device_icon">@drawable/cc_rotate_device_original</drawable>
-    <drawable name="cc_turn_left_icon">@drawable/cc_warning_arrow_left_original</drawable>
-    <drawable name="cc_turn_right_icon">@drawable/cc_warning_arrow_right_original</drawable>
-    <drawable name="cc_ceiling_icon">@drawable/cc_warning_arrow_down_original</drawable>
-    <drawable name="cc_horizontal_icon">@drawable/cc_horizontal_original</drawable>
-    <drawable name="cc_floor_icon">@drawable/cc_warning_arrow_original</drawable>
-    <drawable name="cc_fast_movement_icon">@drawable/cc_fast_movement_original</drawable>
-    <drawable name="cc_too_close_icon">@drawable/cc_too_close_original</drawable>
+    <!-- Record button -->
+    <drawable name="cc_not_recording">@drawable/cc_icon_not_recording</drawable>
+    <drawable name="cc_recording">@drawable/cc_icon_recording</drawable>
 
-    <!-- Warning and guide backgrounds, which are just colors by default -->
-    <drawable name="cc_warning_background">#66F90066</drawable>
-    <drawable name="cc_guide_background">#D9163241</drawable>
+    <!-- Displayed when the ARCore is initializing -->
+    <drawable name="cc_tracking_initializing_icon">@drawable/cc_icon_start_scanning</drawable>
+
+    <!-- Displayed if tracking is lost due to excessive motion -->
+    <drawable name="cc_tracking_excessive_motion_icon">@drawable/cc_icon_excessive_motion</drawable>
+
+    <!-- Displayed if tracking is lost due to insufficient visual features -->
+    <drawable name="cc_tracking_insufficient_features_icon">@drawable/cc_icon_insufficient_features</drawable>
+
+    <!-- Displayed if tracking is lost due to poor lighting conditions -->
+    <drawable name="cc_tracking_insufficient_lighting_icon">@drawable/cc_icon_insufficient_lighting</drawable>
+
+    <!-- Displayed if the user is walking sideways -->
+    <drawable name="cc_guide_sideways_left_icon">@drawable/cc_icon_turn_left</drawable>
+    <drawable name="cc_guide_sideways_right_icon">@drawable/cc_icon_turn_right</drawable>
+
+    <!-- Displayed icons for the rotate warning -->
+    <drawable name="cc_guide_rotate_90_icon">@drawable/cc_icon_rotate_device_90</drawable>
+    <drawable name="cc_guide_rotate_180_icon">@drawable/cc_icon_rotate_device_180</drawable>
+    <drawable name="cc_guide_rotate_270_icon">@drawable/cc_icon_rotate_device_270</drawable>
+
+    <!-- Displayed if the device is tilted forward too much -->
+    <drawable name="cc_guide_raise_device_icon">@drawable/cc_icon_raise_device</drawable>
+
+    <!-- Displayed if the user is rotating/turning too fast -->
+    <drawable name="cc_guide_fast_rotation_icon">@drawable/cc_icon_fast_rotation</drawable>
+
+    <!-- Displayed if the user is scanning too close to objects -->
+    <drawable name="cc_guide_too_close_icon">@drawable/cc_icon_too_close</drawable>
+
+    <!-- Displayed if the device's storage space is running low -->
+    <drawable name="cc_guide_low_storage_icon">@drawable/cc_icon_low_storage</drawable>
+
+    <!-- Displayed if the device experiences thermal throttling -->
+    <drawable name="cc_guide_throttling_icon">@drawable/cc_icon_device_hot</drawable>
+
+    <!-- Displayed if camera permission is not granted -->
+    <drawable name="cc_permission_camera_icon">@drawable/cc_icon_camera</drawable>
+
+    <!-- Top warning and info guide backgrounds -->
+    <drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
+    <drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
+    <drawable name="cc_guide_top_warning_landscape_background">@drawable/cc_top_warning_landscape_background</drawable>
+    <drawable name="cc_guide_top_info_landscape_background">@drawable/cc_top_info_landscape_background</drawable>
+
+    <!-- Fullscreen warning guide background, which is just a color by default -->
+    <drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
+
+    <!-- Permission request button background -->
+    <drawable name="cc_permission_request_button_background">@drawable/cc_request_permission_button_background</drawable>
+
+    <!-- Scan dialog background and button backgrounds -->
+    <drawable name="cc_dialog_background">@drawable/cc_scan_dialog_background</drawable>
+    <drawable name="cc_dialog_button_positive_background">@drawable/cc_dialog_positive_button_background</drawable>
+    <drawable name="cc_dialog_button_negative_background">@drawable/cc_dialog_negative_button_background</drawable>
+
+    <!-- Scan view background color, which is just a color by default  -->
+    <drawable name="cc_scan_background">#0C2F46</drawable>
 
     <!-- Processing screen background, which is just a color by default -->
-    <drawable name="cc_processing_background">#071d29</drawable>
-
-    <!-- Icon for Location Services and location permission reminders -->
-    <drawable name="cc_location_icon">@drawable/cc_location_icon_original</drawable>
-    <!-- Icon for microphone permission reminder -->
-    <drawable name="cc_microphone_icon">@drawable/cc_microphone_icon_original</drawable>
-    <!-- Background for reminder view -->
-    <drawable name="cc_reminder_background">@drawable/cc_location_reminder_background_original</drawable>
+    <drawable name="cc_processing_background">#0C2F46</drawable>
 
     <!-- Scan playback timeline thumb -->
     <drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
 
     <!-- Scan playback back arrow -->
-    <drawable name="cc_playback_back_arrow">@drawable/cc_back_arrow_original</drawable>
+    <drawable name="cc_playback_back_arrow">@drawable/cc_icon_arrow_left</drawable>
 </resources>
