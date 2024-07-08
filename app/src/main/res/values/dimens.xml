@@ -1,77 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      To change the CubiCapture's default layout sizes, margins and text sizes redefine the
+      To change CubiCapture's default layout sizes, margins, and text sizes, redefine the
       dimensions here.
-      Dimensions 'button_record_size' and 'button_record_margin_end' define the size or layout
-      margins of the record button, end recording slider and speech recognition button,
-      since end recording slider and speech recognition button are set relative to the record button.
 
       Note:
-      You don't have to redefine the dimension here if you're not changing it.
+      You don't have to redefine the dimensions here if you're not changing them.
       Dimensions here are redefined to the default values just for example.
      -->
 
-    <!-- Size of the record and speech recognition buttons -->
-    <dimen name="button_record_size">72dp</dimen>
+    <!--
+        Scan back button padding, background radius and background margin
 
-    <!-- Margin end of the record and speech recognition buttons -->
-    <dimen name="button_record_margin_end">52dp</dimen>
+        Note:
+        - Scan back button's width and height wraps the content
+        - Scan timer is constrained to vertically center the scan back button
+        - Scan back button's background margin is applied to the original background drawable item
+    -->
+    <dimen name="cc_scan_button_back_padding">16dp</dimen>
+    <dimen name="cc_scan_button_back_background_radius">10dp</dimen>
+    <dimen name="cc_scan_button_back_background_margin">12dp</dimen>
 
-    <!-- Hint label width(s). Using '0dp' for the 'hint_label_width' wraps the label text -->
-    <dimen name="hint_label_width">0dp</dimen>
+    <!-- Scan timer vertical and horizontal paddings and background radius  -->
+    <dimen name="cc_scan_timer_padding_vertical">4dp</dimen>
+    <dimen name="cc_scan_timer_padding_horizontal">16dp</dimen>
+    <dimen name="cc_scan_timer_background_radius">36dp</dimen>
 
-    <!-- Hint label height(s) -->
-    <dimen name="hint_label_height">52dp</dimen>
+    <!-- Scan top guide horizontal and top margins and vertical and horizontal paddings -->
+    <dimen name="cc_guide_top_margin_top">12dp</dimen>
+    <dimen name="cc_guide_top_margin_horizontal">16dp</dimen>
+    <dimen name="cc_guide_top_padding_vertical">12dp</dimen>
+    <dimen name="cc_guide_top_padding_horizontal">16dp</dimen>
 
-    <!-- Margin end of the hint label(s) -->
-    <dimen name="hint_label_margin_end">12dp</dimen>
+    <!-- Scan top guide icon height -->
+    <dimen name="cc_guide_top_icon_height">48dp</dimen>
 
-    <!-- Processing progress bar size scale -->
+    <!-- Scan top guide text margins -->
+    <dimen name="cc_guide_top_text_margin_start">16dp</dimen>
+    <dimen name="cc_guide_top_info_text_margin_top">4dp</dimen>
+
+    <!-- Scan top guide background radius and stroke width -->
+    <dimen name="cc_guide_top_background_radius">8dp</dimen>
+    <dimen name="cc_guide_top_background_stroke_width">2dp</dimen>
+
+    <!-- Scan fullscreen guide padding -->
+    <dimen name="cc_guide_fullscreen_padding">32dp</dimen>
+
+    <!-- Scan fullscreen guide icon height -->
+    <dimen name="cc_guide_fullscreen_icon_height">72dp</dimen>
+
+    <!-- Scan fullscreen guide text margins -->
+    <dimen name="cc_guide_fullscreen_title_text_margin_top">32dp</dimen>
+    <dimen name="cc_guide_fullscreen_info_text_margin_top">16dp</dimen>
+
+    <!-- Record button size and margin bottom -->
+    <dimen name="cc_button_record_size">64dp</dimen>
+    <dimen name="cc_button_record_margin_bottom">32dp</dimen>
+
+    <!-- Photo capture button and thumbnail image size, and photo capture button icon size -->
+    <dimen name="cc_button_capture_image_size">48dp</dimen>
+    <dimen name="cc_button_capture_icon_size">24dp</dimen>
+
+    <!-- Request permission button radius, padding horizontal and margin top -->
+    <dimen name="cc_permission_request_button_radius">100dp</dimen>
+    <dimen name="cc_permission_request_button_padding_horizontal">32dp</dimen>
+    <dimen name="cc_permission_request_button_margin_top">32dp</dimen>
+
+    <!-- Scan dialog dimensions -->
+    <dimen name="cc_dialog_padding">32dp</dimen>
+    <dimen name="cc_dialog_margin">16dp</dimen>
+    <dimen name="cc_dialog_info_text_margin_top">16dp</dimen>
+    <dimen name="cc_dialog_button_positive_margin_top">24dp</dimen>
+    <dimen name="cc_dialog_button_negative_margin_top">16dp</dimen>
+    <dimen name="cc_dialog_background_radius">16dp</dimen>
+    <dimen name="cc_dialog_button_radius">100dp</dimen>
+    <dimen name="cc_dialog_button_negative_stroke_width">1dp</dimen>
+
+    <!-- Processing view progress bar size scale -->
     <dimen name="cc_progress_bar_size_scale">1.6</dimen>
 
-    <!-- End recording slider text size -->
-    <dimen name="cc_slider_text_size">20sp</dimen>
-
-    <!-- Hint label text size -->
-    <dimen name="cc_hint_label_text_size">16sp</dimen>
-
-    <!-- Speech recognition results text size -->
-    <dimen name="cc_recognition_results_text_size">20sp</dimen>
-
-    <!-- Speech recognition pop-up text size-->
-    <dimen name="cc_recognition_popup_text_size">16sp</dimen>
-
-    <!-- Status text size (Used for ARCore tracking errors for example) -->
-    <dimen name="cc_status_text_size">16sp</dimen>
-
-    <!-- Back button text size -->
-    <dimen name="cc_back_button_text_size">14sp</dimen>
+    <!-- Processing view processing text margin -->
+    <dimen name="cc_processing_text_margin">16dp</dimen>
 
     <!-- Scan timer text size -->
-    <dimen name="cc_scan_timer_text_size">14sp</dimen>
+    <dimen name="cc_text_size_scan_timer">14dp</dimen>
 
-    <!-- Processing text size -->
-    <dimen name="cc_processing_text_size">16sp</dimen>
+    <!-- Heading 1 text size -->
+    <dimen name="cc_text_size_heading_1">20dp</dimen>
 
-    <!-- Processing percentage text size -->
-    <dimen name="cc_percentage_text_size">16sp</dimen>
+    <!-- Heading 2 text size -->
+    <dimen name="cc_text_size_heading_2">16dp</dimen>
 
-    <!-- Warning title text size -->
-    <dimen name="cc_warning_title_text_size">44sp</dimen>
+    <!-- Body 1 text size -->
+    <dimen name="cc_text_size_body_1">16dp</dimen>
 
-    <!-- Warning message text size -->
-    <dimen name="cc_warning_message_text_size">28sp</dimen>
-
-    <!-- Text size reminder view's texts -->
-    <dimen name="cc_reminder_text_size">16sp</dimen>
+    <!-- Body 2 text size -->
+    <dimen name="cc_text_size_body_2">14dp</dimen>
 
     <!-- Scan playback controller button width percent -->
     <dimen name="cc_controller_button_width_percent">0.10</dimen>
 
     <!-- Scan playback small text size (Used for all texts except active events) -->
-    <dimen name="cc_playback_text_size_small">14sp</dimen>
+    <dimen name="cc_playback_text_size_small">14dp</dimen>
 
     <!-- Scan playback big text size (Used for active events) -->
-    <dimen name="cc_playback_text_size_big">20sp</dimen>
+    <dimen name="cc_playback_text_size_big">20dp</dimen>
 </resources>

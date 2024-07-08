@@ -2,22 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Declare the 'RECORD_AUDIO' and 'INTERNET' permissions if you use Speech recognition -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-
     <!-- Declare the 'ACCESS_COARSE_LOCATION' and 'ACCESS_FINE_LOCATION' permissions
     if you use True North detection -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- For apps targeting Android 11 (API level 30) or above, interaction with a speech recognition
-    service requires element to be added to the manifest file: -->
-    <queries>
-        <intent>
-            <action android:name="android.speech.RecognitionService" />
-        </intent>
-    </queries>
 
     <application
         android:allowBackup="true"
@@ -30,19 +18,19 @@
 
         <!--
         To allow your scanning Activity to consume more RAM, to lock screen orientation to
-        landscape and to prevent multiple onCreate() calls add the following code to your inside
+        portrait and to prevent multiple onCreate() calls add the following code to your inside
         your scanning Activity's activity tag:
 
         android:configChanges="orientation|screenSize"
         android:largeHeap="true"
-        android:screenOrientation="landscape"
+        android:screenOrientation="portrait"
         -->
         <activity
             android:name=".ScanActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize"
             android:largeHeap="true"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="portrait" />
         
         <activity
             android:name=".ScanInfoActivity"

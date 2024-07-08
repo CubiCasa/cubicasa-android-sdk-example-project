@@ -13,29 +13,29 @@ class ViewScanActivity : AppCompatActivity(), ScanPlaybackListener {
 
     private lateinit var scanPlayback: ScanPlayback
 
-    private lateinit var scanFolder: File
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_scan)
 
         scanPlayback = supportFragmentManager.findFragmentById(R.id.scanPlayback) as ScanPlayback
-        scanFolder = intent.getSerializable("scanFolder")!!
+
+        val scanFolder: File = intent.getSerializable("scanFolder")!!
         scanPlayback.setScanFolder(scanFolder)
+
         scanPlayback.setOnBackButtonClickListener {
-            deleteScanAndFinish()
+            deleteScanAndFinish(scanFolder)
         }
 
         onBackPressedDispatcher.addOnClickListener(this) {
-            deleteScanAndFinish()
+            deleteScanAndFinish(scanFolder)
         }
     }
 
     /** Called when the scan playback's playing state changes (playing/paused) */
     override fun onIsPlayingChanged(isPlaying: Boolean) { }
 
-    private fun deleteScanAndFinish() {
-        scanFolder.deleteRecursively()
+    private fun deleteScanAndFinish(scanDirectory: File) {
+        scanDirectory.deleteRecursively()
         startActivity(Intent(baseContext, ScanInfoActivity::class.java))
         finish()
     }

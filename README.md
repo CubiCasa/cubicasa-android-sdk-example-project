@@ -3,16 +3,15 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture library module](#cubicapture-library-module)
-  * [Updating to CubiCapture 2.10.1](#updating-to-cubicapture-2101)
+  * [Updating to CubiCapture 3.1.1](#updating-to-cubicapture-311)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
     * [Setting up](#setting-up)
-    * [Speech Recognition for Room Labels](#speech-recognition-for-room-labels)
     * [True north detection](#true-north-detection)
     * [Get available storage space estimation](#get-available-storage-space-estimation)
     * [Scan playback](#scan-playback)
-    * [Reminder view](#reminder-view)
+    * [Photo capturing](#photo-capturing)
     * [Safe mode](#safe-mode)
     * [Warning sound](#warning-sound)
     * [Automatic and manual zipping](#automatic-and-manual-zipping)
@@ -44,10 +43,27 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 2.10.1
+## Updating to CubiCapture 3.1.1
 
-- Update your app to use the CubiCapture 2.10.1 library module
+- Update your app to use the CubiCapture 3.1.1 library module
 - Update the app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- If you used speech recognition, the `RECORD_AUDIO` and `INTERNET` permissions, and
+  `android.speech.RecognitionService` can be removed from the `AndroidManifest.xml`
+- Update your scanning `Activity` to use portrait orientation. Add `android:screenOrientation="portrait"`
+  to the `activity` tag of the scanning `Activity` in the `AndroidManifest.xml`, and add
+  `requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT` to the `onCreate()` method of
+  the scanning `Activity`
+- See the changes to the UI, including new scan guides/warnings, the new vertical tilt warning,
+  and the end scan confirmation dialog. Refer to [UI settings](#ui-settings) if you want to customize
+  the colors, drawables, dimensions, or strings, and update your resource values accordingly.
+- Remove `window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)` and
+  `CubiCapture.registerCallback(activity: Activity)` as these are now handled by the CubiCapture SDK
+- Check if you want to enable the [photo capturing](#photo-capturing) option
+- See [Release Notes](#release-notes) for CubiCapture methods that have been changed to properties,
+  renamed variables, removed views, methods, and properties, and new, changed, and removed status codes.
+  Update your code accordingly
+
+**Note! If you've previously implemented version 2.10.1 you've probably done the next steps already:**
 - Replace the `CubiCapture` and `ScanPlayback` `<fragment>` tags with the
 `<androidx.fragment.app.FragmentContainerView>` tags
 - Handle the new status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
@@ -55,20 +71,46 @@ to show user an error message after the aborted scan
 
 **Note! If you've previously implemented version 2.9.0 you've probably done the next steps already:**
 - Update your `minSdkVersion` to API level `29` or higher
-- Implement the new `CubiEventListener` method `getPropertyType(): PropertyType` to set the `PropertyType`
-(see [Implementation](#implementation) below)
-- Remove deprecated `propertyType: PropertyType` if you used it
 - Rename `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods as
 as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
 - If you want to disable the low storage warnings, see the new `storageWarningsEnabled` below
 [General](#general) UI settings
-- If you want to customize the processing screen text color or the progress bar color,
-see `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
 - Check if you want to handle the new status code [103, "Missing callback"](#103-missing-callback)
 
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**3.1.1:**
+- Scanning orientation is now portrait
+- Added [photo capturing](#photo-capturing) option
+- New UI, scan guides and end scan confirmation dialog
+- Added vertical tilt warning
+- Added camera permission handling
+- Dropped speech recognition and depth capturing
+- Aborting scan if the device is in the wrong orientation for too long
+- Improved drift detection: Scan now aborts if device position shows unnatural "sliding" behavior,
+  while "jumps" do not cause the scan to abort
+- CubiCapture now adds flags to keep the screen on
+- Removed `registerCallback(activity: Activity)`. Callback is now registered automatically
+- `setTimerEnabled(enabled: Boolean)` is now `timerEnabled: Boolean`,
+  `setBackButtonEnabled(enabled: Boolean)` is now `backButtonEnabled: Boolean`,
+  `setRecordButtonEnabled(enabled: Boolean)` is now `recordButtonEnabled: Boolean`,
+  `setWarningSound(resId: Int)` is now `trackingWarningSoundResId: Int`,
+  `setAutoZippingEnabled(enabled: Boolean)` is now `autoZippingEnabled: Boolean`, and
+  `CubiEventListener` method `getPropertyType(): PropertyType` is now `propertyType: PropertyType`
+- Removed reminder views, hint labels, `matchHintLabelWidth: Boolean`,
+  `requestLocationServices: Boolean`, `TrueNorth.ENABLED_AND_REQUEST`, `setNewView()`, and
+  `setOrderInfo()`
+- `scanFolderName` and `allScansFolder` renamed as `scanDirectoryName` and `allScansDirectory`,
+  respectively
+- Updated dependencies (see [Implementation](#implementation) below). Removed
+  `com.facebook.shimmer:shimmer` dependency
+- New status codes [14, "The device was in the wrong orientation for too long."](#14-the-device-was-in-the-wrong-orientation-for-too-long),
+  [116, "Device position jumped in an unnatural manner."](#116-device-position-jumped-in-an-unnatural-manner),
+  and CAMERA permission related codes [120-124](#120-camera-permission-is-not-granted)
+- Changes to status codes 0, 13, 16, 17, 18, 21, and 23
+- Removed status codes 20, 22, 31-49, 59, 95-98, and 103
 
 **2.10.1:**
 - `CubiCapture` and `ScanPlayback` `Fragments` now support the
@@ -76,7 +118,6 @@ For older update guides, see [Archived Update Guides](#archived-update-guides)
 - Scan is now aborted if the thermal state is critical or higher on startup
 - New status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
 - Scan data is no longer affected by enabled code shrinking
-- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.9.0:**
 - Setting the property type is now required. Added a new `CubiEventListener` method
@@ -91,15 +132,6 @@ See `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#
 - New status code [103, "Missing callback"](#103-missing-callback)
 - CubiCapture's `minSdkVersion` and `targetSdkVersion` have been updated to API levels `29` and `33`,
 respectively
-- Updated dependencies (see [Implementation](#implementation) below)
-
-**2.8.0:**
-- Re-enabled Too close -warning for Depth API supported devices
-- Added new `safeMode` variable for enabling/disabling Depth API. See [Safe mode](#safe-mode) for
-more information
-- Aborting scan when device runs out of storage space
-- New status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
-- Margins of the scan back button now match the margins of the scan timer
 - Updated dependencies (see [Implementation](#implementation) below)
 
 For older release notes, see [Archived Release Notes](#archived-release-notes)
@@ -120,35 +152,34 @@ using Gradle plugin version 8.0.2.
 
 #### Setting up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-2.10.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.1.1.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-2.10.1.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-3.1.1.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-2.10.1.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.1.1.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-2.10.1.aar')`.
+`implementation files('libs/cubicapture-release-3.1.1.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-2.10.1.aar')
-implementation 'com.google.ar:core:1.39.0'
+implementation files('libs/cubicapture-release-3.1.1.aar')
+implementation 'com.google.ar:core:1.41.0'
 implementation 'com.google.code.gson:gson:2.10.1'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
-implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
-// Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED' or 'ENABLED_AND_REQUEST':
+// Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED':
 implementation 'com.google.android.gms:play-services-location:21.0.1'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'androidx.recyclerview:recyclerview:1.3.1'
+implementation 'androidx.recyclerview:recyclerview:1.3.2'
 implementation 'androidx.media3:media3-exoplayer:1.1.1'
 ```
 
-Add CubiCapture fragment to your projects scanning layout .xml file
+Add CubiCapture fragment to your projects scanning layout .xml file:
 ```xml
 <androidx.fragment.app.FragmentContainerView
     android:id="@+id/cubiFragment"
@@ -157,23 +188,23 @@ Add CubiCapture fragment to your projects scanning layout .xml file
     android:layout_height="match_parent" />
 ```
 
-To allow your scanning `Activity` to consume more RAM, to lock screen orientation to landscape
+To allow your scanning `Activity` to consume more RAM, to lock screen orientation to portrait
 and to prevent multiple `onCreate()` calls add the following code to your `AndroidManifest` file
 inside your scanning `Activity`'s `activity` tag - Example:
 ```xml
 <activity
     android:name=".ExampleActivity"
     android:largeHeap="true"
-    android:screenOrientation="landscape"
+    android:screenOrientation="portrait"
     android:configChanges="orientation|screenSize">
 ```
 
-Create lateinit variable for CubiCapture to your scanning `Activity`:
+Declare a `lateinit` variable for CubiCapture in your scanning `Activity`:
 ```Kotlin
 private lateinit var cubiCapture: CubiCapture
 ```
 
-Initialize your CubiCapture lateinit variable in `onCreate()`:
+Initialize the CubiCapture `lateinit` variable in `onCreate()`:
 ```Kotlin
 cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as CubiCapture
 ```
@@ -181,11 +212,6 @@ cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as Cubi
 Implement `CubiEventListener` interface to your scanning `Activity` - Example:
 ```Kotlin
 class ExampleActivity : AppCompatActivity(), CubiEventListener
-```
-
-Register `CubiEventListener`'s interface callback in `onCreate()`:
-```Kotlin
-cubiCapture.registerCallback(this)
 ```
 
 Add the following function to receive status updates from `CubiEventListener`:
@@ -198,47 +224,24 @@ Add the following function to receive scan folder and zip file as `File` from `C
 override fun onFile(code: Int, file: File) { }
 ```
 
-Add the following function so that CubiCapture is able to get the property type to be written to
-the scan data:
+Set the scan output directory name - Example:
 ```Kotlin
-override fun getPropertyType(): PropertyType { }
+cubiCapture.scanDirectoryName = UUID.randomUUID().toString()
+```
+
+Set the directory where all scan directories will be stored - Example:
+```Kotlin
+cubiCapture.allScansDirectory = getExternalFilesDir(null) ?: filesDir
+```
+
+Set the property type - Example:
+```Kotlin
+val selectedPropertyType: PropertyType = // ...
+cubiCapture.propertyType = selectedPropertyType
 ```
 Possible values for the `PropertyType` are `SINGLE_UNIT_RESIDENTIAL`, `TOWNHOUSE`, `APARTMENT`, and `OTHER`.
 
-Before scanning with CubiCapture you first have to set folder name `scanFolderName: String`
-where we store the scan files.
-**Note!** You should always check that a scan folder with that name does not already exist,
-and that the `String` value of the scan folder name is a valid `File` name!
-Example:
-```Kotlin
-val scanName: String = getScanFolderName()
-cubiCapture.scanFolderName = scanName
-```
-
-Set the `allScansFolder: File?` to set the directory where CubiCapture will save all the
-scan folders.
-We suggest the directory returned by `getExternalFilesDir()` for storing scan data.
-Just make sure that the storage is available and that the returned `File` is not `null`.
-Example:
-```Kotlin
-val mainStorage: File = getExternalFilesDir(null) ?: getBackupStorage()
-cubiCapture.allScansFolder = mainStorage
-```
-
-Before starting the scan you can add order information:
-```Kotlin
-cubiCapture.setOrderInfo(
-    "ExampleStreet", // street
-    "10", // number
-    "ExampleSuite", // suite
-    "ExampleCity", // city
-    "ExampleState", // state
-    "ExampleCountry", // country
-    "12345" // postalCode
-)
-```
-
-Add information about your app's version to be written to the scan data (Optional). Example:
+Add your app's version information to the scan data (optional). Example:
 ```Kotlin
 cubiCapture.appVersion = BuildConfig.VERSION_NAME // e.g. String "1.2.3"
 cubiCapture.appBuild = BuildConfig.VERSION_CODE // e.g. Int 25
@@ -267,15 +270,17 @@ onBackPressedDispatcher.addOnClickListener(this) {
 }
 ```
 
-To keep the screen turned on and in landscape orientation add the following lines below `setContentView()` in `onCreate()`:
+Set the desired orientation to portrait in `onCreate()`:
 ```Kotlin
-window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 ```
 
-CubiCapture requires `CAMERA` permission to be granted. The permission is already declared in
-the library's manifest. To avoid crashes, remember to require the permission before starting your
-scanning Activity. You should also check that the device has ARCore installed and that it's up-to-date.
+You should check that the device has ARCore installed and that it's up-to-date before starting the
+scanning activity.
+
+Scanning requires the `CAMERA` permission to be granted. The permission is already declared in the
+library's manifest. Upon start, CubiCapture checks whether the permission is granted and shows a
+missing permission view if it is not.
 
 To declare your app to be AR Required, add the following entry to your `AndroidManifest.xml` file
 inside the `application` tag:
@@ -288,29 +293,6 @@ to be installed, as the app does not include any non-AR features. -->
 Remember to always call `finish()` when your activity is done and should be closed to avoid memory leaks.
 You should call `finish()` when you receive status code 5 or 19.
 
-#### Speech Recognition for Room Labels
-
-CubiCapture utilizes speech recognition. During a scan your users can use the speech recognition to
-add room labels.
-
-To disable the speech recognition and hide its `View`s call:
-```Kotlin
-cubiCapture.speechRecognitionEnabled = false
-```
-Speech recognition is enabled (`speechRecognitionEnabled` is set to `true`) by default.
-If you are going to use speech recognition you need to declare the
-`RECORD_AUDIO` and `INTERNET` permissions in your app's manifest file.
-
-Interaction with a speech recognition service  requires the following element to be added to the
-`AndroidManifest.xml` file:
-```xml
-<queries>
-    <intent>
-        <action android:name="android.speech.RecognitionService" />
-    </intent>
-</queries>
-```
-
 #### True north detection
 
 True north detection can be used to enable the CubiCapture to capture the heading relative to the
@@ -318,37 +300,29 @@ True north detection can be used to enable the CubiCapture to capture the headin
 (e.g. compass). In order to the true north data to be collected, the Location Services must be
 turned on and the location permission must be granted. No position data is collected by the CubiCapture.
 
-True north detection `trueNorth` has the following three settings:
+True north detection `trueNorth` has the following two settings:
 
 Name | Description
 -----|------------
 `TrueNorth.DISABLED`| True north detection disabled
 `TrueNorth.ENABLED` | True north detection enabled
-`TrueNorth.ENABLED_AND_REQUEST` | True north detection enabled and location permission requested by CubiCapture
 
 Example, where we enable the true north detection:
 ```Kotlin
 cubiCapture.trueNorth = TrueNorth.ENABLED
 ```
 
-`trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST` by default. If using this setting and location
-permission is not granted, CubiCapture will try to request the permission via Android OS.
-If the permission can't be requested, CubiCapture will inform the user about the not granted
-permission with a reminder view. Pressing the reminder view opens application settings, where user
-can grant the permission.
+`trueNorth` is set to `TrueNorth.ENABLED` by default.
 
 If you are going to use true north detection you need to declare the `ACCESS_COARSE_LOCATION` and
-`ACCESS_FINE_LOCATION` permissions in your app's manifest file. You also need to implement the
-Google Play services' location library by adding it to the app level `build.gradle` dependencies
-(see the `build.gradle` implementation in the start of [Implementation](#implementation) above).
-
-If you're going to use the `TrueNorth.ENABLED` setting, you should request the `ACCESS_FINE_LOCATION`
-permission on application side. This gives you the possibility to explain the user why your
-applications needs the permission before requesting it.
+`ACCESS_FINE_LOCATION` permissions in your app's manifest file, and request the `ACCESS_FINE_LOCATION`
+permission before the scan. You also need to implement the Google Play services' location library
+by adding it to the app level `build.gradle` dependencies (see the `build.gradle` implementation
+in the start of [Implementation](#implementation) above).
 
 #### Get available storage space estimation
 
-`getAvailableStorageMinutes(File)` is a public function which returns an estimation in minutes
+`getAvailableStorageMinutes(File)` is a function which returns an estimation in minutes
 of the maximum scan length the device can store.
 This will be useful in a case where user's available storage space is running low and you want to
 inform the user about it before starting your scanning activity.
@@ -383,12 +357,12 @@ Add `ScanPlayback` fragment to your projects scan playback's XML layout file:
 	android:layout_height="match_parent" />
 ```
 
-Create lateinit variable for `ScanPlayback` to your scan playback `Activity`:
+Declare a `lateinit` variable for `ScanPlayback` in your scan playback `Activity`:
 ```Kotlin
 private lateinit var scanPlayback: ScanPlayback
 ```
 
-Initialize your `ScanPlayback` lateinit variable in `onCreate()`:
+Initialize the `ScanPlayback` `lateinit` variable in `onCreate()`:
 ```Kotlin
 scanPlayback = supportFragmentManager.findFragmentById(R.id.scanPlayback) as ScanPlayback
 ```
@@ -416,30 +390,15 @@ scanPlayback.setOnBackButtonClickListener {
 }
 ```
 
-#### Reminder view
+#### Photo capturing
 
-Reminder view is a view shown by CubiCapture which can be used to remind the user to turn on
-Location Services or to grant location or microphone (record audio) permissions.
-Note that multiple reminders can be shown at the same time. Reminder view for permission(s) is
-shown when the permission can't be requested via Android OS. On Android 11 and later the
-permission can't be requested again with the Android's own dialog if the permission has been
-denied on the first request.
+Starting with release 3.1.1, the CubiCapture SDK now includes the option to enable users to take
+photos during scanning. These photos are included in the scan directory and the scan zip file.
 
-Reminder view is shown when the device is turned to landscape orientation or
-when the speech recognition button is pressed while not recording, and when the conditions for
-showing the reminder view apply (e.g. permission is not granted, can't be requested and reminder
-is enabled). Pressing the reminder view opens the device's Location settings if the reminder view
-is for Location Services or Application settings if the reminder view is for location or microphone
-permission. Reminder view disappears by pressing it, when its permission is granted or when the
-recording it started.
-
-To enable the reminder view for Location Services, set the `requestLocationServices: Boolean` to
-`true` (this is `false` by default), and enable true north detection.
-To enable the reminder view for location permission, set the `trueNorth` to `TrueNorth.ENABLED_AND_REQUEST`.
-To enable the reminder view for microphone permission, set the `speechRecognitionEnabled` to `true`.
-
-Location Services and location permission are required to enable a compass in the floor plan, and
-Microphone permission is required for the speech recognition.
+Enable or disable photo capturing (disabled by default):
+```Kotlin
+cubiCapture.photoCapturingEnabled = true
+```
 
 #### Safe mode
 
@@ -468,20 +427,20 @@ Depth API, because the Depth API and Too close -warning is disabled on those dev
 
 Warning sound is played when the ARCore's `TrackingState` is **not** `TRACKING`.
 
-To change the warning sound call:
+To change the tracking warning sound call:
 ```Kotlin
-cubiCapture.setWarningSound(R.raw.new_warning_sound)
+cubiCapture.trackingWarningSoundResId = R.raw.new_warning_sound
 ```
 
 #### Automatic and manual zipping
 
-To disable the automatic zipping after a scan call:
+Enable or disable automatic zipping after scan (enabled by default):
 ```Kotlin
-cubiCapture.setAutoZippingEnabled(false) // true (auto zips) by default
+cubiCapture.autoZippingEnabled = false
 ```
 
-Zipping scan folder if automatic zipping is disabled. This can be called after scan files are
-saved successfully. This returns the Zip file if it's is successful or null if zipping failed.
+Manually zip the scan folder if automatic zipping is disabled. Call this after scan files are saved
+successfully. Returns the Zip file if successful, or null if zipping failed.
 ```Kotlin
 val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
 ```
@@ -491,67 +450,50 @@ Manual zipping `zipScan()` method expects the scan folder to contain the followi
 If any of the files above doesn't exist, `zipScan()` returns `null`.
 
 Here's an example directory structure where `zipScan()` method would successfully zip the scan
-folders `ExampleStreet 123` and `AnotherStreet 10`:
+directories `ScanDirectoryA` and `ScanDirectoryB`:
 ```.
 .
-└── AllScansFolder
-    ├── ExampleStreet 123
+└── AllScansDirectory
+    ├── ScanDirectoryA
     │   ├── arkitData.json
     │   ├── config.json
     │   ├── video.mp4
     │   ├── feedback.json
-    │   ├── scanLog.json
-    │   ├── intrinsics.json
-    │   └── allDepthFrames.bin
-    └── AnotherStreet 10
+    │   └── scanLog.json
+    │   └── photo_capturer.json
+    └── ScanDirectoryB
         ├── arkitData.json
         ├── config.json
         ├── video.mp4
         ├── feedback.json
-        ├── scanLog.json
-        ├── intrinsics.json
-        └── allDepthFrames.bin
+        └── scanLog.json
+        └── photo_capturer.json
 ```
 
-Please note that the `allDepthFrames.bin` will be only present for devices which support depth
-capturing.
+Note that the `photo_capturer.json` will be only present if photos were taken.
 
 ## UI settings
 
 #### General
 
-To set the visibility of scan timer call:
+Show or hide the scan timer (visible by default):
 ```Kotlin
-cubiCapture.setTimerEnabled(false) // Visible (true) by default
+cubiCapture.timerEnabled = false
 ```
 
-To set the visibility of CubiCapture's back button call:
+Show or hide CubiCapture's back button (visible by default):
 ```Kotlin
-cubiCapture.setBackButtonEnabled(false) // Visible (true) by default
+cubiCapture.backButtonEnabled = false
 ```
 
-To set the enabled status of the record button `View`:
+Enable or disable the record button (enabled by default):
 ```Kotlin
-cubiCapture.recordButtonEnabled(false) // Enabled (true) by default
+cubiCapture.recordButtonEnabled = false
 ```
 
-To disable low storage warnings:
+Enable or disable low storage warnings (enabled by default):
 ```Kotlin
-cubiCapture.storageWarningsEnabled = false // Enabled (true) by default
-```
-
-To replace the CubiCapture's 'statusText: TextView' with your own 'TextView' (example):
-```Kotlin
-val newView: TextView = findViewById(R.id.newStatusText)
-cubiCapture.setNewView(cubiCapture.statusText, newView)
-```
-
-Use `matchHintLabelWidth: Boolean` to set hint label widths to match the wider one (`true`),
-or to wrap label text (`false`). This is `true` by default.
-This is ignored if the speech recognition is disabled. In this case the label width is set to wrap
-the label text if the `hint_label_width` is not changed from the default `0dp` in `dimens.xml`.
-```Kotlin
-cubiCapture.matchHintLabelWidth = false
+cubiCapture.storageWarningsEnabled = false
 ```
 
 #### Colors and alphas
@@ -561,41 +503,42 @@ default `color`s in your applications `colors.xml` file.
 
 Here's all the default colors and alphas defined in CubiCapture library:
 ```xml
-<!-- Speech recognition and end recording slider text color -->
-<color name="ccTextColor">#FFFFFF</color>
+<!-- Scan and processing view texts colors -->
+<color name="cc_scan_text_color">#FFFFFF</color>
+<color name="cc_processing_text_color">#FFFFFF</color>
 
-<!-- Hint label's background and stroke color -->
-<color name="ccHintColor">#000000</color>
-<color name="ccHintStrokeColor">#FFFFFF</color>
+<!-- Scan back button background color. Only visible when fullscreen guide is shown -->
+<color name="cc_scan_button_back_color">#131619</color>
 
-<!-- Speech recognition pop-up text's background color-->
-<color name="ccPopupColor">#000000</color>
-
-<!-- Speech recognition button colors -->
-<color name="ccMicColor">#FFFFFF</color>
-<color name="ccMicDisabledColor">#B4808080</color>
-<color name="ccCircleColor">#569789</color>
-<color name="ccCircleListeningColor">#F90067</color>
-<color name="ccCircleDisabledColor">#50808080</color>
-
-<!-- Volume/dB circle's color -->
-<color name="ccVolumeCircleColor">#7FF90067</color>
-
-<!-- Recognition results view's colors -->
-<color name="ccResultColor">#CC569789</color>
-<color name="ccCancelColor">#808080</color>
+<!-- Scan timer background color -->
+<color name="cc_scan_timer_background_color">#B62138</color>
 
 <!-- Recording button colors -->
-<color name="ccRecordingColor">#D83B31</color>
-<color name="ccNotRecordingColor">#565656</color>
-<color name="ccRecButtonBorderColor">#AAAAAA</color>
+<color name="cc_record_button_inner_color">#B62138</color>
+<color name="cc_record_button_outer_color">#FFFFFF</color>
 
-<!-- End recording slider background color -->
-<color name="ccSliderColor">#C8D83B31</color>
+<!-- Scan top guide colors -->
+<color name="cc_guide_top_warning_solid_color">#5E1B2B</color>
+<color name="cc_guide_top_warning_stroke_color">#ECA80D</color>
+<color name="cc_guide_top_info_solid_color">#1D4357</color>
+<color name="cc_guide_top_info_stroke_color">#5DB2A7</color>
+<color name="cc_guide_top_warning_landscape_solid_color">#B85E1B2B</color>
+<color name="cc_guide_top_info_landscape_solid_color">#B81D4357</color>
 
-<!-- Status border colors -->
-<color name="ccStatusTrackingColor">#569789</color>
-<color name="ccStatusFailureColor">#FAB40E</color>
+<!-- Request permission button background and text color -->
+<color name="cc_permission_request_button_background_color">#FDFDFD</color>
+<color name="cc_permission_request_button_text_color">#131619</color>
+
+<!-- Scan dialog background and button colors -->
+<color name="cc_dialog_background_color">#0C2F46</color>
+<color name="cc_dialog_button_positive_text_color">#FFFFFF</color>
+<color name="cc_dialog_button_negative_text_color">#FFFFFF</color>
+<color name="cc_dialog_button_positive_gradient_start_color">#1D4357</color>
+<color name="cc_dialog_button_positive_gradient_end_color">#008674</color>
+<color name="cc_dialog_button_negative_stroke_color">#FFFFFF</color>
+
+<!-- Processing view progress bar color -->
+<color name="cc_processing_progress_bar_color">#FFFFFF</color>
 
 <!-- Scan playback text color for events and playback speed spinner -->
 <color name="ccPlaybackMainTextColor">#FFFFFF</color>
@@ -609,6 +552,9 @@ Here's all the default colors and alphas defined in CubiCapture library:
 <!-- Scan playback top bar background color -->
 <color name="ccPlaybackTopBarBackgroundColor">#80071d29</color>
 
+<!-- Scan playback events container background color -->
+<color name="ccEventsContainerBackgroundColor">#80071d29</color>
+
 <!-- Scan playback controller background color -->
 <color name="ccPlaybackControllerBackgroundColor">#163241</color>
 
@@ -616,28 +562,24 @@ Here's all the default colors and alphas defined in CubiCapture library:
 <color name="ccPlaybackControllerButtonTint">#569789</color>
 
 <!-- Scan playback event colors -->
-<color name="ccPlaybackWarningColor">#EC1667</color>
-<color name="ccPlaybackSpaceLabelColor">#569789</color>
+<color name="ccPlaybackWarningColor">#B85E1B2B</color>
+<color name="ccPlaybackSpaceLabelColor">#B8569789</color>
 
 <!-- Scan playback timeline colors -->
 <color name="ccTimelineBackgroundColor">#3A3A3A</color>
-<color name="ccTimelineWarningColor">#80EC1667</color>
-<color name="ccTimelineSpaceLabelColor">#CC569789</color>
+<color name="ccTimelineWarningColor">#B85E1B2B</color>
+<color name="ccTimelineSpaceLabelColor">#B8569789</color>
 <color name="ccTimelineThumbColor">#FFFFFF</color>
 
 <!-- Scan playback scrollbar color -->
 <color name="ccPlaybackScrollbarColor">#FFFFFF</color>
-
-<!-- Processing screen text and progress bar color -->
-<color name="ccProcessingTextColor">#FFFFFF</color>
-<color name="ccProgressBarColor">#FFFFFF</color>
 ```
 
-For example, if you want to change the color and alpha of the volume/dB circle
+For example, if you want to change the color and alpha of the scan timer's background,
 you can define the new color in your applications `colors.xml` file like so:
 ```xml
-<!-- Volume/dB circle's color -->
-<color name="ccVolumeCircleColor">#50FF0000</color>
+<!-- Scan timer background color -->
+<color name="cc_scan_timer_background_color">#FF000000</color>
 ```
 
 The colors can be defined with color notation `#RRGGBB`s or with a color notation
@@ -652,78 +594,108 @@ to the `values` directory where the `colors.xml` file is as well.
 
 Here's all the default dimensions defined in CubiCapture library:
 ```xml
-<!-- Size of the record and speech recognition buttons -->
-<dimen name="button_record_size">72dp</dimen>
+<!--
+    Scan back button padding, background radius and background margin
 
-<!-- Margin end of the record and speech recognition buttons -->
-<dimen name="button_record_margin_end">52dp</dimen>
+    Note:
+    - Scan back button's width and height wraps the content
+    - Scan timer is constrained to vertically center the scan back button
+    - Scan back button's background margin is applied to the original background drawable item
+-->
+<dimen name="cc_scan_button_back_padding">16dp</dimen>
+<dimen name="cc_scan_button_back_background_radius">10dp</dimen>
+<dimen name="cc_scan_button_back_background_margin">12dp</dimen>
 
-<!-- Hint label width(s). Using '0dp' for the 'hint_label_width' wraps the label text -->
-<dimen name="hint_label_width">0dp</dimen>
+<!-- Scan timer vertical and horizontal paddings and background radius  -->
+<dimen name="cc_scan_timer_padding_vertical">4dp</dimen>
+<dimen name="cc_scan_timer_padding_horizontal">16dp</dimen>
+<dimen name="cc_scan_timer_background_radius">36dp</dimen>
 
-<!-- Hint label height(s) -->
-<dimen name="hint_label_height">52dp</dimen>
+<!-- Scan top guide horizontal and top margins and vertical and horizontal paddings -->
+<dimen name="cc_guide_top_margin_top">12dp</dimen>
+<dimen name="cc_guide_top_margin_horizontal">16dp</dimen>
+<dimen name="cc_guide_top_padding_vertical">12dp</dimen>
+<dimen name="cc_guide_top_padding_horizontal">16dp</dimen>
 
-<!-- Margin end of the hint label(s) -->
-<dimen name="hint_label_margin_end">12dp</dimen>
+<!-- Scan top guide icon height -->
+<dimen name="cc_guide_top_icon_height">48dp</dimen>
 
-<!-- Processing progress bar size scale -->
+<!-- Scan top guide text margins -->
+<dimen name="cc_guide_top_text_margin_start">16dp</dimen>
+<dimen name="cc_guide_top_info_text_margin_top">4dp</dimen>
+
+<!-- Scan top guide background radius and stroke width -->
+<dimen name="cc_guide_top_background_radius">8dp</dimen>
+<dimen name="cc_guide_top_background_stroke_width">2dp</dimen>
+
+<!-- Scan fullscreen guide padding -->
+<dimen name="cc_guide_fullscreen_padding">32dp</dimen>
+
+<!-- Scan fullscreen guide icon height -->
+<dimen name="cc_guide_fullscreen_icon_height">72dp</dimen>
+
+<!-- Scan fullscreen guide text margins -->
+<dimen name="cc_guide_fullscreen_title_text_margin_top">32dp</dimen>
+<dimen name="cc_guide_fullscreen_info_text_margin_top">16dp</dimen>
+
+<!-- Record button size and margin bottom -->
+<dimen name="cc_button_record_size">64dp</dimen>
+<dimen name="cc_button_record_margin_bottom">32dp</dimen>
+
+<!-- Photo capture button and thumbnail image size, and photo capture button icon size -->
+<dimen name="cc_button_capture_image_size">48dp</dimen>
+<dimen name="cc_button_capture_icon_size">24dp</dimen>
+
+<!-- Request permission button radius, padding horizontal and margin top -->
+<dimen name="cc_permission_request_button_radius">100dp</dimen>
+<dimen name="cc_permission_request_button_padding_horizontal">32dp</dimen>
+<dimen name="cc_permission_request_button_margin_top">32dp</dimen>
+
+<!-- Scan dialog dimensions -->
+<dimen name="cc_dialog_padding">32dp</dimen>
+<dimen name="cc_dialog_margin">16dp</dimen>
+<dimen name="cc_dialog_info_text_margin_top">16dp</dimen>
+<dimen name="cc_dialog_button_positive_margin_top">24dp</dimen>
+<dimen name="cc_dialog_button_negative_margin_top">16dp</dimen>
+<dimen name="cc_dialog_background_radius">16dp</dimen>
+<dimen name="cc_dialog_button_radius">100dp</dimen>
+<dimen name="cc_dialog_button_negative_stroke_width">1dp</dimen>
+
+<!-- Processing view progress bar size scale -->
 <dimen name="cc_progress_bar_size_scale">1.6</dimen>
 
-<!-- Recording slider text size -->
-<dimen name="cc_slider_text_size">20sp</dimen>
-
-<!-- Hint label text size -->
-<dimen name="cc_hint_label_text_size">16sp</dimen>
-
-<!-- Speech recognition results text size -->
-<dimen name="cc_recognition_results_text_size">20sp</dimen>
-
-<!-- Speech recognition pop-up text size-->
-<dimen name="cc_recognition_popup_text_size">16sp</dimen>
-
-<!-- Status text size (Used for ARCore tracking errors for example) -->
-<dimen name="cc_status_text_size">16sp</dimen>
-
-<!-- Back button text size -->
-<dimen name="cc_back_button_text_size">14sp</dimen>
+<!-- Processing view processing text margin -->
+<dimen name="cc_processing_text_margin">16dp</dimen>
 
 <!-- Scan timer text size -->
-<dimen name="cc_scan_timer_text_size">14sp</dimen>
+<dimen name="cc_text_size_scan_timer">14dp</dimen>
 
-<!-- Processing text size -->
-<dimen name="cc_processing_text_size">16sp</dimen>
+<!-- Heading 1 text size -->
+<dimen name="cc_text_size_heading_1">20dp</dimen>
 
-<!-- Processing percentage text size -->
-<dimen name="cc_percentage_text_size">16sp</dimen>
+<!-- Heading 2 text size -->
+<dimen name="cc_text_size_heading_2">16dp</dimen>
 
-<!-- Warning title text size -->
-<dimen name="cc_warning_title_text_size">44sp</dimen>
+<!-- Body 1 text size -->
+<dimen name="cc_text_size_body_1">16dp</dimen>
 
-<!-- Warning message text size -->
-<dimen name="cc_warning_message_text_size">28sp</dimen>
-
-<!-- Text size reminder view's texts -->
-<dimen name="cc_reminder_text_size">16sp</dimen>
+<!-- Body 2 text size -->
+<dimen name="cc_text_size_body_2">14dp</dimen>
 
 <!-- Scan playback controller button width percent -->
 <dimen name="cc_controller_button_width_percent">0.10</dimen>
 
 <!-- Scan playback small text size (Used for all texts except active events) -->
-<dimen name="cc_playback_text_size_small">14sp</dimen>
+<dimen name="cc_playback_text_size_small">14dp</dimen>
 
 <!-- Scan playback big text size (Used for active events) -->
-<dimen name="cc_playback_text_size_big">20sp</dimen>
+<dimen name="cc_playback_text_size_big">20dp</dimen>
 ```
 
-**Note!** Dimensions `button_record_size` and `button_record_margin_end` define the size or layout
-margins of the the record button, end recording slider and speech recognition button, since end
-recording slider and speech recognition button are set relative to the record button.
-
-For example, if you want to change the size of the record and speech recognition buttons
-you can define the new size in your applications `dimens.xml` file like so:
+For example, if you want to change the size of the record button, you can define the new size in
+your application's `dimens.xml` file like this:
 ```xml
-<dimen name="button_record_size">80dp</dimen>
+<dimen name="cc_button_record_size">80dp</dimen>
 ```
 
 #### Texts
@@ -733,97 +705,76 @@ by redefining the strings in your applications `strings.xml` file.
 
 Here's all the default texts defined in CubiCapture library:
 ```xml
-<!-- Hint label texts -->
-<string name="cc_record_hint_text"><i>1. Start scanning</i></string>
-<string name="cc_speech_hint_text"><i>2. Say the room name</i></string>
+<!-- Displayed when the ARCore is initializing -->
+<string name="cc_tracking_initializing_title">Start scanning</string>
+<string name="cc_tracking_initializing_info">Move your device so we can begin tracking your position</string>
 
-<!-- Low storage warning text. Shown in the `statusText: TextView` for 5 seconds in certain intervals
-during a scan if the estimation of the maximum scan length the device can store is less than 10 minutes.
-Always include '%1$d' in the string. It's a placeholder for the value of the available minutes -->
-<string name="cc_low_storage_text">Low storage: %1$d minutes left!</string>
+<!-- Displayed if tracking is lost due to excessive motion -->
+<string name="cc_tracking_excessive_motion_title">Slow down</string>
+<string name="cc_tracking_excessive_motion_info">You are moving too fast, try to move the device more slowly</string>
 
-<!-- Slider text -->
-<string name="cc_slider_text"><i>Slide to end</i></string>
+<!-- Displayed if tracking is lost due to insufficient visual features -->
+<string name="cc_tracking_insufficient_features_title">Not enough visual features</string>
+<string name="cc_tracking_insufficient_features_info">We have trouble tracking your position</string>
 
-<!-- Processing text -->
+<!-- Displayed if tracking is lost due to poor lighting conditions -->
+<string name="cc_tracking_insufficient_lighting_title">It is too dark here</string>
+<string name="cc_tracking_insufficient_lighting_info">Please turn on the lights if possible</string>
+
+<!-- Displayed if the user is walking sideways -->
+<string name="cc_guide_sideways_title">Do not walk sideways</string>
+<string name="cc_guide_sideways_left_info">Turn left and point the camera in your walking direction</string>
+<string name="cc_guide_sideways_right_info">Turn right and point the camera in your walking direction</string>
+
+<!-- Displayed title and info text for the rotate warning -->
+<string name="cc_guide_rotate_title">Rotate your device</string>
+<string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
+<string name="cc_guide_rotate_landscape_info">Keep your device in landscape orientation</string>
+
+<!-- Displayed if the device is tilted forward too much -->
+<string name="cc_guide_raise_device_title">Raise the device</string>
+<string name="cc_guide_raise_device_info">You are pointing too much at the floor. Please raise the device a bit</string>
+
+<!-- Displayed if the user is rotating/turning too fast -->
+<string name="cc_guide_fast_rotation_title">You are turning too fast</string>
+<string name="cc_guide_fast_rotation_info">Avoid fast turns for best scanning results</string>
+
+<!-- Displayed if the user is scanning too close to objects -->
+<string name="cc_guide_too_close_title">You are too close</string>
+<string name="cc_guide_too_close_info">Keep more distance from the objects you are scanning</string>
+
+<!-- Displayed if the device's storage space is running low -->
+<string name="cc_guide_low_storage_title">Low on storage</string>
+<!-- Note! Always include the %1$d in the info string! -->
+<string name="cc_guide_low_storage_info">Only %1$d minutes of scanning time left</string>
+
+<!-- Displayed if the device experiences thermal throttling -->
+<string name="cc_guide_throttling_title">Your device is getting hot</string>
+<string name="cc_guide_throttling_info">You can continue scanning but go slowly</string>
+
+<!-- Displayed if camera permission is not granted -->
+<string name="cc_permission_camera_title">No camera access</string>
+<string name="cc_permission_camera_info">Cannot scan without camera permission. Please allow access to the camera</string>
+
+<!-- Displayed if permission is not granted -->
+<string name="cc_permission_request_button_text">Turn on</string>
+
+<!-- Displayed if record button is pressed to finish scan -->
+<string name="cc_dialog_finish_scan_title">Finish scan?</string>
+<string name="cc_dialog_finish_scan_info">Are you sure you want to finish this scan?</string>
+
+<!-- Displayed if back button is pressed to cancel scan -->
+<string name="cc_dialog_cancel_scan_title">Cancel scan?</string>
+<string name="cc_dialog_cancel_scan_info">Are you sure you want to cancel this scan?</string>
+
+<!-- Displayed positive and negative texts for scan dialogs -->
+<string name="cc_dialog_button_positive_text">Yes</string>
+<string name="cc_dialog_button_negative_text">No</string>
+
+<!-- Displayed in the processing view after recording is finished -->
 <string name="cc_processing_text">Processing scan.\nPlease do not exit the application.</string>
 
-<!-- Back button texts -->
-<string name="cc_back_button_text">Back</string>
-<string name="cc_back_button_confirm_text">Are you sure?</string>
-
-<!-- Text of the cancel button in speech recognition results view -->
-<string name="cc_cancel_button_text">Cancel</string>
-
-<!-- Speech recognition pop-up texts -->
-<string name="cc_ready_for_speech_text">Say the room name</string>
-<string name="cc_speech_no_results_text">No results</string>
-
-<!-- ARCore tracking status texts -->
-<string name="cc_excessive_motion_text">You are moving too fast</string>
-<string name="cc_insufficient_features_text">We have trouble tracking your position
-	\nbecause there are not enough visual features here
-</string>
-<string name="cc_insufficient_light_text">We have trouble tracking your position
-	\nbecause it is too dark here
-</string>
-<string name="cc_initializing_text">Move your device to start tracking</string>
-
-<!-- Recognition results over the max length text.
-Always include '%1$d' in the string. It's a placeholder for the value of the maximum characters -->
-<string name="cc_results_over_max_length_text">Space name exceeded %1$d characters</string>
-
-<!-- Displayed title for the sideways warning -->
-<string name="cc_warning_sideways_title">Do not walk sideways</string>
-<!-- Displayed info text for sideways left warning -->
-<string name="cc_warning_sideways_left_info">Turn left and point the camera in your walking direction.\nWalk along the wall.</string>
-<!-- Displayed info text for sideways right warning -->
-<string name="cc_warning_sideways_right_info">Turn right and point the camera in your walking direction.\nWalk along the wall.</string>
-
-<!-- Displayed info text for the rotate warning -->
-<string name="cc_warning_rotate_info">Rotate your device 180°.\nMake sure the record button is on the right.</string>
-
-<!-- Displayed title for ceiling scanning warning -->
-<string name="cc_warning_ceiling_title">Do not scan ceilings</string>
-<!-- Displayed info text for ceiling scanning warning -->
-<string name="cc_warning_ceiling_info">We can lose track of your position if ceilings are scanned.</string>
-
-<!-- Displayed title for floor scanning warning -->
-<string name="cc_warning_floor_title">Tilt the device back a bit</string>
-<!-- Displayed info text for floor scanning warning -->
-<string name="cc_warning_floor_info">Point the camera approximately 8ft / 2.5m in front of you.\nKeep at least 3ft / 1m distance from all objects.</string>
-
-<!-- Displayed on the guide screen before the device is turned to landscape -->
-<string name="cc_guide_turn_device_info">Turn your device left to landscape orientation</string>
-
-<!-- Displayed on title in the warning view on too much horizontal scanning -->
-<string name="cc_warning_tilt_down_title">Tilt the device forward a bit</string>
-<!-- Displayed info text for too much horizontal scanning -->
-<string name="cc_warning_tilt_down_info">Focus on the floor about 8ft / 2.5m in front of you.</string>
-
-<!-- Displayed in the warning view title in fast rotation warning -->
-<string name="cc_warning_fast_rotation_title">You are turning too fast</string>
-<!-- Displayed in the warning view info text in fast rotation warning -->
-<string name="cc_warning_fast_rotation_info">Avoid fast turns for best scanning results.</string>
-
-<!-- Displayed on the warning view title when user is scanning too close to objects -->
-<string name="cc_warning_too_close_title">You are too close</string>
-<!-- Displayed on the warning view info text when user is scanning too close to objects -->
-<string name="cc_warning_too_close_info">Keep more distance from the objects you are scanning.</string>
-
-<!-- Displayed on the Location Services reminder view's info text when Location Services are
-turned off -->
-<string name="cc_location_services_reminder_text">Turn on <b>Location Services</b> from
-	<b>Quick Settings</b> or <b>Settings</b> to enable a compass in the floor plan</string>
-<!-- Displayed on the location permission reminder view's info text when location permission
-is not granted -->
-<string name="cc_location_permission_reminder_text">Allow <b>Location</b> permission from
-	<b>App permission settings</b> to enable a compass in the floor plan</string>
-<!-- Displayed on the reminder view's settings button text when Location Services are turned off
-or location permission is not granted -->
-<string name="cc_open_location_settings_text"><u>Go to <b>Settings</b></u></string>
-
-<!-- Scan playback speed spinner text. Always include '%1$s' in the string. -->
+<!-- Scan playback speed spinner text. Always include the %1$s in the string!-->
 <string name="cc_playback_speed_text">Playback speed: %1$s</string>
 <!-- Scan playback speed spinner text for normal speed -->
 <string name="cc_playback_normal_speed_text">Normal</string>
@@ -831,9 +782,9 @@ or location permission is not granted -->
 <!-- Scan playback events header text -->
 <string name="cc_playback_events_header_text">Events</string>
 
-<!-- Scan playback frame text. Always include the '%1$s' in the string!-->
+<!-- Scan playback frame text. Always include the %1$s in the string!-->
 <string name="cc_playback_frame_text">Frame: %1$s</string>
-<!-- Scan playback time text. Always include the '%1$s' in the string!-->
+<!-- Scan playback time text. Always include the %1$s in the string!-->
 <string name="cc_playback_time_text">Time: %1$s</string>
 
 <!-- Scan playback active event texts -->
@@ -846,17 +797,6 @@ or location permission is not granted -->
 <string name="cc_playback_wrong_orientation">Wrong device orientation</string>
 <string name="cc_playback_fast_rotation">Turning too fast</string>
 <string name="cc_playback_too_close">Too close</string>
-
-<!-- Displayed on the speech recognition pop-up view if microphone button is
-pressed while recording and microphone permission is not granted and can't be requested -->
-<string name="cc_microphone_permission_not_granted">Microphone permission not granted</string>
-<!-- Displayed on the microphone permission reminder view's info text when the microphone
-button is pressed while not recording and microphone permission is not granted and can't be
-requested -->
-<string name="cc_microphone_permission_settings_text">Allow <b>Microphone</b> permission from
-	<b>App permission settings</b></string>
-<!-- Displayed on the microphone permission reminder view's settings button text -->
-<string name="cc_open_microphone_settings_text"><u>Go to <b>App settings</b></u></string>
 ```
 
 #### Drawable graphics
@@ -867,46 +807,87 @@ your applications `drawables.xml` file. You need to have the `drawables.xml` fil
 
 Here's all the default drawables defined in CubiCapture library:
 ```xml
-<!-- Record button, hint label and end recording slider background -->
-<drawable name="cc_not_recording">@drawable/cc_not_recording_original</drawable>
-<drawable name="cc_recording">@drawable/cc_recording_original</drawable>
-<drawable name="cc_hint_label_background">@drawable/cc_hint_label_background_original</drawable>
-<drawable name="cc_slider_background">@drawable/cc_slider_background_original</drawable>
+<!--
+    Scan back button icon and background.
+    Note: Background is only visible when fullscreen guide is shown
+-->
+<drawable name="cc_scan_button_back_icon">@drawable/cc_icon_arrow_left</drawable>
+<drawable name="cc_scan_button_back_background">@drawable/cc_back_button_background</drawable>
 
-<!-- Status borders -->
-<drawable name="cc_status_border_tracking">@drawable/cc_status_border_tracking_original</drawable>
-<drawable name="cc_status_border_failure">@drawable/cc_status_border_failure_original</drawable>
+<!-- Scan timer background -->
+<drawable name="cc_scan_timer_background">@drawable/cc_timer_background</drawable>
 
-<!-- Warning and guide icons -->
-<drawable name="cc_turn_device_icon">@drawable/cc_turn_device_original</drawable>
-<drawable name="cc_rotate_device_icon">@drawable/cc_rotate_device_original</drawable>
-<drawable name="cc_turn_left_icon">@drawable/cc_warning_arrow_left_original</drawable>
-<drawable name="cc_turn_right_icon">@drawable/cc_warning_arrow_right_original</drawable>
-<drawable name="cc_ceiling_icon">@drawable/cc_warning_arrow_down_original</drawable>
-<drawable name="cc_horizontal_icon">@drawable/cc_horizontal_original</drawable>
-<drawable name="cc_floor_icon">@drawable/cc_warning_arrow_original</drawable>
-<drawable name="cc_fast_movement_icon">@drawable/cc_fast_movement_original</drawable>
-<drawable name="cc_too_close_icon">@drawable/cc_too_close_original</drawable>
+<!-- Record button -->
+<drawable name="cc_not_recording">@drawable/cc_icon_not_recording</drawable>
+<drawable name="cc_recording">@drawable/cc_icon_recording</drawable>
 
-<!-- Warning and guide backgrounds, which are just colors by default -->
-<drawable name="cc_warning_background">#66F90066</drawable>
-<drawable name="cc_guide_background">#D9163241</drawable>
+<!-- Displayed when the ARCore is initializing -->
+<drawable name="cc_tracking_initializing_icon">@drawable/cc_icon_start_scanning</drawable>
+
+<!-- Displayed if tracking is lost due to excessive motion -->
+<drawable name="cc_tracking_excessive_motion_icon">@drawable/cc_icon_excessive_motion</drawable>
+
+<!-- Displayed if tracking is lost due to insufficient visual features -->
+<drawable name="cc_tracking_insufficient_features_icon">@drawable/cc_icon_insufficient_features</drawable>
+
+<!-- Displayed if tracking is lost due to poor lighting conditions -->
+<drawable name="cc_tracking_insufficient_lighting_icon">@drawable/cc_icon_insufficient_lighting</drawable>
+
+<!-- Displayed if the user is walking sideways -->
+<drawable name="cc_guide_sideways_left_icon">@drawable/cc_icon_turn_left</drawable>
+<drawable name="cc_guide_sideways_right_icon">@drawable/cc_icon_turn_right</drawable>
+
+<!-- Displayed icons for the rotate warning -->
+<drawable name="cc_guide_rotate_90_icon">@drawable/cc_icon_rotate_device_90</drawable>
+<drawable name="cc_guide_rotate_180_icon">@drawable/cc_icon_rotate_device_180</drawable>
+<drawable name="cc_guide_rotate_270_icon">@drawable/cc_icon_rotate_device_270</drawable>
+
+<!-- Displayed if the device is tilted forward too much -->
+<drawable name="cc_guide_raise_device_icon">@drawable/cc_icon_raise_device</drawable>
+
+<!-- Displayed if the user is rotating/turning too fast -->
+<drawable name="cc_guide_fast_rotation_icon">@drawable/cc_icon_fast_rotation</drawable>
+
+<!-- Displayed if the user is scanning too close to objects -->
+<drawable name="cc_guide_too_close_icon">@drawable/cc_icon_too_close</drawable>
+
+<!-- Displayed if the device's storage space is running low -->
+<drawable name="cc_guide_low_storage_icon">@drawable/cc_icon_low_storage</drawable>
+
+<!-- Displayed if the device experiences thermal throttling -->
+<drawable name="cc_guide_throttling_icon">@drawable/cc_icon_device_hot</drawable>
+
+<!-- Displayed if camera permission is not granted -->
+<drawable name="cc_permission_camera_icon">@drawable/cc_icon_camera</drawable>
+
+<!-- Top warning and info guide backgrounds -->
+<drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
+<drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
+<drawable name="cc_guide_top_warning_landscape_background">@drawable/cc_top_warning_landscape_background</drawable>
+<drawable name="cc_guide_top_info_landscape_background">@drawable/cc_top_info_landscape_background</drawable>
+
+<!-- Fullscreen warning guide background, which is just a color by default -->
+<drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
+
+<!-- Permission request button background -->
+<drawable name="cc_permission_request_button_background">@drawable/cc_request_permission_button_background</drawable>
+
+<!-- Scan dialog background and button backgrounds -->
+<drawable name="cc_dialog_background">@drawable/cc_scan_dialog_background</drawable>
+<drawable name="cc_dialog_button_positive_background">@drawable/cc_dialog_positive_button_background</drawable>
+<drawable name="cc_dialog_button_negative_background">@drawable/cc_dialog_negative_button_background</drawable>
+
+<!-- Scan view background color, which is just a color by default  -->
+<drawable name="cc_scan_background">#0C2F46</drawable>
 
 <!-- Processing screen background, which is just a color by default -->
-<drawable name="cc_processing_background">#071d29</drawable>
-
-<!-- Icon for Location Services and location permission reminders -->
-<drawable name="cc_location_icon">@drawable/cc_location_icon_original</drawable>
-<!-- Icon for microphone permission reminder -->
-<drawable name="cc_microphone_icon">@drawable/cc_microphone_icon_original</drawable>
-<!-- Background for reminder view -->
-<drawable name="cc_reminder_background">@drawable/cc_location_reminder_background_original</drawable>
+<drawable name="cc_processing_background">#0C2F46</drawable>
 
 <!-- Scan playback timeline thumb -->
 <drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
 
 <!-- Scan playback back arrow -->
-<drawable name="cc_playback_back_arrow">@drawable/cc_back_arrow_original</drawable>
+<drawable name="cc_playback_back_arrow">@drawable/cc_icon_arrow_left</drawable>
 ```
 
 For example, if you want to change the default record button drawable graphics to your own drawables,
@@ -923,37 +904,36 @@ During a scan, CubiCapture shows a warning to the user if it detects
 bad scanning styles or any issues with the tracking.
 All the warnings are divided into priority level groups.
 Higher priority warnings will override and hide any lower priority warning in order to
-only show the higher priority warning. As an exception, ceiling warning will override horizontal
-warning, although they have the same priority level.
+only show the higher priority warning.
 Priority level `1` is the highest priority, `2` is the second highest priority and so on.
 
 Priority level | Warnings
 ---------------|---------
 1 | Not tracking*
 2 | Rotate device
-3 | Sideways walking, Fast movement, Too close
-4 | Ceiling scanning, Floor scanning, Horizontal scanning
+3 | Sideways walking, Fast rotation, Too close
+4 | Device is tilted forward too much
+5 | Low storage, Device is hot
 
-*Not tracking: ARCore's `TrackingState` is **not** `TRACKING`,
-and the position of the device can not be determined.
-In this case, CubiCapture shows a tracking status error message (e.g. `cc_insufficient_features_text`)
-in `statusText: TextView` so that we can get the device tracking again as quickly as possible.
+*Not tracking: ARCore's `TrackingState` is **not** `TRACKING`, and the position of the device can
+not be determined.
+In this case, CubiCapture shows a tracking warning (e.g., insufficient visual features warning) so
+that we can get the device tracking again as quickly as possible.
 
 ## Status codes
 
-### 0, "Device turned to landscape orientation."
-Received when the device is in landscape orientation and either the turn device guidance or
-the rotate device warning is hidden.
+### 0, "Device turned to correct orientation."
+Received when the device is turned to portrait orientation.
 
 ### 1, "Started recording."
 Received when the scan is started by pressing the record button.
 
 ### 2, "Finished recording."
-Received when user has ended the scan with the slider and scan has enough data.
+Received when user has ended the scan and scan has enough data.
 The saving of the scan files begins after this.
 
 ### 3, "Finished recording - Not enough data."
-Received when user has ended the scan with the slider and scan does not have enough data.
+Received when user has ended the scan and scan does not have enough data.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
 ### 4, "Saving of scan files finished. (Beginning to zip files.)"
@@ -974,9 +954,9 @@ receive an error code (e.g. code 3, "Finished recording - Not enough data.").
 
 ### 6, "Scan folder: $folderPath"
 Received when the saving of the scan files is finished.
-The description will contain a path to the scan folder.
-To receive the scan folder as a `File` use the `CubiEventListener`'s
-`onFile(code: Int, file: File)` method where code 1 receives the scan folder.
+The description will contain a path to the scan directory.
+To receive the scan directory as a `File` use the `CubiEventListener`'s
+`onFile(code: Int, file: File)` method where code 1 receives the scan directory.
 
 ### 7, "Zipping is done. Zip file: $zipFilePath"
 Received when the zipping of the scan files is finished.
@@ -986,62 +966,54 @@ To receive the zip file as a `File` use the `CubiEventListener`'s
 
 ### 8, "ARCore TrackingFailureReason: INSUFFICIENT_LIGHT"
 Received when ARCore motion tracking is lost due to poor lighting conditions.
-`statusText: TextView`'s `text` is set to string resource `cc_insufficient_light_text`.
 
 ### 9, "ARCore TrackingFailureReason: EXCESSIVE_MOTION"
 Received when ARCore motion tracking is lost due to excessive motion.
-`statusText: TextView`'s `text` is set to string resource `cc_excessive_motion_text`.
 
 ### 10, "ARCore TrackingFailureReason: INSUFFICIENT_FEATURES"
 Received when ARCore motion tracking is lost due to insufficient visual features.
-`statusText: TextView`'s `text` is set to string resource `cc_insufficient_features_text`.
 
 ### 11, "ARCore TrackingState is TRACKING."
-Received when ARCore is tracking again. Any error text from `statusText: TextView` is removed.
+Received when ARCore is tracking again.
 
 ### 12, "MediaFormat and MediaCodec failed to be configured and started."
 Received if MediaFormat and MediaCodec fails to be configured and started
 when record button is pressed for the first time. You will receive code 5 after this.
 
-### 13, "Scan drifted! Position changed by over 10 meters during 2 second interval."
-Received if the position of the device has changed by over 10 meters during a 2 second interval.
+### 13, "Device position is sliding in an unnatural manner."
+Received if the position of the device is "sliding" in an unnatural manner.
+The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+
+### 14, "The device was in the wrong orientation for too long."
+The device was in the wrong orientation for too long.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
 ### 15, "Error shutdown. Deleting scan folder: $folder-path
 Received when the scan is not successful.
 The scan files are deleted and CubiCapture will be finished after this (code 5).
 
-### 16, "Portrait to landscape guidance has to be dismissed first in order to start recording."
-Received when the record button is pressed and recording cannot be started because turn device
-guidance is still visible (device is not in landscape orientation).
+### 16, "Device needs to be in correct orientation in order to start recording."
+Received when the record button is pressed, but recording cannot be started because the device is
+not in the correct orientation.
 
-### 17, "Device is in reverse-landscape orientation."
-Received when the device is in reverse-landscape orientation and if the device has been in
-landscape orientation at least once. Rotate device warning is shown.
+### 17, "Device is in the wrong orientation."
+Received when the device is in the wrong orientation.
 
-### 18, "Playing error sound."
-Received when an error sound is played and ARCore motion tracking is lost (codes 8, 9 and 10).
+### 18, "Playing warning sound."
+Received when an warning sound is played and ARCore motion tracking is lost (codes 8, 9 and 10).
 Only received if the ARCore was tracking before the tracking is lost to avoid playing the error sound
 multiple times in a row.
 (The ARCore `TrackingFailureReason` might change (between codes 8, 9 and 10) during a short period of time).
 
-### 19, "Back button pressed twice. You can now finish your scanning Activity."
-Received when the CubiCapture's back button is pressed twice. You should call `finish()`.
+### 19, "Back button press confirmed"
+Received when the CubiCapture's back button press is confirmed via dialog. You should call
+`Activity.finish()`.
 
-### 20, "Name of the scan output folder has to be set first. Set .scanFolderName"
-Received when the record button is pressed and recording cannot be started because `scanFolderName`
-has not been set.
+### 21, "Tilting too far down."
+Received when the pitch of the camera has been too low for a certain amount of time.
 
-### 21, "Scanning floor."
-Received when the pitch of the camera has been too low for a certain amount of time
-and the floor warning is shown. Only received if there's no higher priority warnings visible.
-
-### 22, "Scanning ceiling."
-Received when the pitch of the camera has been too high for a certain amount of time
-and the ceiling warning is shown. Only received if there's no higher priority warnings visible.
-
-### 23, "Not scanning ceiling or floor anymore."
-Received when the pitch of the camera is valid again and the ceiling or the floor warning is hidden.
+### 23, "Tilt angle optimal."
+Received when the pitch of the camera is optimal again.
 
 ### 24, "ARCore TrackingState is PAUSED."
 Received when ARCore's `TrackingState` is `PAUSED` and pitch of the camera cannot be calculated.
@@ -1049,94 +1021,16 @@ The ceiling or the floor warning to hidden.
 
 ### 25, "Walking sideways. Displaying turn left warning."
 Received when the user is walking sideways to the left while the camera is pointing forward.
-Sideways left warning is shown.
 
 ### 26, "Walking sideways. Displaying turn right warning."
 Received when the user is walking sideways to the right while the camera is pointing forward.
-Sideways right warning is shown.
 
 ### 27, "Not walking sideways anymore."
-Received when the user is not walking sideways anymore and the sideways warning is hidden.
-Sideways warning is always displayed for at least a certain amount of time to avoid quick flashes
-of guidance images.
+Received when the user is not walking sideways anymore.
 
 ### 28, "ARCore was unable to start tracking during the first five seconds."
 Received if the ARCore is unable to start tracking during the first five seconds.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
-
-### 31, "Horizontal scanning."
-Received when the pitch of the camera has been too horizontal for a certain amount of time
-and horizontal warning is shown.
-
-### 32, "Not scanning horizontally anymore."
-Received when the pitch of the camera is valid again (not scanning horizontally) for a certain
-amount of time, and horizontal warning is hidden.
-
-### 33, "Requesting LOCATION permissions."
-Received when `trueNorth` is set to `TrueNorth.ENABLED_AND_REQUEST` and the `ACCESS_FINE_LOCATION`
-permission is not granted. Requests `ACCESS_FINE_LOCATION` permission to be granted to this application.
-
-### 34, "User granted LOCATION permissions."
-Received when user has granted the `ACCESS_FINE_LOCATION` permission and `trueNorth` is set to
-`TrueNorth.ENABLED_AND_REQUEST`.
-
-### 35, "User denied LOCATION permissions."
-Received when user has denied the `ACCESS_FINE_LOCATION` permission and `trueNorth` is set to
-`TrueNorth.ENABLED_AND_REQUEST`.
-
-### 36, "LOCATION permission is not granted. Not saving true north."
-Received when the `ACCESS_FINE_LOCATION` permission is not granted and `trueNorth` is set to
-`TrueNorth.ENABLED`. Not saving true north.
-
-### 37, "Showing Location reminder view."
-Received when the Location reminder view is shown. Location reminder view is used for both Location
-Services and location permission. The reminder view disappears by pressing it, when the recording is
-started or when the location permission is granted if the reminder view was for location permission.
-
-### 38, "Location reminder view pressed. Opening settings."
-Received when the Location reminder view is pressed. Opening Location Settings if reminder view is
-for Location Services or application settings if the reminder view is for location permission.
-
-### 39, "Unable to start listening for speech. Error: $error"
-Received if the speech recognition service fails to allow access to start listening for speech.
-
-### 40, "Started listening for speech."
-Received when the speech recognition button is pressed and speech recognition starts
-listening for speech. This requires that the scan is started (recording), and that the
-`RECORD_AUDIO` permission is granted.
-
-### 41, "Listening finished, displaying recognition results."
-Received when the speech recognition stops listening for speech and the
-recognition results are ready and displayed.
-
-### 42, "Recognition result '$result' was chosen."
-Received when one of the recognition results is pressed.
-
-### 43, "Recognition results canceled."
-Received when the recognition results are canceled by pressing the Cancel -button.
-
-### 44, "Speech recognition aborted."
-Received when the speech recognition is aborted by pressing the speech recognition button
-while speech recognition was listening for speech.
-
-### 45, "No speech recognition results. Error: $error"
-Received when the speech recognition doesn't return any results. `error: Int` is defined in
-[SpeechRecognizer](https://developer.android.com/reference/android/speech/SpeechRecognizer)
-
-### 46, "All recognition results over the max length of 40 characters."
-Received when all the recognition results are over the max length of 40 characters.
-Results will not be displayed, instead, the string resource `cc_results_over_max_length_text`
-will be displayed in the speech recognition pop-up view next to speech recognition button.
-
-### 47, "Requesting RECORD_AUDIO permission."
-Received when the speech recognition button is pressed and the `RECORD_AUDIO` permission
-is not granted. Requests `RECORD_AUDIO` permission to be granted to this application.
-
-### 48, "User granted RECORD_AUDIO permission."
-Received when user has granted the `RECORD_AUDIO` permission.
-
-### 49, "User denied RECORD_AUDIO permission."
-Received when user has denied the `RECORD_AUDIO` permission.
 
 ### 50, "MediaMuxer.writeSampleData Exception: $exception"
 Received if the video encoder fails to write an encoded sample into the muxer.
@@ -1166,9 +1060,6 @@ Received if the stopping of the muxer fails.
 ### 58, "MediaCodec.releaseOutputBuffer() exception: $exception"
 Received if the releasing of the output buffer fails.
 
-### 59, "Failed to print camera intrinsics!"
-Received if printing `intrinsics.json` file to scan folder fails.
-
 ### 60, "dequeueOutputBuffer IllegalStateException: $exception"
 Received if dequeuing an output buffer fails.
 
@@ -1177,10 +1068,6 @@ Received if the getting of the output buffer fails.
 
 ### 62, "queueInputBuffer IllegalStateException: $exception"
 Received if queueing an input buffer to the codec fails.
-
-### 63, "Depth sensor is no longer producing depth data!"
-Received if device's depth (time-of-flight) sensor is no longer producing depth data.
-The scan will be saved as a regular (non-depth) scan.
 
 ### 64, "Unable to start saving. Error: $error"
 Received if the conditions for saving are not met.
@@ -1237,20 +1124,16 @@ Received if the device runs out of storage space while scanning.
 The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
 
 ### 85, "Scanning too close. Showing proximity warning."
-Received if the user is scanning too close to objects and too close warning is shown.
+Received if the user is scanning too close to objects
 
 ### 87, "Too fast rotations. Showing fast movement warning."
-Received when the user turns around too fast while scanning and fast movement warning is shown.
+Received when the user turns around too fast while scanning.
 
 ### 88, "Scan range normal. Hiding proximity warning."
-Received when the user is not scanning too close to objects anymore and the too close warning is hidden.
-Too close warning is always displayed for at least a certain amount of time to avoid quick flashes
-of warnings.
+Received when the user is not scanning too close to objects anymore.
 
 ### 89, "Not moving too fast anymore."
-Received when the user is not turning around too fast anymore and the fast movement warning is hidden.
-Fast movement warning is always displayed for at least a certain amount of time to avoid quick
-flashes of warnings.
+Received when the user is not turning around too fast anymore.
 
 ### 90, "Failed to write scan log data. $exception"
 Received if writing of the `scanLog.json` file to scan folder fails.
@@ -1269,40 +1152,15 @@ Received if the proximity detection fails.
 Received if the rotation vector sensor is not supported on device. True north data will be acquired
 by using accelerometer and magnetometer instead.
 
-### 95, "Speech recognition service is not available on the system."
-Received when the speech recognition service is not available on the system. Speech recognition will
-be disabled and the speech recognition user interface will not be displayed.
-
-### 96, "LOCATION permission can't be requested. Location reminder view will be displayed later."
-Received when the location permission can't be requested via Android OS and `trueNorth` is set to
-`TrueNorth.ENABLED_AND_REQUEST`. Reminder view for location permission will be displayed when the
-device is turned to landscape orientation.
-
-### 97, "RECORD_AUDIO permission can't be requested. Informing user."
-Received when the speech recognition button is pressed but the record audio permission can't be
-requested via Android OS. If not recording, a reminder view for record audio permission will be
-displayed. If recording, a speech recognition pop-up view will be displayed with the text of the
-string resource `cc_microphone_permission_not_granted`.
-
-### 98, "Microphone open settings view pressed. Opening settings."
-Received when the reminder view for record audio permission is pressed. Opening application settings
-where user can grant the record audio permission.
-
 ### 100, "ARCore session is initializing"
 Received if the ARCore session is initializing normally.
-`statusText: TextView`'s `text` is set to string resource `cc_initializing_text` if the turn device
-guidance is not shown.
 
 ### 101, "ARCore session is initialized"
 Received if the ARCore session is initialized and ARCore's `TrackingState` is `TRACKING`.
 Only received when the recording has not been started. While recording, status code 11 is received instead.
-`statusText: TextView`'s `text` is reset.
 
 ### 102, "ARCore session has to be initialized first in order to start recording."
 Received when the record button is pressed and recording cannot be started because ARCore session is still initializing.
-
-### 103, "Missing callback"
-Received if the `CubiEventListener`'s interface callback has not been registered.
 
 ### 105, "Unable to create ARCore session. Error: $error"
 Received if an internal error occurred while creating the ARCore session.
@@ -1316,6 +1174,29 @@ device. You will receive code 5 after this.
 ### 107, "Device is too hot to start scanning."
 Received if the thermal state is critical or higher on startup. You will receive code 5 after this.
 
+### 116, "Device position jumped in an unnatural manner."
+Received if the position of the device "jumps" in an unnatural manner. Note that this does NOT abort
+the scan.
+
+### 120, "CAMERA permission is not granted."
+Received when the CAMERA permission is not granted.
+
+### 121, "Launching application settings to grant CAMERA permission."
+Received when the camera permission view's permission request button is pressed, launching the
+application settings.
+
+### 122, "Requesting CAMERA permission."
+Received when the camera permission view's permission request button is pressed, prompting the
+CAMERA permission request through the Android OS permission dialog.
+
+### 123, "User granted CAMERA permission."
+Received when the CAMERA permission is granted through the Android OS permission dialog. Note that
+this is not received if the permission is granted through the application settings.
+
+### 124, "User denied CAMERA permission."
+Received when the CAMERA permission is denied through the Android OS permission dialog. Note that
+this is not received if the permission is denied through the application settings.
+
 ## Archived Update Guides
 
 **Note! If you've previously implemented version 2.8.0 you've probably done the next steps already:**
@@ -1327,13 +1208,6 @@ Received if the thermal state is critical or higher on startup. You will receive
 **Note! If you've previously implemented version 2.6.0 you've probably done the next steps already:**
 - If you want to implement the new scan playback `Fragment` to your application,
   see [Scan playback](#scan-playback) and new resources for customization
-- If you want to show a reminder view for microphone or location permissions when the permission
-  can't be requested via Android OS, see [Reminder view](#reminder-view) and new resources for
-  customization
-- If you have customized the texts, text size or background of the reminder view for Location
-  Services, see [Release Notes](#release-notes) for resource name changes
-- Check if you want to handle the new status codes: 95-98. If you handle codes 37 or 38, see the
-  changes to those status codes
 
 **Note! If you've previously implemented version 2.5.2 you've probably done the next steps already:**
 - Change your `CubiCapture.CubiEventListener` interface implementation to `CubiEventListener`
@@ -1344,48 +1218,51 @@ Received if the thermal state is critical or higher on startup. You will receive
 
 **Note! If you've previously implemented version 2.5.1 you've probably done the next steps already:**
 - See [Archived Release Notes](#archived-release-notes) if you want to customize CubiCapture's text sizes,
-  hint label widths or the size of the processing progress bar
+  or the size of the processing progress bar
 
 **Note! If you've previously implemented version 2.5.0 you've probably done the next steps already:**
 - Customization of the CubiCapture has changed. See [Archived Release Notes](#archived-release-notes) for
   information about deprecations and how the CubiCapture is customized now
-- Check if you want to handle the new status codes: 37, 38, 85, 88 and 93
-- If you want to show Location Services reminder -view when the Location Services are turned off
-  see [Archived Release Notes](#archived-release-notes) for more information
-- If your app is using speech recognition and targets Android 11 (API level 30) or above,
-  you need to query `android.speech.RecognitionService` in your app's `AndroidManifest.xml` file
+- Check if you want to handle the new status codes: 85, 88 and 93
 
 **Note! If you've previously implemented version 2.4.0 you've probably done the next steps already:**
 - Remove deprecated `feedbackGatheringEnabled: Boolean` if you used it
-- Check if you want to handle the new status codes (codes 39, 87, 89, 92, 105 and 106)
+- Check if you want to handle the new status codes (codes 87, 89, 92, 105 and 106)
 
 **Note! If you've previously implemented version 2.3.1 you've probably done the next steps already:**
-- Set `allScansFolder: File?` which replaced `allScansFolderName: String`
+- Set `allScansDirectory: File` which replaced `allScansFolderName: String`
   (see [Implementation](#implementation))
 - If you want to get an estimation in minutes of the maximum scan length the device can store,
   see [Archived Release Notes](#archived-release-notes) for more information
 - Check if you want to handle the new status codes (codes 78, 91 and 100-102)
 
 **Note! If you've previously implemented version 2.3.0 you've probably done the next steps already:**
-- See how to enable/disable the true north detection
-  (see [Implementation](#implementation))
-- Check if you want to handle the new status codes (codes 31-36 and 67-69)
+- See how to enable/disable the true north detection (see [Implementation](#implementation))
+- Check if you want to handle the new status codes 67-69
 
 **Note! If you've previously implemented version 2.2.2 you've probably done the next steps already:**
 - If you want to set the enabled status of the record button `View` see
   [Archived Release Notes](#archived-release-notes) for more information
 
 **Note! If you've previously implemented version 2.2.1 you've probably done the next steps already:**
-- Check if you want to handle the new status codes (codes 65 and 66)
+- Check if you want to handle the new status codes 65 and 66
 - See if you want to add information about your app's version to be written to the scan data
   (see variables `appVersion` and `appBuild` from [Implementation](#implementation))
 
 **Note! If you've previously implemented version 2.2.0 you've probably done the next steps already:**
-- See how to enable/disable speech recognition (see [Implementation](#implementation))
 - Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
-- Check if you want to handle the new status codes (codes 40-49 and 59-64)
+- Check if you want to handle the new status codes 60-64
 
 ## Archived Release Notes
+
+**2.8.0:**
+- Re-enabled Too close -warning for Depth API supported devices
+- Added new `safeMode` variable for enabling/disabling Depth API. See [Safe mode](#safe-mode) for
+  more information
+- Aborting scan when device runs out of storage space
+- New status code [79, "Device ran out of storage space"](#79-device-ran-out-of-storage-space)
+- Margins of the scan back button now match the margins of the scan timer
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **2.7.0:**
 - Ceiling warning adjustments
