@@ -31,7 +31,6 @@
     <!-- Displayed title and info text for the rotate warning -->
     <string name="cc_guide_rotate_title">Rotate your device</string>
     <string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
-    <string name="cc_guide_rotate_landscape_info">Keep your device in landscape orientation</string>
 
     <!-- Displayed if the device is tilted forward too much -->
     <string name="cc_guide_raise_device_title">Raise the device</string>

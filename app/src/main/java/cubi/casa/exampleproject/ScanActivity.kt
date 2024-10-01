@@ -1,8 +1,6 @@
 package cubi.casa.exampleproject
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +11,7 @@ import java.io.File
 import java.util.*
 
 /** Example Activity which provides an example implementation
- * and use of the CubiCapture 3.1.1 library module */
+ * and use of the CubiCapture 3.1.3 library module */
 
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
@@ -32,12 +30,8 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
     // SharedPreferences for Settings.
     private val settings by lazy { getSharedPreferences("settings", 0) }
 
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Set the desired orientation to portrait.
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         // Set the content view.
         setContentView(R.layout.activity_scan)
@@ -51,8 +45,9 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         cubiCapture.trueNorth = TrueNorth.ENABLED
 
         // Add your app's version information to the scan data (optional).
-        cubiCapture.appVersion = BuildConfig.VERSION_NAME
-        cubiCapture.appBuild = BuildConfig.VERSION_CODE
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        cubiCapture.appVersion = packageInfo.versionName
+        cubiCapture.appBuild = packageInfo.longVersionCode.toInt()
 
         // Set the scan output directory name.
         cubiCapture.scanDirectoryName = UUID.randomUUID().toString()

@@ -37,8 +37,6 @@
     <color name="cc_guide_top_warning_stroke_color">#ECA80D</color>
     <color name="cc_guide_top_info_solid_color">#1D4357</color>
     <color name="cc_guide_top_info_stroke_color">#5DB2A7</color>
-    <color name="cc_guide_top_warning_landscape_solid_color">#B85E1B2B</color>
-    <color name="cc_guide_top_info_landscape_solid_color">#B81D4357</color>
 
     <!-- Request permission button background and text color -->
     <color name="cc_permission_request_button_background_color">#FDFDFD</color>

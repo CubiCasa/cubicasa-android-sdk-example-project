@@ -3,7 +3,7 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture library module](#cubicapture-library-module)
-  * [Updating to CubiCapture 3.1.1](#updating-to-cubicapture-311)
+  * [Updating to CubiCapture 3.1.3](#updating-to-cubicapture-313)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
@@ -43,10 +43,12 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 3.1.1
+## Updating to CubiCapture 3.1.3
 
-- Update your app to use the CubiCapture 3.1.1 library module
+- Update your app to use the CubiCapture 3.1.3 library module
 - Update the app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+
+**Note! If you've previously implemented version 3.1.1 you've probably done the next steps already:**
 - If you used speech recognition, the `RECORD_AUDIO` and `INTERNET` permissions, and
   `android.speech.RecognitionService` can be removed from the `AndroidManifest.xml`
 - Update your scanning `Activity` to use portrait orientation. Add `android:screenOrientation="portrait"`
@@ -80,6 +82,11 @@ as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**3.1.3:**
+- Performance improvements
+- Updated CubiCapture's `targetSdkVersion` to API level `34`
+- Updated dependencies (see [Implementation](#implementation) below)
 
 **3.1.1:**
 - Scanning orientation is now portrait
@@ -147,36 +154,36 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## Implementation
 
-This implementation was made with Android Studio Flamingo | 2022.2.1 Patch 1
-using Gradle plugin version 8.0.2.
+This implementation was made with Android Studio Koala Feature Drop | 2024.1.2 Patch 1
+using Gradle plugin version 8.6.1.
 
 #### Setting up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.1.1.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.1.3.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-3.1.1.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-3.1.3.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.1.1.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.1.3.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-3.1.1.aar')`.
+`implementation files('libs/cubicapture-release-3.1.3.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-3.1.1.aar')
-implementation 'com.google.ar:core:1.41.0'
-implementation 'com.google.code.gson:gson:2.10.1'
+implementation files('libs/cubicapture-release-3.1.3.aar')
+implementation 'com.google.ar:core:1.45.0'
+implementation 'com.google.code.gson:gson:2.11.0'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED':
-implementation 'com.google.android.gms:play-services-location:21.0.1'
+implementation 'com.google.android.gms:play-services-location:21.3.0'
 
 // Implement the following if using 'ScanPlayback':
 implementation 'androidx.recyclerview:recyclerview:1.3.2'
-implementation 'androidx.media3:media3-exoplayer:1.1.1'
+implementation 'androidx.media3:media3-exoplayer:1.4.1'
 ```
 
 Add CubiCapture fragment to your projects scanning layout .xml file:
@@ -268,11 +275,6 @@ onBackPressedDispatcher.addOnClickListener(this) {
     }
     // The saving variable is set to true when onStatus() receives code 2.
 }
-```
-
-Set the desired orientation to portrait in `onCreate()`:
-```Kotlin
-requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 ```
 
 You should check that the device has ARCore installed and that it's up-to-date before starting the
@@ -522,8 +524,6 @@ Here's all the default colors and alphas defined in CubiCapture library:
 <color name="cc_guide_top_warning_stroke_color">#ECA80D</color>
 <color name="cc_guide_top_info_solid_color">#1D4357</color>
 <color name="cc_guide_top_info_stroke_color">#5DB2A7</color>
-<color name="cc_guide_top_warning_landscape_solid_color">#B85E1B2B</color>
-<color name="cc_guide_top_info_landscape_solid_color">#B81D4357</color>
 
 <!-- Request permission button background and text color -->
 <color name="cc_permission_request_button_background_color">#FDFDFD</color>
@@ -729,7 +729,6 @@ Here's all the default texts defined in CubiCapture library:
 <!-- Displayed title and info text for the rotate warning -->
 <string name="cc_guide_rotate_title">Rotate your device</string>
 <string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
-<string name="cc_guide_rotate_landscape_info">Keep your device in landscape orientation</string>
 
 <!-- Displayed if the device is tilted forward too much -->
 <string name="cc_guide_raise_device_title">Raise the device</string>
@@ -863,8 +862,6 @@ Here's all the default drawables defined in CubiCapture library:
 <!-- Top warning and info guide backgrounds -->
 <drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
 <drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
-<drawable name="cc_guide_top_warning_landscape_background">@drawable/cc_top_warning_landscape_background</drawable>
-<drawable name="cc_guide_top_info_landscape_background">@drawable/cc_top_info_landscape_background</drawable>
 
 <!-- Fullscreen warning guide background, which is just a color by default -->
 <drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
