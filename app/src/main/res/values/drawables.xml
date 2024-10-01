@@ -64,8 +64,6 @@
     <!-- Top warning and info guide backgrounds -->
     <drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
     <drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
-    <drawable name="cc_guide_top_warning_landscape_background">@drawable/cc_top_warning_landscape_background</drawable>
-    <drawable name="cc_guide_top_info_landscape_background">@drawable/cc_top_info_landscape_background</drawable>
 
     <!-- Fullscreen warning guide background, which is just a color by default -->
     <drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
