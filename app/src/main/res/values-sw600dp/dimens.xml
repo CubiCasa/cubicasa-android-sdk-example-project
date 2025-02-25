@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      To customize CubiCapture's default layout sizes, margins, and text sizes, redefine the
+      dimensions here.
+
+      Note:
+      - You don't need to redefine dimensions here unless you are changing them.
+      - The dimensions below are set to their default values for demonstration purposes.
+    -->
+
+    <!-- Scan close button size-->
+    <dimen name="cc_scan_button_close_size">32dp</dimen>
+
+    <!-- Scan timer margin top, width and background radius  -->
+    <dimen name="cc_scan_timer_width">136dp</dimen>
+    <dimen name="cc_scan_timer_height">44dp</dimen>
+    <dimen name="cc_scan_timer_background_radius">36dp</dimen>
+
+    <!-- Scan guide text sizes -->
+    <dimen name="cc_guide_title_text_size">20dp</dimen>
+    <dimen name="cc_guide_info_text_size">20dp</dimen>
+
+    <!-- Scan guide icon height (using scale type center inside) -->
+    <dimen name="cc_guide_icon_height">210dp</dimen>
+
+    <!-- Scan controls container paddings -->
+    <dimen name="cc_scan_controls_container_padding_top">32dp</dimen>
+    <dimen name="cc_scan_controls_container_padding_bottom">32dp</dimen>
+
+    <!-- Scan header container paddings -->
+    <dimen name="cc_scan_header_container_padding_horizontal">16dp</dimen>
+    <dimen name="cc_scan_header_container_padding_vertical">24dp</dimen>
+
+    <!-- Record button size -->
+    <dimen name="cc_button_record_size">88dp</dimen>
+
+    <!-- Photo capture button and icon size-->
+    <dimen name="cc_button_capture_photo_button_size">72dp</dimen>
+    <dimen name="cc_button_capture_photo_icon_size">32dp</dimen>
+
+    <!-- Photo thumbnail size -->
+    <dimen name="cc_photo_thumbnail_size">72dp</dimen>
+
+    <!-- Photo count background (non-zero) and text size-->
+    <dimen name="cc_photo_count_non_zero_text_background_size">32dp</dimen>
+    <dimen name="cc_photo_count_text_size">20dp</dimen>
+
+    <!-- Scan timer text size -->
+    <dimen name="cc_text_size_scan_timer">20dp</dimen>
+</resources>

@@ -2,27 +2,33 @@
 
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
-* [CubiCapture library module](#cubicapture-library-module)
-  * [Updating to CubiCapture 3.1.3](#updating-to-cubicapture-313)
+* [CubiCapture Library Module](#cubicapture-library-module)
+  * [Updating to CubiCapture 3.2.2](#updating-to-cubicapture-322)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
-    * [Setting up](#setting-up)
-    * [True north detection](#true-north-detection)
-    * [Get available storage space estimation](#get-available-storage-space-estimation)
-    * [Scan playback](#scan-playback)
-    * [Photo capturing](#photo-capturing)
-    * [Safe mode](#safe-mode)
-    * [Warning sound](#warning-sound)
-    * [Automatic and manual zipping](#automatic-and-manual-zipping)
-  * [UI settings](#ui-settings)
+    * [Setting Up](#setting-up)
+    * [True North Detection](#true-north-detection)
+    * [Get Available Storage Space Estimation](#get-available-storage-space-estimation)
+      * [Pre-Scan Storage Estimation](#pre-scan-storage-estimation)
+      * [Remaining Storage Estimation During Scan](#remaining-storage-estimation-during-scan)
+    * [Scan Playback](#scan-playback)
+    * [Photo Capturing](#photo-capturing)
+    * [Safe Mode](#safe-mode)
+    * [Warning Sound](#warning-sound)
+    * [Automatic and Manual Zipping](#automatic-and-manual-zipping)
+      * [Enable or Disable Automatic Zipping](#enable-or-disable-automatic-zipping)
+      * [Manual Zipping](#manual-zipping)
+      * [Directory Structure for Successful Zipping](#directory-structure-for-successful-zipping)
+  * [UI Settings](#ui-settings)
     * [General](#general)
-    * [Colors and alphas](#colors-and-alphas)
+    * [Colors and Alphas](#colors-and-alphas)
     * [Dimensions](#dimensions)
     * [Texts](#texts)
-    * [Drawable graphics](#drawable-graphics)
-  * [About warning priorities](#about-warning-priorities)
-  * [Status codes](#status-codes)
+    * [Drawable Graphics](#drawable-graphics)
+  * [Torch (Flashlight) Support](#torch-flashlight-support)
+  * [About Warning Priorities](#about-warning-priorities)
+  * [Status Codes](#status-codes)
   * [Archived Update Guides](#archived-update-guides)
   * [Archived Release Notes](#archived-release-notes)
 
@@ -35,7 +41,7 @@ CubiCapture to your app.
 For your app the next step would be to upload the scan to your server and
 use [CubiCasa Conversion API](https://cubicasaconversionapi.docs.apiary.io/#).
 
-# CubiCapture library module
+# CubiCapture Library Module
 
 CubiCapture library module provides a scanning `Fragment` which can be used to scan a floor plan
 with an Android device. The scanning `Fragment` saves scan files into a zip file, which your app can
@@ -43,10 +49,17 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 3.1.3
+## Updating to CubiCapture 3.2.2
 
-- Update your app to use the CubiCapture 3.1.3 library module
-- Update the app level `build.gradle` dependencies (see [Implementation](#implementation) below)
+- Update your app to use the CubiCapture 3.2.2 library module
+- Update the app level `build.gradle` dependencies (see [Implementation](#implementation))
+- Update the implementations of `CubiEventListener` and `TrueNorth` to use their new package
+  location: `cubi.casa.cubicapture.utils.*`
+- See the changes to the UI, including new scan guides/warnings, the new
+  "Lower the device" warning, and the new setting to configure the capture photo button position
+  (`isCapturePhotoButtonOnRight: Boolean`). Refer to [UI settings](#ui-settings) if you want to
+  customize the colors, drawables, dimensions, or strings, and update your resource values accordingly
+- See [Release Notes](#release-notes) for new, changed, or removed methods and status codes
 
 **Note! If you've previously implemented version 3.1.1 you've probably done the next steps already:**
 - If you used speech recognition, the `RECORD_AUDIO` and `INTERNET` permissions, and
@@ -65,23 +78,35 @@ as any room labels that were added.
   renamed variables, removed views, methods, and properties, and new, changed, and removed status codes.
   Update your code accordingly
 
-**Note! If you've previously implemented version 2.10.1 you've probably done the next steps already:**
-- Replace the `CubiCapture` and `ScanPlayback` `<fragment>` tags with the
-`<androidx.fragment.app.FragmentContainerView>` tags
-- Handle the new status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
-to show user an error message after the aborted scan
-
-**Note! If you've previously implemented version 2.9.0 you've probably done the next steps already:**
-- Update your `minSdkVersion` to API level `29` or higher
-- Rename `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods as
-as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
-- If you want to disable the low storage warnings, see the new `storageWarningsEnabled` below
-[General](#general) UI settings
-- Check if you want to handle the new status code [103, "Missing callback"](#103-missing-callback)
-
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**3.2.2:**
+- Revised UI and warnings (see [UI settings](#ui-settings))
+- Added [Torch (Flashlight) Support](#torch-flashlight-support)
+- Added a "Lower the device" warning
+- Added a new setting for configuring the capture photo button position
+  (`isCapturePhotoButtonOnRight: Boolean`)
+- The previously available `getAvailableStorageMinutes(File)` method has been removed and replaced with:
+  - `estimatePreScanStorageMinutes(File)` for pre-scan storage estimation
+  - `estimateRemainingStorageMinutes()` for estimating storage during a scan
+- The previously available `zipScan(File)` method has been removed and replaced with the new
+  `ScanZipper.zip(...)` method. See [Manual Zipping](#manual-zipping) for details
+- New status codes:
+  - [22, "Tilting too far up."](#22-tilting-too-far-up)
+  - [113, "Failed to write photo log file"](#113-failed-to-write-photo-log-file-stack-trace)
+  - [140, "Error in video encoding"](#140-error-in-video-encoding-stack-trace)
+  - [141, "Failed to initialize the encoder"](#141-failed-to-initialize-the-encoder-stack-trace)
+  - [142, "Encoding timed out due to frame mismatch"](#142-encoding-timed-out-due-to-frame-mismatch-stack-trace)
+- Replaced status code 56 with a new status code:
+  [56, "Failed to write config file"](#56-failed-to-write-config-file-stack-trace)
+- Changes to the descriptions of status codes: 6, 7, 15, 19, 51, 54, 56, 90, 91, 93, 103, and 106
+- Removed status codes: 12, 50, 55, 57, 58, 60, 61, 62, and 64
+- Performance improvements
+- Various fixes and improvements
+- Updated CubiCapture's `targetSdkVersion` to API level `35`
+- Updated dependencies (see [Implementation](#implementation))
 
 **3.1.3:**
 - Performance improvements
@@ -119,28 +144,6 @@ For older update guides, see [Archived Update Guides](#archived-update-guides)
 - Changes to status codes 0, 13, 16, 17, 18, 21, and 23
 - Removed status codes 20, 22, 31-49, 59, 95-98, and 103
 
-**2.10.1:**
-- `CubiCapture` and `ScanPlayback` `Fragments` now support the
-`<androidx.fragment.app.FragmentContainerView>` tag instead of the `<fragment>` tag
-- Scan is now aborted if the thermal state is critical or higher on startup
-- New status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
-- Scan data is no longer affected by enabled code shrinking
-
-**2.9.0:**
-- Setting the property type is now required. Added a new `CubiEventListener` method
-`getPropertyType(): PropertyType` which must be used to set the `PropertyType`
-- `propertyType: PropertyType` variable is now deprecated
-- `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods renamed
-as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
-- Added new `storageWarningsEnabled` variable for enabling/disabling low storage warnings.
-See [General](#general) UI settings for more information
-- Added new customization options for processing screen text color and progress bar color.
-See `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
-- New status code [103, "Missing callback"](#103-missing-callback)
-- CubiCapture's `minSdkVersion` and `targetSdkVersion` have been updated to API levels `29` and `33`,
-respectively
-- Updated dependencies (see [Implementation](#implementation) below)
-
 For older release notes, see [Archived Release Notes](#archived-release-notes)
 
 ## Glossary
@@ -154,27 +157,27 @@ Sideways walk | An error which occurs during a scan when the user walks sideways
 
 ## Implementation
 
-This implementation was made with Android Studio Koala Feature Drop | 2024.1.2 Patch 1
-using Gradle plugin version 8.6.1.
+This implementation was made with Android Studio Ladybug Feature Drop | 2024.2.2
+using Gradle plugin version 8.8.1.
 
-#### Setting up
+#### Setting Up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.1.3.aar).
+Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.2.2.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-3.1.3.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-3.2.2.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.1.3.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.2.2.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-3.1.3.aar')`.
+`implementation files('libs/cubicapture-release-3.2.2.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-3.1.3.aar')
-implementation 'com.google.ar:core:1.45.0'
+implementation files('libs/cubicapture-release-3.2.2.aar')
+implementation 'com.google.ar:core:1.47.0'
 implementation 'com.google.code.gson:gson:2.11.0'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
 
@@ -182,8 +185,8 @@ implementation 'com.jaredrummler:android-device-names:2.1.1'
 implementation 'com.google.android.gms:play-services-location:21.3.0'
 
 // Implement the following if using 'ScanPlayback':
-implementation 'androidx.recyclerview:recyclerview:1.3.2'
-implementation 'androidx.media3:media3-exoplayer:1.4.1'
+implementation 'androidx.recyclerview:recyclerview:1.4.0'
+implementation 'androidx.media3:media3-exoplayer:1.5.1'
 ```
 
 Add CubiCapture fragment to your projects scanning layout .xml file:
@@ -197,7 +200,7 @@ Add CubiCapture fragment to your projects scanning layout .xml file:
 
 To allow your scanning `Activity` to consume more RAM, to lock screen orientation to portrait
 and to prevent multiple `onCreate()` calls add the following code to your `AndroidManifest` file
-inside your scanning `Activity`'s `activity` tag - Example:
+inside your scanning `Activity`'s `activity` tag. Example:
 ```xml
 <activity
     android:name=".ExampleActivity"
@@ -211,37 +214,39 @@ Declare a `lateinit` variable for CubiCapture in your scanning `Activity`:
 private lateinit var cubiCapture: CubiCapture
 ```
 
-Initialize the CubiCapture `lateinit` variable in `onCreate()`:
+Initialize the CubiCapture fragment in `onCreate()`:
 ```Kotlin
 cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as CubiCapture
 ```
 
-Implement `CubiEventListener` interface to your scanning `Activity` - Example:
+Implement `CubiEventListener` interface in your scanning `Activity`. Example:
 ```Kotlin
 class ExampleActivity : AppCompatActivity(), CubiEventListener
 ```
 
-Add the following function to receive status updates from `CubiEventListener`:
+Add the following method to receive status updates from `CubiEventListener`:
 ```Kotlin
 override fun onStatus(code: Int, description: String) { }
 ```
 
-Add the following function to receive scan folder and zip file as `File` from `CubiEventListener`:
+Add the following method to receive the scan directory and the zip file as `File` from
+`CubiEventListener`:
 ```Kotlin
 override fun onFile(code: Int, file: File) { }
 ```
+Where `code` `1` is the scan directory and `code` `2` is the scan zip file.
 
-Set the scan output directory name - Example:
-```Kotlin
-cubiCapture.scanDirectoryName = UUID.randomUUID().toString()
-```
-
-Set the directory where all scan directories will be stored - Example:
+Set the directory where all scan directories will be stored. Example:
 ```Kotlin
 cubiCapture.allScansDirectory = getExternalFilesDir(null) ?: filesDir
 ```
 
-Set the property type - Example:
+Set the scan output directory name. Example:
+```Kotlin
+cubiCapture.scanDirectoryName = UUID.randomUUID().toString()
+```
+
+Set the property type. Example:
 ```Kotlin
 val selectedPropertyType: PropertyType = // ...
 cubiCapture.propertyType = selectedPropertyType
@@ -254,9 +259,9 @@ cubiCapture.appVersion = BuildConfig.VERSION_NAME // e.g. String "1.2.3"
 cubiCapture.appBuild = BuildConfig.VERSION_CODE // e.g. Int 25
 ```
 
-Override the `onWindowFocusChanged()` function to call CubiCapture's `onWindowFocusChanged()`
-to allow CubiCapture to handle its processes correctly when the current `Window` of the
-activity gains or loses focus:
+Override the `Activity#onWindowFocusChanged(hasFocus: Boolean)` method to call
+`CubiCapture#onWindowFocusChanged(hasFocus: Boolean, activity: Activity)` to allow CubiCapture
+to handle its internal processes accordingly based on the window focus change:
 ```Kotlin
 override fun onWindowFocusChanged(hasFocus: Boolean) {
     super.onWindowFocusChanged(hasFocus)
@@ -266,14 +271,14 @@ override fun onWindowFocusChanged(hasFocus: Boolean) {
 
 You should also prevent Navigation bar back presses during saving. Example:
 ```Kotlin
-// Overriding the back press to move the app to background when saving
+// Handle back press: Move to background if saving; otherwise, finish activity.
 onBackPressedDispatcher.addOnClickListener(this) {
+    // The saving variable is set to true when onStatus() receives code 2.
     if (saving) {
         moveTaskToBack(true)
     } else {
         finish()
     }
-    // The saving variable is set to true when onStatus() receives code 2.
 }
 ```
 
@@ -284,18 +289,18 @@ Scanning requires the `CAMERA` permission to be granted. The permission is alrea
 library's manifest. Upon start, CubiCapture checks whether the permission is granted and shows a
 missing permission view if it is not.
 
-To declare your app to be AR Required, add the following entry to your `AndroidManifest.xml` file
-inside the `application` tag:
+If you want to declare your app as "AR Required", add the following entry to your
+`AndroidManifest.xml` file inside the `application` tag. This ensures that
+the app is only visible to devices that support ARCore:
 ```xml
-<!-- "AR Required" app, requires "Google Play Services for AR" (ARCore)
-to be installed, as the app does not include any non-AR features. -->
+<!-- "AR Required" app, requires "Google Play Services for AR" (ARCore) to be installed -->
 <meta-data android:name="com.google.ar.core" android:value="required" />
 ```
 
-Remember to always call `finish()` when your activity is done and should be closed to avoid memory leaks.
+To avoid memory leaks, always remember to call `finish()` when your activity is done and should be closed.
 You should call `finish()` when you receive status code 5 or 19.
 
-#### True north detection
+#### True North Detection
 
 True north detection can be used to enable the CubiCapture to capture the heading relative to the
 "true north" to the scan. This information can then be used to add the information the floor plan
@@ -322,22 +327,43 @@ permission before the scan. You also need to implement the Google Play services'
 by adding it to the app level `build.gradle` dependencies (see the `build.gradle` implementation
 in the start of [Implementation](#implementation) above).
 
-#### Get available storage space estimation
+#### Get Available Storage Space Estimation
 
-`getAvailableStorageMinutes(File)` is a function which returns an estimation in minutes
-of the maximum scan length the device can store.
-This will be useful in a case where user's available storage space is running low and you want to
-inform the user about it before starting your scanning activity.
+`CubiCapture` provides two functions to estimate the scan duration that can be stored on the
+device based on the available storage space. These functions help understand storage availability
+either before starting a scan or during an ongoing scan.
+
+##### Pre-Scan Storage Estimation
+
+The `estimatePreScanStorageMinutes(File)` method estimates the maximum scan duration (in minutes)
+that can be stored on the device before starting a scan.
+
+This method is useful for warning the user if storage space is insufficient before
+initiating the scanning process.
 
 Example:
 ```Kotlin
-val availableMinutes = CubiCapture().getAvailableStorageMinutes(mainStorage)
-if (availableMinutes <= 60) {
-    showLowStorageWarning(availableMinutes)
+val allScansDirectory = getExternalFilesDir(null) ?: filesDir
+val estimatedMinutes: Int = CubiCapture.estimatePreScanStorageMinutes(allScansDirectory)
+
+if (estimatedMinutes <= 60) {
+    showLowStorageWarning(estimatedMinutes)
 }
 ```
 
-#### Scan playback
+##### Remaining Storage Estimation During Scan
+
+The `estimateRemainingStorageMinutes()` method estimates the remaining scan duration (in minutes)
+during an ongoing scan. Ensure that `allScansDirectory` is initialized before using this method.
+
+Example:
+```Kotlin
+val remainingMinutes: Int = cubiCapture.estimateRemainingStorageMinutes()
+```
+Note: Calling `estimateRemainingStorageMinutes()` without initializing the `allScansDirectory`
+will throw an `IllegalStateException`.
+
+#### Scan Playback
 
 Scan playback is a `Fragment` which can be used to review the scan and to see any warnings that were
 shown during the scan, as well as any room labels that were added.
@@ -392,7 +418,7 @@ scanPlayback.setOnBackButtonClickListener {
 }
 ```
 
-#### Photo capturing
+#### Photo Capturing
 
 Starting with release 3.1.1, the CubiCapture SDK now includes the option to enable users to take
 photos during scanning. These photos are included in the scan directory and the scan zip file.
@@ -402,7 +428,7 @@ Enable or disable photo capturing (disabled by default):
 cubiCapture.photoCapturingEnabled = true
 ```
 
-#### Safe mode
+#### Safe Mode
 
 Safe mode can be used to disable the ARCore's Depth API to prevent any native ARCore crashes caused
 by any possible bugs in ARCore's Depth API.
@@ -425,7 +451,7 @@ cubiCapture.safeMode = settings.getBoolean("safeMode", false)
 `safeMode: Boolean` is set to `false` by default. Value is ignored on devices which do not support
 Depth API, because the Depth API and Too close -warning is disabled on those devices by default.
 
-#### Warning sound
+#### Warning Sound
 
 Warning sound is played when the ARCore's `TrackingState` is **not** `TRACKING`.
 
@@ -434,96 +460,145 @@ To change the tracking warning sound call:
 cubiCapture.trackingWarningSoundResId = R.raw.new_warning_sound
 ```
 
-#### Automatic and manual zipping
+#### Automatic and Manual Zipping
 
-Enable or disable automatic zipping after scan (enabled by default):
+CubiCapture provides flexibility for zipping scan files, allowing either automatic or manual
+zipping based on your application's needs.
+
+##### Enable or Disable Automatic Zipping
+
+Automatic zipping is enabled by default, meaning scan files are automatically compressed after the
+scan completes. You can disable this behavior if you prefer to handle zipping manually:
 ```Kotlin
 cubiCapture.autoZippingEnabled = false
 ```
 
-Manually zip the scan folder if automatic zipping is disabled. Call this after scan files are saved
-successfully. Returns the Zip file if successful, or null if zipping failed.
-```Kotlin
-val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as String
-```
+##### Manual Zipping
 
-Manual zipping `zipScan()` method expects the scan folder to contain the following files;
+If automatic zipping is disabled, you can manually compress scan files using the `ScanZipper.zip`
+method. This should be called only after all scan files are successfully saved.
+
+The manual zip method expects the scan directory to contain the following files:
 `arkitData.json`, `config.json` and `video.mp4`.
-If any of the files above doesn't exist, `zipScan()` returns `null`.
+If any of these required files are missing, the zipping operation will fail, triggering the error
+callback with a `MissingRequiredFilesException`.
 
-Here's an example directory structure where `zipScan()` method would successfully zip the scan
-directories `ScanDirectoryA` and `ScanDirectoryB`:
+Example Usage:
+```Kotlin
+val zipUUID = UUID.randomUUID().toString()
+val zipFile = File(scanDirectory, "$zipUUID.zip")
+
+ScanZipper.zip(
+    scanDirectory = scanDirectory,
+    zipFile = zipFile,
+    onSuccess = { createdZipFile ->
+        // Handle success: The zip file has been created successfully.
+    },
+    onError = { exception ->
+        // Handle error: Missing required files or zipping failure.
+    }
+)
+```
+The `zip` method performs the operation in a background coroutine to avoid blocking the main thread.
+Both the success and error callbacks are executed on the main thread, ensuring UI safety.
+
+##### Directory Structure for Successful Zipping
+
+For the `zip` method to succeed, the scan directory must contain all required files.
+Optional files will be included in the zip if present.
+
+Here’s an example directory structure where zipping will succeed:
 ```.
 .
 └── AllScansDirectory
-    ├── ScanDirectoryA
+    ├── ExampleScanDirectory
     │   ├── arkitData.json
     │   ├── config.json
     │   ├── video.mp4
     │   ├── feedback.json
-    │   └── scanLog.json
+    │   ├── scanLog.json
+    │   ├── UUID*.jpg <- 0 or more snapshot files
     │   └── photo_capturer.json
-    └── ScanDirectoryB
-        ├── arkitData.json
-        ├── config.json
-        ├── video.mp4
-        ├── feedback.json
-        └── scanLog.json
-        └── photo_capturer.json
 ```
+Note: The `UUID*.jpg` and `photo_capturer.json` files will only be present if photos were taken
+during the scan.
 
-Note that the `photo_capturer.json` will be only present if photos were taken.
-
-## UI settings
+## UI Settings
 
 #### General
 
-Show or hide the scan timer (visible by default):
+Position of the capture photo button. By default, it’s on the right:
+```Kotlin
+cubiCapture.isCapturePhotoButtonOnRight = false
+```
+
+Whether to initialize and display the scan timer. Initialized and visible by default:
 ```Kotlin
 cubiCapture.timerEnabled = false
 ```
 
-Show or hide CubiCapture's back button (visible by default):
+Whether to display the CubiCapture's close button. Visible by default:
 ```Kotlin
-cubiCapture.backButtonEnabled = false
+cubiCapture.closeButtonEnabled = false
 ```
 
-Enable or disable the record button (enabled by default):
+Enable or disable the record button. Enabled by default:
 ```Kotlin
 cubiCapture.recordButtonEnabled = false
 ```
 
-Enable or disable low storage warnings (enabled by default):
+Enable or disable low storage warnings. Enabled by default:
 ```Kotlin
 cubiCapture.storageWarningsEnabled = false
 ```
 
-#### Colors and alphas
+#### Colors and Alphas
 
-To change the colors or alphas of the default CubiCapture graphics you have to redefine the
-default `color`s in your applications `colors.xml` file.
+To customize the colors or alphas of the default CubiCapture graphics, you need to redefine the
+default `color`s in your application's `colors.xml` file.
 
-Here's all the default colors and alphas defined in CubiCapture library:
+Below is the list of all default colors and alphas defined in the CubiCapture library:
 ```xml
-<!-- Scan and processing view texts colors -->
-<color name="cc_scan_text_color">#FFFFFF</color>
-<color name="cc_processing_text_color">#FFFFFF</color>
+<!-- Scan related texts colors -->
+<color name="cc_scan_text_color">#FDFDFD</color>
+<color name="cc_guide_title_text_color">#E6F0FA</color>
+<color name="cc_guide_info_text_color">#E6F0FA</color>
+<color name="cc_processing_text_color">#FDFDFD</color>
+<color name="cc_photo_count_non_zero_text_color">#0C2F46</color>
 
-<!-- Scan back button background color. Only visible when fullscreen guide is shown -->
-<color name="cc_scan_button_back_color">#131619</color>
+<!-- Scan close button background color. Only visible when fullscreen guide is shown -->
+<color name="cc_scan_button_close_background_color">#131619</color>
 
-<!-- Scan timer background color -->
+<!-- Scan timer background colors -->
 <color name="cc_scan_timer_background_color">#B62138</color>
+<color name="cc_scan_timer_idle_background_color">#FDFDFD</color>
 
-<!-- Recording button colors -->
-<color name="cc_record_button_inner_color">#B62138</color>
-<color name="cc_record_button_outer_color">#FFFFFF</color>
+<!-- Record button colors -->
+<color name="cc_record_button_primary_color">#FDFDFD</color>
+<color name="cc_record_button_recording_fill_color">#B62138</color>
 
-<!-- Scan top guide colors -->
-<color name="cc_guide_top_warning_solid_color">#5E1B2B</color>
-<color name="cc_guide_top_warning_stroke_color">#ECA80D</color>
-<color name="cc_guide_top_info_solid_color">#1D4357</color>
-<color name="cc_guide_top_info_stroke_color">#5DB2A7</color>
+<!-- Photo capture button background color -->
+<color name="cc_button_capture_photo_background_color">#FDFDFD</color>
+
+<!-- Scan guide colors -->
+<color name="cc_guide_warning_solid_color">#E0131619</color>
+<color name="cc_guide_warning_stroke_color">#ECA80D</color>
+<color name="cc_guide_info_solid_color">#E0131619</color>
+<color name="cc_guide_info_stroke_color">#5DB2A7</color>
+
+<!-- Colors for the scan guide warning corners -->
+<color name="cc_guide_warning_corners_solid_color">#FE566F</color>
+<color name="cc_guide_warning_corners_stroke_color">#FDFDFD</color>
+
+<!-- Scan overlay colors -->
+<!-- Note: Default gradient colors transition from lower opacity to higher opacity -->
+<color name="cc_overlay_default_stroke_color">#5DB2A7</color>
+<color name="cc_overlay_warning_stroke_color">#ECA80D</color>
+<color name="cc_overlay_start_scanning_solid_color">#66131619</color>
+<color name="cc_overlay_warning_solid_color">#665E1B2B</color>
+<color name="cc_overlay_warning_gradient_start_color">#00E6F0FA</color>
+<color name="cc_overlay_warning_gradient_center_color">#7AB62138</color>
+<color name="cc_overlay_warning_gradient_end_color">#A3611225</color>
 
 <!-- Request permission button background and text color -->
 <color name="cc_permission_request_button_background_color">#FDFDFD</color>
@@ -531,17 +606,17 @@ Here's all the default colors and alphas defined in CubiCapture library:
 
 <!-- Scan dialog background and button colors -->
 <color name="cc_dialog_background_color">#0C2F46</color>
-<color name="cc_dialog_button_positive_text_color">#FFFFFF</color>
-<color name="cc_dialog_button_negative_text_color">#FFFFFF</color>
+<color name="cc_dialog_button_positive_text_color">#FDFDFD</color>
+<color name="cc_dialog_button_negative_text_color">#FDFDFD</color>
 <color name="cc_dialog_button_positive_gradient_start_color">#1D4357</color>
 <color name="cc_dialog_button_positive_gradient_end_color">#008674</color>
-<color name="cc_dialog_button_negative_stroke_color">#FFFFFF</color>
+<color name="cc_dialog_button_negative_stroke_color">#FDFDFD</color>
 
 <!-- Processing view progress bar color -->
-<color name="cc_processing_progress_bar_color">#FFFFFF</color>
+<color name="cc_processing_progress_bar_color">#FDFDFD</color>
 
 <!-- Scan playback text color for events and playback speed spinner -->
-<color name="ccPlaybackMainTextColor">#FFFFFF</color>
+<color name="ccPlaybackMainTextColor">#FDFDFD</color>
 
 <!-- Scan playback text color for "Events", "Frame" and "Time" texts -->
 <color name="ccPlaybackControllerTextColor">#569789</color>
@@ -569,64 +644,73 @@ Here's all the default colors and alphas defined in CubiCapture library:
 <color name="ccTimelineBackgroundColor">#3A3A3A</color>
 <color name="ccTimelineWarningColor">#B85E1B2B</color>
 <color name="ccTimelineSpaceLabelColor">#B8569789</color>
-<color name="ccTimelineThumbColor">#FFFFFF</color>
+<color name="ccTimelineThumbColor">#FDFDFD</color>
 
 <!-- Scan playback scrollbar color -->
-<color name="ccPlaybackScrollbarColor">#FFFFFF</color>
+<color name="ccPlaybackScrollbarColor">#FDFDFD</color>
 ```
 
 For example, if you want to change the color and alpha of the scan timer's background,
-you can define the new color in your applications `colors.xml` file like so:
+you can define the new colors in your application's `colors.xml` file like this:
 ```xml
-<!-- Scan timer background color -->
-<color name="cc_scan_timer_background_color">#FF000000</color>
+<!-- Scan timer background colors -->
+<color name="cc_scan_timer_background_color">#FFFF0000</color>
+<color name="cc_scan_timer_idle_background_color">#FFFFFFFF</color>
 ```
 
-The colors can be defined with color notation `#RRGGBB`s or with a color notation
-including a hexadecimal alpha value `#AARRGGBB`s.
+The colors can be defined using either the `#RRGGBB` color notation or the `#AARRGGBB` notation,
+which includes a hexadecimal alpha value.
 
 #### Dimensions
 
-To change the CubiCapture's default layout sizes, margins and text sizes
-you have to override the library's default dimensions by defining the dimensions in your applications
-`dimens.xml` file. To override the library's default dimensions, you need to have the `dimens.xml` file created
-to the `values` directory where the `colors.xml` file is as well.
+To customize CubiCapture's default layout sizes, margins, and text sizes, you need to override the
+library's default dimensions by defining them in your application's `dimens.xml` file.
+This file should be located in the `values` directory.
 
-Here's all the default dimensions defined in CubiCapture library:
+For different screen sizes (e.g., tablets), you can define specific dimensions by creating a
+`dimens.xml` file in the corresponding resource directory, such as `values-sw600dp` for tablets
+with a screen width of at least 600dp.
+
+Below is the list of all default dimensions defined in the CubiCapture library for phones and
+tablets:
+
+Phones (`values/dimens.xml`):
 ```xml
 <!--
-    Scan back button padding, background radius and background margin
+    Scan close button size, background radius and background margin
 
     Note:
-    - Scan back button's width and height wraps the content
-    - Scan timer is constrained to vertically center the scan back button
-    - Scan back button's background margin is applied to the original background drawable item
+    - Scan close button is constrained to vertically center the scan timer
+    - Scan close button's background margin is applied to the original background drawable item
 -->
-<dimen name="cc_scan_button_back_padding">16dp</dimen>
-<dimen name="cc_scan_button_back_background_radius">10dp</dimen>
-<dimen name="cc_scan_button_back_background_margin">12dp</dimen>
+<dimen name="cc_scan_button_close_size">24dp</dimen>
+<dimen name="cc_scan_button_close_background_radius">10dp</dimen>
+<dimen name="cc_scan_button_close_background_margin">12dp</dimen>
 
-<!-- Scan timer vertical and horizontal paddings and background radius  -->
-<dimen name="cc_scan_timer_padding_vertical">4dp</dimen>
-<dimen name="cc_scan_timer_padding_horizontal">16dp</dimen>
+<!-- Scan timer margin top, width and background radius  -->
+<dimen name="cc_scan_timer_width">96dp</dimen>
+<dimen name="cc_scan_timer_height">24dp</dimen>
 <dimen name="cc_scan_timer_background_radius">36dp</dimen>
 
-<!-- Scan top guide horizontal and top margins and vertical and horizontal paddings -->
-<dimen name="cc_guide_top_margin_top">12dp</dimen>
-<dimen name="cc_guide_top_margin_horizontal">16dp</dimen>
-<dimen name="cc_guide_top_padding_vertical">12dp</dimen>
-<dimen name="cc_guide_top_padding_horizontal">16dp</dimen>
+<!-- Scan guide margins, paddings, and max width -->
+<dimen name="cc_guide_margin">16dp</dimen>
+<dimen name="cc_guide_text_contents_padding">16dp</dimen>
+<dimen name="cc_guide_info_text_margin_top">4dp</dimen>
+<dimen name="cc_guide_max_width">560dp</dimen>
 
-<!-- Scan top guide icon height -->
-<dimen name="cc_guide_top_icon_height">48dp</dimen>
+<!-- Scan guide text sizes -->
+<dimen name="cc_guide_title_text_size">20dp</dimen>
+<dimen name="cc_guide_info_text_size">14dp</dimen>
 
-<!-- Scan top guide text margins -->
-<dimen name="cc_guide_top_text_margin_start">16dp</dimen>
-<dimen name="cc_guide_top_info_text_margin_top">4dp</dimen>
+<!-- Scan overlay stroke width -->
+<dimen name="cc_overlay_stroke_width">2dp</dimen>
 
-<!-- Scan top guide background radius and stroke width -->
-<dimen name="cc_guide_top_background_radius">8dp</dimen>
-<dimen name="cc_guide_top_background_stroke_width">2dp</dimen>
+<!-- Scan guide icon height (using scale type center inside) -->
+<dimen name="cc_guide_icon_height">160dp</dimen>
+
+<!-- Scan guide background radius and stroke width -->
+<dimen name="cc_guide_background_radius">8dp</dimen>
+<dimen name="cc_guide_background_stroke_width">2dp</dimen>
 
 <!-- Scan fullscreen guide padding -->
 <dimen name="cc_guide_fullscreen_padding">32dp</dimen>
@@ -638,13 +722,29 @@ Here's all the default dimensions defined in CubiCapture library:
 <dimen name="cc_guide_fullscreen_title_text_margin_top">32dp</dimen>
 <dimen name="cc_guide_fullscreen_info_text_margin_top">16dp</dimen>
 
-<!-- Record button size and margin bottom -->
-<dimen name="cc_button_record_size">64dp</dimen>
-<dimen name="cc_button_record_margin_bottom">32dp</dimen>
+<!-- Scan controls container paddings and item margin (gap between items) -->
+<dimen name="cc_scan_controls_container_padding_top">16dp</dimen>
+<dimen name="cc_scan_controls_container_padding_bottom">24dp</dimen>
+<dimen name="cc_scan_controls_item_margin">56dp</dimen>
 
-<!-- Photo capture button and thumbnail image size, and photo capture button icon size -->
-<dimen name="cc_button_capture_image_size">48dp</dimen>
-<dimen name="cc_button_capture_icon_size">24dp</dimen>
+<!-- Scan header container paddings -->
+<dimen name="cc_scan_header_container_padding_horizontal">16dp</dimen>
+<dimen name="cc_scan_header_container_padding_vertical">24dp</dimen>
+
+<!-- Record button size -->
+<dimen name="cc_button_record_size">64dp</dimen>
+
+<!-- Photo capture button size, stroke width, and icon size-->
+<dimen name="cc_button_capture_photo_button_size">56dp</dimen>
+<dimen name="cc_button_capture_photo_button_stroke_width">2dp</dimen>
+<dimen name="cc_button_capture_photo_icon_size">32dp</dimen>
+
+<!-- Photo thumbnail size -->
+<dimen name="cc_photo_thumbnail_size">56dp</dimen>
+
+<!-- Photo count background (non-zero) and text size-->
+<dimen name="cc_photo_count_non_zero_text_background_size">24dp</dimen>
+<dimen name="cc_photo_count_text_size">12dp</dimen>
 
 <!-- Request permission button radius, padding horizontal and margin top -->
 <dimen name="cc_permission_request_button_radius">100dp</dimen>
@@ -692,64 +792,123 @@ Here's all the default dimensions defined in CubiCapture library:
 <dimen name="cc_playback_text_size_big">20dp</dimen>
 ```
 
+Tablets (`values-sw600dp/dimens.xml`):
+```xml
+<!-- Scan close button size-->
+<dimen name="cc_scan_button_close_size">32dp</dimen>
+
+<!-- Scan timer margin top, width and background radius  -->
+<dimen name="cc_scan_timer_width">136dp</dimen>
+<dimen name="cc_scan_timer_height">44dp</dimen>
+<dimen name="cc_scan_timer_background_radius">36dp</dimen>
+
+<!-- Scan guide text sizes -->
+<dimen name="cc_guide_title_text_size">20dp</dimen>
+<dimen name="cc_guide_info_text_size">20dp</dimen>
+
+<!-- Scan guide icon height (using scale type center inside) -->
+<dimen name="cc_guide_icon_height">210dp</dimen>
+
+<!-- Scan controls container paddings -->
+<dimen name="cc_scan_controls_container_padding_top">32dp</dimen>
+<dimen name="cc_scan_controls_container_padding_bottom">32dp</dimen>
+
+<!-- Scan header container paddings -->
+<dimen name="cc_scan_header_container_padding_horizontal">16dp</dimen>
+<dimen name="cc_scan_header_container_padding_vertical">24dp</dimen>
+
+<!-- Record button size -->
+<dimen name="cc_button_record_size">88dp</dimen>
+
+<!-- Photo capture button and icon size-->
+<dimen name="cc_button_capture_photo_button_size">72dp</dimen>
+<dimen name="cc_button_capture_photo_icon_size">32dp</dimen>
+
+<!-- Photo thumbnail size -->
+<dimen name="cc_photo_thumbnail_size">72dp</dimen>
+
+<!-- Photo count background (non-zero) and text size-->
+<dimen name="cc_photo_count_non_zero_text_background_size">32dp</dimen>
+<dimen name="cc_photo_count_text_size">20dp</dimen>
+
+<!-- Scan timer text size -->
+<dimen name="cc_text_size_scan_timer">20dp</dimen>
+```
+
 For example, if you want to change the size of the record button, you can define the new size in
 your application's `dimens.xml` file like this:
 ```xml
-<dimen name="cc_button_record_size">80dp</dimen>
+<!-- Record button size -->
+<dimen name="cc_button_record_size">72dp</dimen>
+```
+
+For tablets, you can define a different size in `values-sw600dp/dimens.xml`:
+```xml
+<!-- Record button size -->
+<dimen name="cc_button_record_size">96dp</dimen>
 ```
 
 #### Texts
 
-To change CubiCapture's default texts you have to override the library's default strings
-by redefining the strings in your applications `strings.xml` file.
+To change CubiCapture's default texts, you need to override the library's default strings by
+redefining them in your application's `strings.xml` file.
 
-Here's all the default texts defined in CubiCapture library:
+Below is the list of all default texts defined in the CubiCapture library:
 ```xml
 <!-- Displayed when the ARCore is initializing -->
-<string name="cc_tracking_initializing_title">Start scanning</string>
+<string name="cc_tracking_initializing_title">Setting up…</string>
 <string name="cc_tracking_initializing_info">Move your device so we can begin tracking your position</string>
+
+<!-- Displayed when ready to start scanning -->
+<string name="cc_start_scanning_title">Press Record</string>
+<string name="cc_start_scanning_info">Start moving to scan</string>
 
 <!-- Displayed if tracking is lost due to excessive motion -->
 <string name="cc_tracking_excessive_motion_title">Slow down</string>
-<string name="cc_tracking_excessive_motion_info">You are moving too fast, try to move the device more slowly</string>
+<string name="cc_tracking_excessive_motion_info">You are moving too fast, move slower</string>
 
 <!-- Displayed if tracking is lost due to insufficient visual features -->
-<string name="cc_tracking_insufficient_features_title">Not enough visual features</string>
-<string name="cc_tracking_insufficient_features_info">We have trouble tracking your position</string>
+<string name="cc_tracking_insufficient_features_title">Lack of visual features</string>
+<string name="cc_tracking_insufficient_features_info">Point the camera at distinctive features</string>
 
 <!-- Displayed if tracking is lost due to poor lighting conditions -->
-<string name="cc_tracking_insufficient_lighting_title">It is too dark here</string>
-<string name="cc_tracking_insufficient_lighting_info">Please turn on the lights if possible</string>
+<string name="cc_tracking_insufficient_lighting_title">Turn the lights on</string>
+<string name="cc_tracking_insufficient_lighting_info">It is too dark here</string>
 
 <!-- Displayed if the user is walking sideways -->
-<string name="cc_guide_sideways_title">Do not walk sideways</string>
-<string name="cc_guide_sideways_left_info">Turn left and point the camera in your walking direction</string>
-<string name="cc_guide_sideways_right_info">Turn right and point the camera in your walking direction</string>
+<string name="cc_guide_sideways_left_title">Turn left</string>
+<string name="cc_guide_sideways_right_title">Turn right</string>
+<string name="cc_guide_sideways_left_info">Point the camera in your walking direction</string>
+<string name="cc_guide_sideways_right_info">Point the camera in your walking direction</string>
 
 <!-- Displayed title and info text for the rotate warning -->
 <string name="cc_guide_rotate_title">Rotate your device</string>
-<string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
+<string name="cc_guide_rotate_info">Please scan in portrait orientation</string>
 
 <!-- Displayed if the device is tilted forward too much -->
-<string name="cc_guide_raise_device_title">Raise the device</string>
-<string name="cc_guide_raise_device_info">You are pointing too much at the floor. Please raise the device a bit</string>
+<string name="cc_guide_raise_device_title">Raise your device</string>
+<string name="cc_guide_raise_device_info">You\'re pointing too much at the floor</string>
+
+<!-- Displayed if the device is tilted up too much -->
+<string name="cc_guide_lower_device_title">Lower your device</string>
+<string name="cc_guide_lower_device_info">You\'re pointing too much at the ceiling</string>
 
 <!-- Displayed if the user is rotating/turning too fast -->
-<string name="cc_guide_fast_rotation_title">You are turning too fast</string>
+<string name="cc_guide_fast_rotation_title">Turn slowly</string>
 <string name="cc_guide_fast_rotation_info">Avoid fast turns for best scanning results</string>
 
 <!-- Displayed if the user is scanning too close to objects -->
-<string name="cc_guide_too_close_title">You are too close</string>
-<string name="cc_guide_too_close_info">Keep more distance from the objects you are scanning</string>
+<string name="cc_guide_too_close_title">You\'re too close</string>
+<string name="cc_guide_too_close_info">Keep more distance from the objects you\'re scanning</string>
 
 <!-- Displayed if the device's storage space is running low -->
-<string name="cc_guide_low_storage_title">Low on storage</string>
+<string name="cc_guide_low_storage_title">Low storage</string>
 <!-- Note! Always include the %1$d in the info string! -->
 <string name="cc_guide_low_storage_info">Only %1$d minutes of scanning time left</string>
 
 <!-- Displayed if the device experiences thermal throttling -->
-<string name="cc_guide_throttling_title">Your device is getting hot</string>
-<string name="cc_guide_throttling_info">You can continue scanning but go slowly</string>
+<string name="cc_guide_throttling_title">Device getting hot</string>
+<string name="cc_guide_throttling_info">You can continue scanning, but move slowly</string>
 
 <!-- Displayed if camera permission is not granted -->
 <string name="cc_permission_camera_title">No camera access</string>
@@ -762,11 +921,11 @@ Here's all the default texts defined in CubiCapture library:
 <string name="cc_dialog_finish_scan_title">Finish scan?</string>
 <string name="cc_dialog_finish_scan_info">Are you sure you want to finish this scan?</string>
 
-<!-- Displayed if back button is pressed to cancel scan -->
+<!-- Displayed if close button is pressed to cancel scan -->
 <string name="cc_dialog_cancel_scan_title">Cancel scan?</string>
 <string name="cc_dialog_cancel_scan_info">Are you sure you want to cancel this scan?</string>
 
-<!-- Displayed positive and negative texts for scan dialogs -->
+<!-- Displayed positive and negative button texts for scan dialogs -->
 <string name="cc_dialog_button_positive_text">Yes</string>
 <string name="cc_dialog_button_negative_text">No</string>
 
@@ -798,30 +957,37 @@ Here's all the default texts defined in CubiCapture library:
 <string name="cc_playback_too_close">Too close</string>
 ```
 
-#### Drawable graphics
+#### Drawable Graphics
 
-To change CubiCapture's default drawables you have to override them by redefining the drawables in
-your applications `drawables.xml` file. You need to have the `drawables.xml` file created to the
-`values` directory where the `colors.xml` file is as well.
+To change CubiCapture's default drawables, you need to override them by redefining the drawables
+in your application's `drawables.xml` file. This file should be located in the `values` directory.
 
-Here's all the default drawables defined in CubiCapture library:
+Below is the list of all default drawables defined in the CubiCapture library:
 ```xml
 <!--
-    Scan back button icon and background.
+    Scan close button icon and background.
     Note: Background is only visible when fullscreen guide is shown
 -->
-<drawable name="cc_scan_button_back_icon">@drawable/cc_icon_arrow_left</drawable>
-<drawable name="cc_scan_button_back_background">@drawable/cc_back_button_background</drawable>
+<drawable name="cc_scan_button_close_icon">@drawable/cc_icon_close</drawable>
+<drawable name="cc_scan_button_close_background">@drawable/cc_close_button_background</drawable>
 
 <!-- Scan timer background -->
 <drawable name="cc_scan_timer_background">@drawable/cc_timer_background</drawable>
+<drawable name="cc_scan_timer_idle_background">@drawable/cc_timer_idle_background</drawable>
+
+<!-- Photo count non-zero text background -->
+<drawable name="cc_photo_count_non_zero_text_background">@drawable/cc_photo_count_text_background</drawable>
 
 <!-- Record button -->
-<drawable name="cc_not_recording">@drawable/cc_icon_not_recording</drawable>
-<drawable name="cc_recording">@drawable/cc_icon_recording</drawable>
+<drawable name="cc_not_recording">@drawable/cc_drawable_not_recording</drawable>
+<drawable name="cc_recording">@drawable/cc_drawable_recording</drawable>
 
-<!-- Displayed when the ARCore is initializing -->
-<drawable name="cc_tracking_initializing_icon">@drawable/cc_icon_start_scanning</drawable>
+<!-- Photo capture button -->
+<drawable name="cc_button_capture_photo_icon">@drawable/cc_icon_camera</drawable>
+<drawable name="cc_button_capture_photo_background">@drawable/cc_button_capture_photo_background_circle</drawable>
+
+<!-- Displayed when ready to start scanning -->
+<drawable name="cc_guide_start_scanning_icon">@drawable/cc_icon_start_scanning</drawable>
 
 <!-- Displayed if tracking is lost due to excessive motion -->
 <drawable name="cc_tracking_excessive_motion_icon">@drawable/cc_icon_excessive_motion</drawable>
@@ -836,13 +1002,14 @@ Here's all the default drawables defined in CubiCapture library:
 <drawable name="cc_guide_sideways_left_icon">@drawable/cc_icon_turn_left</drawable>
 <drawable name="cc_guide_sideways_right_icon">@drawable/cc_icon_turn_right</drawable>
 
-<!-- Displayed icons for the rotate warning -->
-<drawable name="cc_guide_rotate_90_icon">@drawable/cc_icon_rotate_device_90</drawable>
-<drawable name="cc_guide_rotate_180_icon">@drawable/cc_icon_rotate_device_180</drawable>
-<drawable name="cc_guide_rotate_270_icon">@drawable/cc_icon_rotate_device_270</drawable>
+<!-- Displayed icon for the rotate warning -->
+<drawable name="cc_guide_rotate_device_icon">@drawable/cc_icon_rotate_device</drawable>
 
 <!-- Displayed if the device is tilted forward too much -->
 <drawable name="cc_guide_raise_device_icon">@drawable/cc_icon_raise_device</drawable>
+
+<!-- Displayed if the device is tilted up too much -->
+<drawable name="cc_guide_lower_device_icon">@drawable/cc_icon_lower_device</drawable>
 
 <!-- Displayed if the user is rotating/turning too fast -->
 <drawable name="cc_guide_fast_rotation_icon">@drawable/cc_icon_fast_rotation</drawable>
@@ -850,19 +1017,28 @@ Here's all the default drawables defined in CubiCapture library:
 <!-- Displayed if the user is scanning too close to objects -->
 <drawable name="cc_guide_too_close_icon">@drawable/cc_icon_too_close</drawable>
 
-<!-- Displayed if the device's storage space is running low -->
-<drawable name="cc_guide_low_storage_icon">@drawable/cc_icon_low_storage</drawable>
-
-<!-- Displayed if the device experiences thermal throttling -->
-<drawable name="cc_guide_throttling_icon">@drawable/cc_icon_device_hot</drawable>
-
 <!-- Displayed if camera permission is not granted -->
 <drawable name="cc_permission_camera_icon">@drawable/cc_icon_camera</drawable>
 
-<!-- Top warning and info guide backgrounds -->
-<drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
-<drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
+<!-- Scan overlays -->
+<drawable name="cc_overlay_default">@drawable/cc_overlay_default_drawable</drawable>
+<drawable name="cc_overlay_start_scanning">@drawable/cc_overlay_start_scanning_drawable</drawable>
+<drawable name="cc_overlay_warning_solid">@drawable/cc_overlay_warning_solid_drawable</drawable>
+<drawable name="cc_overlay_warning_gradient">@drawable/cc_overlay_warning_gradient_drawable</drawable>
 
+<!--
+    Scan guide warning corners:
+    - You can either change the entire main drawable (`cc_guide_warning_corners`),
+      or modify the individual corner drawables, which are assembled to form
+      the complete, default drawable.
+-->
+<drawable name="cc_guide_warning_corners">@drawable/cc_warning_corners</drawable>
+<drawable name="cc_guide_warning_corner_top_left">@drawable/cc_warning_corner_top_left</drawable>
+<drawable name="cc_guide_warning_corner_top_right">@drawable/cc_warning_corner_top_right</drawable>
+
+<!-- Warning and info guide backgrounds -->
+<drawable name="cc_guide_warning_background">@drawable/cc_warning_background</drawable>
+<drawable name="cc_guide_info_background">@drawable/cc_info_background</drawable>
 <!-- Fullscreen warning guide background, which is just a color by default -->
 <drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
 
@@ -881,85 +1057,89 @@ Here's all the default drawables defined in CubiCapture library:
 <drawable name="cc_processing_background">#0C2F46</drawable>
 
 <!-- Scan playback timeline thumb -->
-<drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
+<drawable name="cc_timeline_thumb">@drawable/cc_drawable_timeline_thumb</drawable>
 
 <!-- Scan playback back arrow -->
 <drawable name="cc_playback_back_arrow">@drawable/cc_icon_arrow_left</drawable>
 ```
 
-For example, if you want to change the default record button drawable graphics to your own drawables,
-you need place your new record button drawable files to your applications `drawable` directory and
-then define the drawables in your applications `drawables.xml` file like so:
+For example, if you want to change the default record button drawable graphics to your own
+drawables, you can redefine the drawables in your application's `drawables.xml` file like this:
 ```xml
+<!-- Record button -->
 <drawable name="cc_not_recording">@drawable/not_recording_new</drawable>
 <drawable name="cc_recording">@drawable/recording_new</drawable>
 ```
 
-## About warning priorities
+## Torch (Flashlight) Support
 
-During a scan, CubiCapture shows a warning to the user if it detects
-bad scanning styles or any issues with the tracking.
-All the warnings are divided into priority level groups.
-Higher priority warnings will override and hide any lower priority warning in order to
-only show the higher priority warning.
-Priority level `1` is the highest priority, `2` is the second highest priority and so on.
+CubiCapture supports automatic torch (flashlight) activation on devices that support the Depth API
+and torch. If the surrounding lighting is too dark during a scan, CubiCapture will automatically
+activate the torch to improve the scan's lighting conditions.
 
-Priority level | Warnings
+## About Warning Priorities
+
+During a scan, CubiCapture displays warnings to the user if it detects any issues with the scanning
+style or tracking. These warnings are categorized into different priority levels. Higher-priority
+warnings will override and hide any lower-priority warnings, ensuring only the most critical
+warning is shown at a given time.
+
+Priority Level | Warnings
 ---------------|---------
 1 | Not tracking*
 2 | Rotate device
 3 | Sideways walking, Fast rotation, Too close
-4 | Device is tilted forward too much
+4 | Device is tilted forward/up too much
 5 | Low storage, Device is hot
 
-*Not tracking: ARCore's `TrackingState` is **not** `TRACKING`, and the position of the device can
-not be determined.
-In this case, CubiCapture shows a tracking warning (e.g., insufficient visual features warning) so
-that we can get the device tracking again as quickly as possible.
+*The `Not tracking` warning is displayed when ARCore's `TrackingState` is **not** `TRACKING`,
+meaning the position of the device cannot be determined.
+In this case, CubiCapture will display a tracking warning (e.g., insufficient visual features
+warning) to help reestablish device tracking as quickly as possible.
 
-## Status codes
+## Status Codes
 
 ### 0, "Device turned to correct orientation."
-Received when the device is turned to portrait orientation.
+Received when the device is turned to the correct (portrait) orientation.
 
 ### 1, "Started recording."
 Received when the scan is started by pressing the record button.
 
 ### 2, "Finished recording."
-Received when user has ended the scan and scan has enough data.
+Received when the user has ended the scan and the scan has enough data.
 The saving of the scan files begins after this.
 
 ### 3, "Finished recording - Not enough data."
-Received when user has ended the scan and scan does not have enough data.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+Received when the user has ended the scan and the scan does not have enough data.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
 ### 4, "Saving of scan files finished. (Beginning to zip files.)"
-Received when the saving of the scan files is finished. Receiving this code means that
-the scan has data and scan files are successfully saved without errors.
-If auto zipping is enabled, zipping will start after this.
+Received when the scan files are successfully saved without any errors.
+If automatic zipping is enabled, zipping will start after this.
 
 ### 5, "CubiCapture is finished. You can now finish your scanning Activity."
-You will always receive this code after a scan. To determine if the scan was
-successful or not you have to handle the codes received before this code,
-e.g. codes 4 and 7.
+Received when CubiCapture is finished, and the scanning `Activity` should be finished.
+This code is always received after a scan. To determine whether the scan was successful,
+you need to handle the preceding codes (e.g., codes 4 and 7).
 
-For example; When a scan is successful, before code 5 you will receive a code 4
-for successful saving of scan data, and then a code 7 for successful zipping of
-the scan files (if you have auto zipping enabled).
-When a scan is not successful you will not receive code 4, but instead you will
-receive an error code (e.g. code 3, "Finished recording - Not enough data.").
+For example:
+- On a successful scan, you'll first receive code 4 (indicating successful
+  saving of scan data), followed by code 7 (indicating successful zipping of scan
+  files, if 'autoZipping' is enabled).
+- On an unsuccessful scan, code 4 will be skipped and an error code (e.g.,
+  code 3: "Finished recording - Not enough data") will be received instead.
 
-### 6, "Scan folder: $folderPath"
-Received when the saving of the scan files is finished.
+### 6, "Scan directory location: <directory-path>"
+Received when the scan files are successfully saved without any errors.
 The description will contain a path to the scan directory.
 To receive the scan directory as a `File` use the `CubiEventListener`'s
-`onFile(code: Int, file: File)` method where code 1 receives the scan directory.
+`onFile(code: Int, file: File)` method where the `code` `1` receives the scan directory.
 
-### 7, "Zipping is done. Zip file: $zipFilePath"
-Received when the zipping of the scan files is finished.
+### 7, "Zipping completed successfully. Zip file location: <zip-file-path>"
+Received when the automatic zipping of the scan files is completed successfully.
 The description will contain a path to the zip file.
 To receive the zip file as a `File` use the `CubiEventListener`'s
-`onFile(code: Int, file: File)` method where code 2 receives the zip file.
+`onFile(code: Int, file: File)` method where `code` `2` receives the zip file.
 
 ### 8, "ARCore TrackingFailureReason: INSUFFICIENT_LIGHT"
 Received when ARCore motion tracking is lost due to poor lighting conditions.
@@ -973,21 +1153,17 @@ Received when ARCore motion tracking is lost due to insufficient visual features
 ### 11, "ARCore TrackingState is TRACKING."
 Received when ARCore is tracking again.
 
-### 12, "MediaFormat and MediaCodec failed to be configured and started."
-Received if MediaFormat and MediaCodec fails to be configured and started
-when record button is pressed for the first time. You will receive code 5 after this.
-
 ### 13, "Device position is sliding in an unnatural manner."
 Received if the position of the device is "sliding" in an unnatural manner.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
 ### 14, "The device was in the wrong orientation for too long."
-The device was in the wrong orientation for too long.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+Received if the device was in the wrong orientation for too long.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
-### 15, "Error shutdown. Deleting scan folder: $folder-path
+### 15, "Error shutdown. (Deleted scan directory <directory-path>)
 Received when the scan is not successful.
-The scan files are deleted and CubiCapture will be finished after this (code 5).
+Any scan files are deleted (code 15), and CubiCapture will be finished after this (code 5).
 
 ### 16, "Device needs to be in correct orientation in order to start recording."
 Received when the record button is pressed, but recording cannot be started because the device is
@@ -997,24 +1173,27 @@ not in the correct orientation.
 Received when the device is in the wrong orientation.
 
 ### 18, "Playing warning sound."
-Received when an warning sound is played and ARCore motion tracking is lost (codes 8, 9 and 10).
-Only received if the ARCore was tracking before the tracking is lost to avoid playing the error sound
+Received when a warning sound is played, and ARCore motion tracking is lost (codes 8, 9, and 10).
+Only received if ARCore was tracking before the tracking was lost to avoid playing the error sound
 multiple times in a row.
-(The ARCore `TrackingFailureReason` might change (between codes 8, 9 and 10) during a short period of time).
+(The ARCore `TrackingFailureReason` might change (between codes 8, 9, and 10) during a short period of time).
 
-### 19, "Back button press confirmed"
-Received when the CubiCapture's back button press is confirmed via dialog. You should call
+### 19, "Close button press confirmed. You can now finish your scanning Activity."
+Received when the CubiCapture's close button press is confirmed via dialog. You should call
 `Activity.finish()`.
 
 ### 21, "Tilting too far down."
 Received when the pitch of the camera has been too low for a certain amount of time.
 
+### 22, "Tilting too far up."
+Received when the pitch of the camera has been too high for a certain amount of time.
+
 ### 23, "Tilt angle optimal."
 Received when the pitch of the camera is optimal again.
 
 ### 24, "ARCore TrackingState is PAUSED."
-Received when ARCore's `TrackingState` is `PAUSED` and pitch of the camera cannot be calculated.
-The ceiling or the floor warning to hidden.
+Received when ARCore's `TrackingState` is `PAUSED`, meaning the position of the device cannot be
+determined.
 
 ### 25, "Walking sideways. Displaying turn left warning."
 Received when the user is walking sideways to the left while the camera is pointing forward.
@@ -1026,57 +1205,33 @@ Received when the user is walking sideways to the right while the camera is poin
 Received when the user is not walking sideways anymore.
 
 ### 28, "ARCore was unable to start tracking during the first five seconds."
-Received if the ARCore is unable to start tracking during the first five seconds.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+Received if ARCore is unable to start tracking during the first five seconds.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
-### 50, "MediaMuxer.writeSampleData Exception: $exception"
-Received if the video encoder fails to write an encoded sample into the muxer.
-
-### 51, "Zipping failed! You can try zipping again with .zipScan($scanFolderPath)"
+### 51, "Zipping failed due to an error: <stack-trace>"
 Received if the automatic zipping fails.
 
-### 52, "Exception on the OpenGL thread: $throwable"
+### 52, "Exception on the OpenGL thread: <stack-trace>"
 Received if there's an exception on the OpenGL thread.
 
-### 53, "Failed to read an asset file: $exception"
+### 53, "Failed to read an asset file: <stack-trace>"
 Received if camera video preview surface fails to be initialized.
 
-### 54, "Writing of scan data failed: $exception"
-Received if the writing of the scan data fails.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+### 54, "Failed to write AR data file: <stack-trace>"
+Received if the writing of the `arkitData.json` file fails.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
-### 55, "InputBuffer IllegalStateException: $exception"
-Received if the input buffer is not in Executing state.
+### 56, "Failed to write config file: <stack-trace>"
+Received if the writing of the `config.json` file fails.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
-### 56, "MediaCodec.stop() exception: $exception"
-Received if the finishing of the encode session fails.
-
-### 57, "MediaMuxer.stop() exception: $exception"
-Received if the stopping of the muxer fails.
-
-### 58, "MediaCodec.releaseOutputBuffer() exception: $exception"
-Received if the releasing of the output buffer fails.
-
-### 60, "dequeueOutputBuffer IllegalStateException: $exception"
-Received if dequeuing an output buffer fails.
-
-### 61, "getOutputBuffer IllegalStateException: $exception"
-Received if the getting of the output buffer fails.
-
-### 62, "queueInputBuffer IllegalStateException: $exception"
-Received if queueing an input buffer to the codec fails.
-
-### 64, "Unable to start saving. Error: $error"
-Received if the conditions for saving are not met.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
-
-### 65, "Frame processing exception: $exception"
+### 65, "Frame processing exception: <stack-trace>"
 Received if the frame processing fails.
 
 ### 66, "Unable to get correct values for the device's position."
 Received if ARCore has been unable to return correct values for the device's position for a certain
 amount of time.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
 ### 67, "Location Services are off."
 Received if the device has Location Services turned off on start. Only received if true north
@@ -1088,40 +1243,40 @@ Only received if true north detection is enabled and `ACCESS_FINE_LOCATION` perm
 
 ### 69, "Sensor is reporting true north data with low or unreliable accuracy. Not saving these true north values."
 Received if the sensor is reporting true north data with low or unreliable accuracy. These values
-cannot be trusted so true north detection is not saving these values. Only received if true north
+cannot be trusted, so true north detection is not saving these values. Only received if true north
 detection is enabled and running.
 
 ### 70, "Thermal state nominal"
-Received if thermal state changes to nominal.
+Received if the thermal state changes to nominal.
 
 ### 71,	"Thermal state light"
-Received if thermal state changes to light.
+Received if the thermal state changes to light.
 
 ### 72,	"Thermal state moderate"
-Received if thermal state changes to moderate.
+Received if the thermal state changes to moderate.
 
 ### 73,	"Thermal state severe"
-Received if thermal state changes to severe.
+Received if the thermal state changes to severe.
 
 ### 74,	"Thermal state critical"
-Received if thermal state changes to critical.
+Received if the thermal state changes to critical.
 
 ### 75,	"Thermal state emergency"
-Received if thermal state changes to emergency.
+Received if the thermal state changes to emergency.
 
 ### 76,	"Thermal state shutdown"
-Received if thermal state changes to shutdown.
+Received if the thermal state changes to shutdown.
 
-### 78, "Storage: $minutes minutes left"
+### 78, "Storage: <minutes> minutes left"
 Received once on start when the fragment's activity has been created and in certain intervals during a scan
 while recording. `minutes: Int` is an estimation in minutes of the maximum scan length the device can store.
 
 ### 79, "Device ran out of storage space"
 Received if the device runs out of storage space while scanning.
-The scan files will be deleted (code 15) and CubiCapture will be finished after this (code 5).
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
 
 ### 85, "Scanning too close. Showing proximity warning."
-Received if the user is scanning too close to objects
+Received if the user is scanning too close to objects.
 
 ### 87, "Too fast rotations. Showing fast movement warning."
 Received when the user turns around too fast while scanning.
@@ -1132,44 +1287,53 @@ Received when the user is not scanning too close to objects anymore.
 ### 89, "Not moving too fast anymore."
 Received when the user is not turning around too fast anymore.
 
-### 90, "Failed to write scan log data. $exception"
-Received if writing of the `scanLog.json` file to scan folder fails.
+### 90, "Failed to write scan log file: <stack-trace>"
+Received if the writing of the `scanLog.json` file fails.
 
-### 91, "Failed to write feedback data. $exception"
-Received if writing of the `feedback.json` file to scan folder fails.
+### 91, "Failed to write feedback file: <stack-trace>"
+Received if the writing of the `feedback.json` file fails.
 
 ### 92, "Gyroscope sensor not available. Not able to detect fast movements."
 Received if there's no gyroscope sensor available.
 CubiCapture will not be able to detect fast movements.
 
-### 93, "Proximity detection exception: $exception"
-Received if the proximity detection fails.
+### 93, "Error in depth data processing: <stack-trace>"
+Received if the depth data processing fails.
 
 ### 94, "Rotation vector sensor is not supported. Using accelerometer and magnetometer instead."
-Received if the rotation vector sensor is not supported on device. True north data will be acquired
-by using accelerometer and magnetometer instead.
+Received if the rotation vector sensor is not supported on device. True North data will be acquired
+using the accelerometer and magnetometer instead.
 
 ### 100, "ARCore session is initializing"
 Received if the ARCore session is initializing normally.
 
 ### 101, "ARCore session is initialized"
 Received if the ARCore session is initialized and ARCore's `TrackingState` is `TRACKING`.
-Only received when the recording has not been started. While recording, status code 11 is received instead.
+This is only received when the recording has not been started.
+While recording, status code 11 is received instead.
 
 ### 102, "ARCore session has to be initialized first in order to start recording."
-Received when the record button is pressed and recording cannot be started because ARCore session is still initializing.
+Received when trying to start recording while the ARCore session is still in the initialization process.
 
-### 105, "Unable to create ARCore session. Error: $error"
+### 103, Not initialized: <variable-names>
+Received when any required variables have not been initialized at the start.
+The list of uninitialized variables will be included in the description.
+The required variables are: `scanDirectoryName`, `allScansDirectory`, and `propertyType`.
+
+### 105, "Unable to create ARCore session: <stack-trace>"
 Received if an internal error occurred while creating the ARCore session.
 You will receive code 5 after this.
 
-### 106, "Device is not compatible with ARCore."
+### 106, "Device is not compatible with ARCore: <stack-trace>"
 Received if the device is not compatible with ARCore. If encountered after completing the
 installation check, this usually indicates that ARCore has been side-loaded onto an incompatible
 device. You will receive code 5 after this.
 
 ### 107, "Device is too hot to start scanning."
 Received if the thermal state is critical or higher on startup. You will receive code 5 after this.
+
+### 113, "Failed to write photo log file: <stack-trace>"
+Received if the writing of the `photo_capturer.json` file fails.
 
 ### 116, "Device position jumped in an unnatural manner."
 Received if the position of the device "jumps" in an unnatural manner. Note that this does NOT abort
@@ -1184,7 +1348,7 @@ application settings.
 
 ### 122, "Requesting CAMERA permission."
 Received when the camera permission view's permission request button is pressed, prompting the
-CAMERA permission request through the Android OS permission dialog.
+CAMERA permission through the Android OS permission dialog.
 
 ### 123, "User granted CAMERA permission."
 Received when the CAMERA permission is granted through the Android OS permission dialog. Note that
@@ -1194,7 +1358,33 @@ this is not received if the permission is granted through the application settin
 Received when the CAMERA permission is denied through the Android OS permission dialog. Note that
 this is not received if the permission is denied through the application settings.
 
+### 140, "Error in video encoding: <stack-trace>"
+Received when an error occurs during the video encoding process.
+
+### 141, "Failed to initialize the encoder: <stack-trace>"
+Received when the video encoder fails to initialize properly.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
+
+### 142, "Encoding timed out due to frame mismatch: <stack-trace>"
+Received when encoding times out due to a mismatch between the number of frames queued and the
+number of frames successfully encoded.
+The scan files will be deleted (code 15), and CubiCapture will be finished after this (code 5).
+
 ## Archived Update Guides
+
+**Note! If you've previously implemented version 2.10.1 you've probably done the next steps already:**
+- Replace the `CubiCapture` and `ScanPlayback` `<fragment>` tags with the
+  `<androidx.fragment.app.FragmentContainerView>` tags
+- Handle the new status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
+  to show user an error message after the aborted scan
+
+**Note! If you've previously implemented version 2.9.0 you've probably done the next steps already:**
+- Update your `minSdkVersion` to API level `29` or higher
+- Rename `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods as
+  as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
+- If you want to disable the low storage warnings, see the new `storageWarningsEnabled` below
+  [General](#general) UI settings
+- Check if you want to handle the new status code [103, "Not initialized"](#103-not-initialized-variable-names)
 
 **Note! If you've previously implemented version 2.8.0 you've probably done the next steps already:**
 - Check the new `safeMode` variable, and if you want to implement a [Safe mode](#safe-mode) setting
@@ -1248,9 +1438,30 @@ this is not received if the permission is denied through the application setting
 
 **Note! If you've previously implemented version 2.2.0 you've probably done the next steps already:**
 - Remove calls to CubiCapture lifecycle functions `resume()`, `pause()`, `stop()` and `destroy()`
-- Check if you want to handle the new status codes 60-64
 
 ## Archived Release Notes
+
+**2.10.1:**
+- `CubiCapture` and `ScanPlayback` `Fragments` now support the
+  `<androidx.fragment.app.FragmentContainerView>` tag instead of the `<fragment>` tag
+- Scan is now aborted if the thermal state is critical or higher on startup
+- New status code [107, "Device is too hot to start scanning."](#107-device-is-too-hot-to-start-scanning)
+- Scan data is no longer affected by enabled code shrinking
+
+**2.9.0:**
+- Setting the property type is now required. Added a new `CubiEventListener` method
+  `getPropertyType(): PropertyType` which must be used to set the `PropertyType`
+- `propertyType: PropertyType` variable is now deprecated
+- `getFile(code: Int, file: File)` and `getStatus(code: Int, description: String)` methods renamed
+  as `onFile(code: Int, file: File)` and `onStatus(code: Int, description: String)`, respectively
+- Added new `storageWarningsEnabled` variable for enabling/disabling low storage warnings.
+  See [General](#general) UI settings for more information
+- Added new customization options for processing screen text color and progress bar color.
+  See `ccProcessingTextColor` and `ccProgressBarColor` under [Colors and alphas](#colors-and-alphas)
+- New status code [103, "Not initialized"](#103-not-initialized-variable-names)
+- CubiCapture's `minSdkVersion` and `targetSdkVersion` have been updated to API levels `29` and `33`,
+  respectively
+- Updated dependencies (see [Implementation](#implementation))
 
 **2.8.0:**
 - Re-enabled Too close -warning for Depth API supported devices

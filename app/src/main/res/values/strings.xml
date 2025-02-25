@@ -1,57 +1,66 @@
 <resources>
     <!--
-      To change CubiCapture's default texts, you have to redefine the strings here.
+      To customize CubiCapture's default texts, redefine the strings here.
 
       Note:
-      You don't have to redefine the string here if you're not changing it.
-      Strings here are redefined to the default values just as an example.
-     -->
+      - You don't need to redefine a string unless you are changing it.
+      - The strings below are set to their default values for demonstration purposes.
+    -->
 
     <!-- Displayed when the ARCore is initializing -->
-    <string name="cc_tracking_initializing_title">Start scanning</string>
+    <string name="cc_tracking_initializing_title">Setting up…</string>
     <string name="cc_tracking_initializing_info">Move your device so we can begin tracking your position</string>
+
+    <!-- Displayed when ready to start scanning -->
+    <string name="cc_start_scanning_title">Press Record</string>
+    <string name="cc_start_scanning_info">Start moving to scan</string>
 
     <!-- Displayed if tracking is lost due to excessive motion -->
     <string name="cc_tracking_excessive_motion_title">Slow down</string>
-    <string name="cc_tracking_excessive_motion_info">You are moving too fast, try to move the device more slowly</string>
+    <string name="cc_tracking_excessive_motion_info">You are moving too fast, move slower</string>
 
     <!-- Displayed if tracking is lost due to insufficient visual features -->
-    <string name="cc_tracking_insufficient_features_title">Not enough visual features</string>
-    <string name="cc_tracking_insufficient_features_info">We have trouble tracking your position</string>
+    <string name="cc_tracking_insufficient_features_title">Lack of visual features</string>
+    <string name="cc_tracking_insufficient_features_info">Point the camera at distinctive features</string>
 
     <!-- Displayed if tracking is lost due to poor lighting conditions -->
-    <string name="cc_tracking_insufficient_lighting_title">It is too dark here</string>
-    <string name="cc_tracking_insufficient_lighting_info">Please turn on the lights if possible</string>
+    <string name="cc_tracking_insufficient_lighting_title">Turn the lights on</string>
+    <string name="cc_tracking_insufficient_lighting_info">It is too dark here</string>
 
     <!-- Displayed if the user is walking sideways -->
-    <string name="cc_guide_sideways_title">Do not walk sideways</string>
-    <string name="cc_guide_sideways_left_info">Turn left and point the camera in your walking direction</string>
-    <string name="cc_guide_sideways_right_info">Turn right and point the camera in your walking direction</string>
+    <string name="cc_guide_sideways_left_title">Turn left</string>
+    <string name="cc_guide_sideways_right_title">Turn right</string>
+    <string name="cc_guide_sideways_left_info">Point the camera in your walking direction</string>
+    <string name="cc_guide_sideways_right_info">Point the camera in your walking direction</string>
 
     <!-- Displayed title and info text for the rotate warning -->
     <string name="cc_guide_rotate_title">Rotate your device</string>
-    <string name="cc_guide_rotate_info">Keep your device in an upright (portrait) orientation</string>
+    <string name="cc_guide_rotate_info">Please scan in portrait orientation</string>
 
     <!-- Displayed if the device is tilted forward too much -->
-    <string name="cc_guide_raise_device_title">Raise the device</string>
-    <string name="cc_guide_raise_device_info">You are pointing too much at the floor. Please raise the device a bit</string>
+    <string name="cc_guide_raise_device_title">Raise your device</string>
+    <string name="cc_guide_raise_device_info">You\'re pointing too much at the floor</string>
+
+    <!-- Displayed if the device is tilted up too much -->
+    <string name="cc_guide_lower_device_title">Lower your device</string>
+    <string name="cc_guide_lower_device_info">You\'re pointing too much at the ceiling</string>
 
     <!-- Displayed if the user is rotating/turning too fast -->
-    <string name="cc_guide_fast_rotation_title">You are turning too fast</string>
+    <string name="cc_guide_fast_rotation_title">Turn slowly</string>
     <string name="cc_guide_fast_rotation_info">Avoid fast turns for best scanning results</string>
 
     <!-- Displayed if the user is scanning too close to objects -->
-    <string name="cc_guide_too_close_title">You are too close</string>
-    <string name="cc_guide_too_close_info">Keep more distance from the objects you are scanning</string>
+    <string name="cc_guide_too_close_title">You\'re too close</string>
+    <string name="cc_guide_too_close_info">Keep more distance from the objects you\'re scanning</string>
 
     <!-- Displayed if the device's storage space is running low -->
-    <string name="cc_guide_low_storage_title">Low on storage</string>
+    <string name="cc_guide_low_storage_title">Low storage</string>
     <!-- Note! Always include the %1$d in the info string! -->
     <string name="cc_guide_low_storage_info">Only %1$d minutes of scanning time left</string>
 
     <!-- Displayed if the device experiences thermal throttling -->
-    <string name="cc_guide_throttling_title">Your device is getting hot</string>
-    <string name="cc_guide_throttling_info">You can continue scanning but go slowly</string>
+    <string name="cc_guide_throttling_title">Device getting hot</string>
+    <string name="cc_guide_throttling_info">You can continue scanning, but move slowly</string>
 
     <!-- Displayed if camera permission is not granted -->
     <string name="cc_permission_camera_title">No camera access</string>
@@ -64,11 +73,11 @@
     <string name="cc_dialog_finish_scan_title">Finish scan?</string>
     <string name="cc_dialog_finish_scan_info">Are you sure you want to finish this scan?</string>
 
-    <!-- Displayed if back button is pressed to cancel scan -->
+    <!-- Displayed if close button is pressed to cancel scan -->
     <string name="cc_dialog_cancel_scan_title">Cancel scan?</string>
     <string name="cc_dialog_cancel_scan_info">Are you sure you want to cancel this scan?</string>
 
-    <!-- Displayed positive and negative texts for scan dialogs -->
+    <!-- Displayed positive and negative button texts for scan dialogs -->
     <string name="cc_dialog_button_positive_text">Yes</string>
     <string name="cc_dialog_button_negative_text">No</string>
 

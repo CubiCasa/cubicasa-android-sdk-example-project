@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.ar.core.ArCoreApk
-import cubi.casa.cubicapture.PropertyType
+import cubi.casa.cubicapture.data.PropertyType
 import cubi.casa.exampleproject.databinding.ActivityScanInfoBinding
 
 /** Example Activity for starting the scan. */
@@ -57,7 +57,7 @@ class ScanInfoActivity : AppCompatActivity() {
             }
 
             val propertyTypeIndex = binding.propertyTypeSpinner.selectedItemPosition - 1
-            val propertyType = PropertyType.values().getOrNull(propertyTypeIndex)
+            val propertyType = PropertyType.entries.getOrNull(propertyTypeIndex)
             if (propertyType == null) {
                 val spinnerTextView = binding.propertyTypeSpinner.selectedView as TextView
                 spinnerTextView.error = "Required."

@@ -5,69 +5,81 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import cubi.casa.cubicapture.CubiCapture
-import cubi.casa.cubicapture.CubiEventListener
-import cubi.casa.cubicapture.TrueNorth
+import cubi.casa.cubicapture.utils.CubiEventListener
+import cubi.casa.cubicapture.utils.TrueNorth
 import java.io.File
 import java.util.*
 
-/** Example Activity which provides an example implementation
- * and use of the CubiCapture 3.1.3 library module */
-
+/**
+ * Example Activity demonstrating the implementation and usage of
+ * the CubiCapture 3.2.2 library module.
+ */
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
-    // Declare a lateinit variable for CubiCapture.
+    // Declare a lateinit variable for CubiCapture, initialized in onCreate().
     private lateinit var cubiCapture: CubiCapture
 
-    // Boolean 'saving' is used to disable navigation bar back press during saving.
+    // Used to disable navigation bar back press during saving.
     private var saving = false
 
-    // Boolean 'saved' is used to start ViewScanActivity after a successful scan.
+    // Indicates if the scan has been successfully saved to start ViewScanActivity.
     private var saved = false
 
-    // File 'scanDirectory' is set after a successful scan.
+    // Directory for the current scan, set after a successful scan.
     private var scanDirectory: File? = null
 
-    // SharedPreferences for Settings.
+    // SharedPreferences instance for user settings.
     private val settings by lazy { getSharedPreferences("settings", 0) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Set the content view.
         setContentView(R.layout.activity_scan)
 
-        // Initialize the CubiCapture lateinit variable.
+        // Initialize CubiCapture fragment.
         cubiCapture = supportFragmentManager.findFragmentById(R.id.cubiFragment) as CubiCapture
 
-        /* Set 'trueNorth' to 'ENABLED' or 'DISABLED' to enable/disable True North detection.
-         * The 'ACCESS_FINE_LOCATION' permission is requested in ScanInfoActivity.kt.
-         * Note: 'ENABLED' is the default value. */
-        cubiCapture.trueNorth = TrueNorth.ENABLED
+        /** -------------------------- REQUIRED SETTINGS -------------------------- */
 
-        // Add your app's version information to the scan data (optional).
-        val packageInfo = packageManager.getPackageInfo(packageName, 0)
-        cubiCapture.appVersion = packageInfo.versionName
-        cubiCapture.appBuild = packageInfo.longVersionCode.toInt()
+        // Set the directory where all the scan directories will be stored.
+        cubiCapture.allScansDirectory = getExternalFilesDir(null) ?: filesDir
 
         // Set the scan output directory name.
         cubiCapture.scanDirectoryName = UUID.randomUUID().toString()
 
-        // Set the directory where all scan directories will be stored.
-        cubiCapture.allScansDirectory = getExternalFilesDir(null) ?: filesDir
-
         // Set the property type.
         cubiCapture.propertyType = intent.getSerializable("propertyType")!!
 
-        // Enable or disable photo capturing (disabled by default).
+        /** -------------------------- OPTIONAL SETTINGS -------------------------- */
+
+        // Enable or disable photo capturing. Disabled by default.
         cubiCapture.photoCapturingEnabled = true
 
-        /* Enable or disable safe mode based on the user's selection.
-         * Safe mode disables ARCore's Depth API to prevent crashes caused by possible bugs in the
-         * API. This setting should be shown only for users with Depth API supported devices.
-         * Users experiencing stability issues should enable Safe mode. */
+        /* Configure True North detection to 'TrueNorth.ENABLED' or 'TrueNorth.DISABLED'.
+         * - Default: TrueNorth.ENABLED
+         * - Note: 'TrueNorth.ENABLED' requires the 'ACCESS_FINE_LOCATION' permission to be declared
+         *   in the manifest file, and 'com.google.android.gms:play-services-location' added to the
+         *   app level 'build.gradle' dependencies.
+         *   For True North data to be collected:
+         *   1. Location Services must be turned on.
+         *   2. The location permission must be granted by the user.
+         * - No position data is collected by CubiCapture. */
+        cubiCapture.trueNorth = TrueNorth.ENABLED
+
+        /* Configure Safe mode based on the user's selection.
+         * - Default: Disabled (false).
+         * - Safe mode disables ARCore's Depth API to prevent crashes caused by potential
+         *   bugs in the API.
+         * - This setting should only be displayed to users with devices that support the Depth API.
+         * - Users who experience stability issues should enable Safe mode for a more reliable
+         *   experience. */
         cubiCapture.safeMode = intent.getBooleanExtra("safeMode", false)
 
-        // Override the back press to move the app to the background when saving.
+        // Add app version and build information to the scan data.
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        cubiCapture.appVersion = packageInfo.versionName
+        cubiCapture.appBuild = packageInfo.longVersionCode.toInt()
+
+        // Handle back press: Move to background if saving; otherwise, finish activity.
         onBackPressedDispatcher.addOnClickListener(this) {
             if (saving) {
                 moveTaskToBack(true)
@@ -76,72 +88,103 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
             }
         }
 
-        /** -------------------------- UI SETTINGS BELOW -------------------------- */
+        /** -------------------------- UI SETTINGS -------------------------- */
 
-        /** Show or hide the scan timer (visible by default). */
+        // Position of the capture photo button. By default, it’s on the right.
+        // cubiCapture.isCapturePhotoButtonOnRight = false
+
+        // Whether to initialize and display the scan timer. Initialized and visible by default.
         // cubiCapture.timerEnabled = false
 
-        /** Show or hide CubiCapture's back button (visible by default). */
-        // cubiCapture.backButtonEnabled = false
+        // Whether to display the CubiCapture's close button. Visible by default.
+        // cubiCapture.closeButtonEnabled = false
 
-        /** Enable or disable the record button (enabled by default). */
+        // Enable or disable the record button. Enabled by default.
         // cubiCapture.recordButtonEnabled = false
 
-        /** Enable or disable low storage warnings (enabled by default). */
+        // Enable or disable low storage warnings. Enabled by default.
         // cubiCapture.storageWarningsEnabled = false
 
-        /** Change the warning sound: */
+        // Change the tracking warning sound.
         // cubiCapture.trackingWarningSoundResId = R.raw.new_warning_sound
 
-        /** Modify CubiCapture's default colors, layout sizes, margins, text sizes, and graphics
-         * using 'colors.xml', 'dimens.xml', and 'drawables.xml'.
-         * For details, see the comments in those files or the documentation in the ExampleProject's
-         * README.md file. */
+        /* Modify UI elements like colors, sizes, margins, and graphics in:
+         * - colors.xml
+         * - dimens.xml
+         * - drawables.xml
+         * Refer to comments in those files or ExampleProject's README.md for details. */
 
-        /** Change CubiCapture's default texts by redefining the strings in 'strings.xml'.
-         * For details, see the comments in 'strings.xml' or the documentation in the
-         * ExampleProject's README.md file. */
+        /* Update CubiCapture default texts in strings.xml.
+         * Refer to comments in strings.xml or ExampleProject's README.md for details. */
 
-        /** ----------------- ABOUT AUTOMATIC AND MANUAL ZIPPING BELOW ----------------- */
+        /** ----------------- AUTOMATIC AND MANUAL ZIPPING ----------------- */
 
-        /** Disable automatic zipping after scan by setting: */
-        // cubiCapture.autoZippingEnabled = false // Default is true (auto zips).
+        // Enable or disable automatic zipping after a scan. Enabled by default.
+        // cubiCapture.autoZippingEnabled = false
 
-        /** Manually zip the scan folder if automatic zipping is disabled.
-         * Call this after scan files are saved successfully.
-         * Returns the Zip file if successful, or null if zipping failed. */
-        // val zipFile = cubiCapture.zipScan(scanFolderPath) // Pass scan folder path as a String.
+        /* Example usage of the ScanZipper.zip method to manually compress scan files.
+         * Use this method if automatic zipping is disabled and ensure scan files are saved
+         * successfully.
+         *
+         * The zipping process runs in a background coroutine to avoid blocking the main thread.
+         * On success, the created zip file is passed to the success callback.
+         * On failure, the error callback receives an exception.
+         * Both callbacks are always executed on the main thread.
+         *
+         * If any required files are missing, the error callback is invoked with a
+         * MissingRequiredFilesException. */
+        /*
+        val zipUUID = UUID.randomUUID().toString()
+        val zipFile = File(scanDirectory, "$zipUUID.zip")
 
-        /** The manual 'zipScan()' method expects the scan folder to contain these files:
-         * arkitData.json, config.json, and video.mp4.
-         * If any of these files are missing, 'zipScan()' returns null. */
+        ScanZipper.zip(
+            scanDirectory = scanDirectory,
+            zipFile = zipFile,
+            onSuccess = { createdZipFile ->
+                // Handle success: The zip file has been created successfully.
+            },
+            onError = { exception ->
+                // Handle error: Missing required files or zipping failure.
+            }
+        )
+         */
 
-        /** ----------------- ABOUT AVAILABLE STORAGE SPACE BELOW ----------------- */
+        /** ----------------- STORAGE SPACE ESTIMATION ----------------- */
 
-        /** Get an estimation in minutes of the maximum scan length the device can store.
-         * Pass 'getAvailableStorageMinutes()' the File (directory) containing all the scan folders. */
+        /* Example usage of the `estimatePreScanStorageMinutes` method to estimate the scan duration
+         * that can be stored on the device before starting a scan. */
         // val allScansDirectory = getExternalFilesDir(null) ?: filesDir
-        // val minutes: Int = cubiCapture.getAvailableStorageMinutes(allScansDirectory)
+        // val estimatedMinutes: Int = CubiCapture.estimatePreScanStorageMinutes(allScansDirectory)
+
+        /* Example usage of the `estimateRemainingStorageMinutes` method to estimate the remaining
+         * scan duration during an ongoing scan.
+         *
+         * Throws `IllegalStateException` if the `allScansDirectory` is not initialized. */
+        // val remainingMinutes: Int = cubiCapture.estimateRemainingStorageMinutes()
     }
 
-    /** Receives the scan folder and the scan zip file */
+    /**
+     * Receives the scan directory and the scan zip file.
+     */
     override fun onFile(code: Int, file: File) {
         when (code) {
-            1 -> { // Scan folder as File
+            1 -> { // Scan directory as File
                 scanDirectory = file
             }
             2 -> { } // Zip File
         }
     }
 
-    /** Receives status updates of the scan */
+    /**
+     * Receives status updates related to the scanning process.
+     */
     override fun onStatus(code: Int, description: String) {
         Log.d("DEBUGTAG", "code: $code, description: $description") // Logging status updates
 
         when (code) {
             1 -> { // Started recording
-                /* Setting the 'showSafeModeSwitch' Boolean based on if device is Depth API
-                * supported or not. */
+                // Setting the 'showSafeModeSwitch' Boolean to indicate whether the device supports
+                // the Depth API.
                 val editor = settings.edit()
                 editor.putBoolean("showSafeModeSwitch", cubiCapture.depthApiSupported)
                 editor.apply()
@@ -153,15 +196,17 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
                 saved = true
             }
             5 -> { // CubiCapture is finished
-                /** You will always receive this code after a scan. To determine if the scan was
-                 * successful or not you have to handle the codes received before this code,
-                 * e.g. codes 4 and 7.
+                /**
+                 * This code is always received after a scan. To determine whether the scan was
+                 * successful, you need to handle the preceding codes (e.g., codes 4 and 7).
                  *
-                 * For example; When a scan is successful, before code 5 you will receive a code 4
-                 * for successful saving of scan data, and then a code 7 for successful zipping of
-                 * the scan files (if you have 'autoZipping' enabled).
-                 * When a scan is not successful you will not receive code 4, but instead you will
-                 * receive an error code (e.g. code 3, "Finished recording - Not enough data."). */
+                 * For example:
+                 * - On a successful scan, you'll first receive code 4 (indicating successful
+                 *   saving of scan data), followed by code 7 (indicating successful zipping of scan
+                 *   files, if 'autoZipping' is enabled).
+                 * - On an unsuccessful scan, code 4 will be skipped and an error code (e.g.,
+                 *   code 3: "Finished recording - Not enough data") will be received instead.
+                 */
                 if (saved && scanDirectory != null) {
                     // Scan was successful. Starting ViewScanActivity to view its video
                     val viewScanIntent = Intent(baseContext, ViewScanActivity::class.java)
@@ -170,22 +215,23 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
                 }
                 finish()
             }
-            19 -> { // Back button press confirmed
+            19 -> { // Close button press confirmed
                 finish()
             }
-            3, 12, 13, 28, 54, 64, 66, 79, 105, 106, 107 -> {
+            3, 13, 14, 28, 54, 56, 66, 79, 105, 106, 107, 141, 142 -> {
                 /* 3, Finished recording - Not enough data.
-                 * 12, MediaFormat and MediaCodec failed to be configured and started.
                  * 13, Device position is sliding in an unnatural manner.
                  * 14, The device was in the wrong orientation for too long.
                  * 28, ARCore was unable to start tracking during the first five seconds.
-                 * 54, Writing of scan data failed: $exception
-                 * 64, Unable to start saving. Error: $error
+                 * 54, Failed to write AR data file: $exception
+                 * 56, Failed to write config file: $exception
                  * 66, Unable to get correct values for the device's position.
-                 * 79, Device ran out of storage space
-                 * 105, Unable to create ARCore session. Error: $error
+                 * 79, Device ran out of storage space.
+                 * 105, Unable to create ARCore session: $exception
                  * 106, Device is not compatible with ARCore.
-                 * 107, Device is too hot to start scanning. */
+                 * 107, Device is too hot to start scanning.
+                 * 141, Failed to initialize the encoder: $exception
+                 * 142, Encoding timed out due to frame mismatch: $exception */
 
                 // Scan was not successful. Error message will be displayed in ScanInfoActivity
                 val displayErrorIntent = Intent()
@@ -196,9 +242,11 @@ class ScanActivity : AppCompatActivity(), CubiEventListener {
         }
     }
 
-    /** Override the 'onWindowFocusChanged()' function to call CubiCapture's
-     * 'onWindowFocusChanged()' to allow CubiCapture to handle its processes correctly when
-     * the current 'Window' of the activity gains or loses focus */
+    /**
+     * Override the Activity#onWindowFocusChanged(hasFocus: Boolean) method to call
+     * CubiCapture#onWindowFocusChanged(hasFocus: Boolean, activity: Activity) to allow CubiCapture
+     * to handle its internal processes accordingly based on the window focus change.
+     */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         cubiCapture.onWindowFocusChanged(hasFocus, this)

@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      To change CubiCapture's default drawables, you have to redefine the drawables here.
+      To customize CubiCapture's default drawables, redefine them here.
 
       Note:
-      You don't have to redefine the drawable here if you're not changing it.
-      Drawables here are redefined to the default values just as an example.
-     -->
+      - You don't need to redefine a drawable unless you are changing it.
+      - The drawables below are set to their default values for demonstration purposes.
+    -->
 
     <!--
-        Scan back button icon and background.
+        Scan close button icon and background.
         Note: Background is only visible when fullscreen guide is shown
     -->
-    <drawable name="cc_scan_button_back_icon">@drawable/cc_icon_arrow_left</drawable>
-    <drawable name="cc_scan_button_back_background">@drawable/cc_back_button_background</drawable>
+    <drawable name="cc_scan_button_close_icon">@drawable/cc_icon_close</drawable>
+    <drawable name="cc_scan_button_close_background">@drawable/cc_close_button_background</drawable>
 
     <!-- Scan timer background -->
     <drawable name="cc_scan_timer_background">@drawable/cc_timer_background</drawable>
+    <drawable name="cc_scan_timer_idle_background">@drawable/cc_timer_idle_background</drawable>
+
+    <!-- Photo count non-zero text background -->
+    <drawable name="cc_photo_count_non_zero_text_background">@drawable/cc_photo_count_text_background</drawable>
 
     <!-- Record button -->
-    <drawable name="cc_not_recording">@drawable/cc_icon_not_recording</drawable>
-    <drawable name="cc_recording">@drawable/cc_icon_recording</drawable>
+    <drawable name="cc_not_recording">@drawable/cc_drawable_not_recording</drawable>
+    <drawable name="cc_recording">@drawable/cc_drawable_recording</drawable>
 
-    <!-- Displayed when the ARCore is initializing -->
-    <drawable name="cc_tracking_initializing_icon">@drawable/cc_icon_start_scanning</drawable>
+    <!-- Photo capture button -->
+    <drawable name="cc_button_capture_photo_icon">@drawable/cc_icon_camera</drawable>
+    <drawable name="cc_button_capture_photo_background">@drawable/cc_button_capture_photo_background_circle</drawable>
+
+    <!-- Displayed when ready to start scanning -->
+    <drawable name="cc_guide_start_scanning_icon">@drawable/cc_icon_start_scanning</drawable>
 
     <!-- Displayed if tracking is lost due to excessive motion -->
     <drawable name="cc_tracking_excessive_motion_icon">@drawable/cc_icon_excessive_motion</drawable>
@@ -38,13 +46,14 @@
     <drawable name="cc_guide_sideways_left_icon">@drawable/cc_icon_turn_left</drawable>
     <drawable name="cc_guide_sideways_right_icon">@drawable/cc_icon_turn_right</drawable>
 
-    <!-- Displayed icons for the rotate warning -->
-    <drawable name="cc_guide_rotate_90_icon">@drawable/cc_icon_rotate_device_90</drawable>
-    <drawable name="cc_guide_rotate_180_icon">@drawable/cc_icon_rotate_device_180</drawable>
-    <drawable name="cc_guide_rotate_270_icon">@drawable/cc_icon_rotate_device_270</drawable>
+    <!-- Displayed icon for the rotate warning -->
+    <drawable name="cc_guide_rotate_device_icon">@drawable/cc_icon_rotate_device</drawable>
 
     <!-- Displayed if the device is tilted forward too much -->
     <drawable name="cc_guide_raise_device_icon">@drawable/cc_icon_raise_device</drawable>
+
+    <!-- Displayed if the device is tilted up too much -->
+    <drawable name="cc_guide_lower_device_icon">@drawable/cc_icon_lower_device</drawable>
 
     <!-- Displayed if the user is rotating/turning too fast -->
     <drawable name="cc_guide_fast_rotation_icon">@drawable/cc_icon_fast_rotation</drawable>
@@ -52,19 +61,28 @@
     <!-- Displayed if the user is scanning too close to objects -->
     <drawable name="cc_guide_too_close_icon">@drawable/cc_icon_too_close</drawable>
 
-    <!-- Displayed if the device's storage space is running low -->
-    <drawable name="cc_guide_low_storage_icon">@drawable/cc_icon_low_storage</drawable>
-
-    <!-- Displayed if the device experiences thermal throttling -->
-    <drawable name="cc_guide_throttling_icon">@drawable/cc_icon_device_hot</drawable>
-
     <!-- Displayed if camera permission is not granted -->
     <drawable name="cc_permission_camera_icon">@drawable/cc_icon_camera</drawable>
 
-    <!-- Top warning and info guide backgrounds -->
-    <drawable name="cc_guide_top_warning_background">@drawable/cc_top_warning_background</drawable>
-    <drawable name="cc_guide_top_info_background">@drawable/cc_top_info_background</drawable>
+    <!-- Scan overlays -->
+    <drawable name="cc_overlay_default">@drawable/cc_overlay_default_drawable</drawable>
+    <drawable name="cc_overlay_start_scanning">@drawable/cc_overlay_start_scanning_drawable</drawable>
+    <drawable name="cc_overlay_warning_solid">@drawable/cc_overlay_warning_solid_drawable</drawable>
+    <drawable name="cc_overlay_warning_gradient">@drawable/cc_overlay_warning_gradient_drawable</drawable>
 
+    <!--
+        Scan guide warning corners:
+        - You can either change the entire main drawable (`cc_guide_warning_corners`),
+          or modify the individual corner drawables, which are assembled to form
+          the complete, default drawable.
+    -->
+    <drawable name="cc_guide_warning_corners">@drawable/cc_warning_corners</drawable>
+    <drawable name="cc_guide_warning_corner_top_left">@drawable/cc_warning_corner_top_left</drawable>
+    <drawable name="cc_guide_warning_corner_top_right">@drawable/cc_warning_corner_top_right</drawable>
+
+    <!-- Warning and info guide backgrounds -->
+    <drawable name="cc_guide_warning_background">@drawable/cc_warning_background</drawable>
+    <drawable name="cc_guide_info_background">@drawable/cc_info_background</drawable>
     <!-- Fullscreen warning guide background, which is just a color by default -->
     <drawable name="cc_guide_fullscreen_warning_background">#B85E1B2B</drawable>
 
@@ -83,7 +101,7 @@
     <drawable name="cc_processing_background">#0C2F46</drawable>
 
     <!-- Scan playback timeline thumb -->
-    <drawable name="cc_timeline_thumb">@drawable/cc_thumb_original</drawable>
+    <drawable name="cc_timeline_thumb">@drawable/cc_drawable_timeline_thumb</drawable>
 
     <!-- Scan playback back arrow -->
     <drawable name="cc_playback_back_arrow">@drawable/cc_icon_arrow_left</drawable>
