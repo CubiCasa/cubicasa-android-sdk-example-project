@@ -6,37 +6,59 @@
     <color name="secondaryBlue">#1E4357</color>
 
     <!--
-      To change the colors or alpha values of the default CubiCapture graphics, redefine the colors
-      here.
-      Colors can be defined using color notation '#RRGGBB' or with a color notation including a
-      hexadecimal alpha value '#AARRGGBB'.
-      Redefining a color of a redefined drawable resource does nothing. For example, redefining the
-      record button colors does nothing if the record button drawables are also redefined.
+      To customize the default CubiCapture graphics, redefine the colors here.
+      Colors can be specified using '#RRGGBB' or '#AARRGGBB' notation,
+      where 'AA' represents the alpha value.
 
       Note:
-      You don't have to redefine the color here if you're not changing it.
-      Colors here are redefined to the default values just for example.
-     -->
+      - Redefining a color will not affect redefined drawable resources. For example,
+        changing the record button colors here will not apply if the record button
+        drawables have been redefined.
+      - You don't need to redefine a color here if it remains unchanged.
 
-    <!-- Scan and processing view texts colors -->
-    <color name="cc_scan_text_color">#FFFFFF</color>
-    <color name="cc_processing_text_color">#FFFFFF</color>
+      The colors below are set to default values for demonstration purposes.
+    -->
 
-    <!-- Scan back button background color. Only visible when fullscreen guide is shown -->
-    <color name="cc_scan_button_back_color">#131619</color>
+    <!-- Scan related texts colors -->
+    <color name="cc_scan_text_color">#FDFDFD</color>
+    <color name="cc_guide_title_text_color">#E6F0FA</color>
+    <color name="cc_guide_info_text_color">#E6F0FA</color>
+    <color name="cc_processing_text_color">#FDFDFD</color>
+    <color name="cc_photo_count_non_zero_text_color">#0C2F46</color>
 
-    <!-- Scan timer background color -->
+    <!-- Scan close button background color. Only visible when fullscreen guide is shown -->
+    <color name="cc_scan_button_close_background_color">#131619</color>
+
+    <!-- Scan timer background colors -->
     <color name="cc_scan_timer_background_color">#B62138</color>
+    <color name="cc_scan_timer_idle_background_color">#FDFDFD</color>
 
-    <!-- Recording button colors -->
-    <color name="cc_record_button_inner_color">#B62138</color>
-    <color name="cc_record_button_outer_color">#FFFFFF</color>
+    <!-- Record button colors -->
+    <color name="cc_record_button_primary_color">#FDFDFD</color>
+    <color name="cc_record_button_recording_fill_color">#B62138</color>
 
-    <!-- Scan top guide colors -->
-    <color name="cc_guide_top_warning_solid_color">#5E1B2B</color>
-    <color name="cc_guide_top_warning_stroke_color">#ECA80D</color>
-    <color name="cc_guide_top_info_solid_color">#1D4357</color>
-    <color name="cc_guide_top_info_stroke_color">#5DB2A7</color>
+    <!-- Photo capture button background color -->
+    <color name="cc_button_capture_photo_background_color">#FDFDFD</color>
+
+    <!-- Scan guide colors -->
+    <color name="cc_guide_warning_solid_color">#E0131619</color>
+    <color name="cc_guide_warning_stroke_color">#ECA80D</color>
+    <color name="cc_guide_info_solid_color">#E0131619</color>
+    <color name="cc_guide_info_stroke_color">#5DB2A7</color>
+
+    <!-- Colors for the scan guide warning corners -->
+    <color name="cc_guide_warning_corners_solid_color">#FE566F</color>
+    <color name="cc_guide_warning_corners_stroke_color">#FDFDFD</color>
+
+    <!-- Scan overlay colors -->
+    <!-- Note: Default gradient colors transition from lower opacity to higher opacity -->
+    <color name="cc_overlay_default_stroke_color">#5DB2A7</color>
+    <color name="cc_overlay_warning_stroke_color">#ECA80D</color>
+    <color name="cc_overlay_start_scanning_solid_color">#66131619</color>
+    <color name="cc_overlay_warning_solid_color">#665E1B2B</color>
+    <color name="cc_overlay_warning_gradient_start_color">#00E6F0FA</color>
+    <color name="cc_overlay_warning_gradient_center_color">#7AB62138</color>
+    <color name="cc_overlay_warning_gradient_end_color">#A3611225</color>
 
     <!-- Request permission button background and text color -->
     <color name="cc_permission_request_button_background_color">#FDFDFD</color>
@@ -44,17 +66,17 @@
 
     <!-- Scan dialog background and button colors -->
     <color name="cc_dialog_background_color">#0C2F46</color>
-    <color name="cc_dialog_button_positive_text_color">#FFFFFF</color>
-    <color name="cc_dialog_button_negative_text_color">#FFFFFF</color>
+    <color name="cc_dialog_button_positive_text_color">#FDFDFD</color>
+    <color name="cc_dialog_button_negative_text_color">#FDFDFD</color>
     <color name="cc_dialog_button_positive_gradient_start_color">#1D4357</color>
     <color name="cc_dialog_button_positive_gradient_end_color">#008674</color>
-    <color name="cc_dialog_button_negative_stroke_color">#FFFFFF</color>
+    <color name="cc_dialog_button_negative_stroke_color">#FDFDFD</color>
 
     <!-- Processing view progress bar color -->
-    <color name="cc_processing_progress_bar_color">#FFFFFF</color>
+    <color name="cc_processing_progress_bar_color">#FDFDFD</color>
 
     <!-- Scan playback text color for events and playback speed spinner -->
-    <color name="ccPlaybackMainTextColor">#FFFFFF</color>
+    <color name="ccPlaybackMainTextColor">#FDFDFD</color>
 
     <!-- Scan playback text color for "Events", "Frame" and "Time" texts -->
     <color name="ccPlaybackControllerTextColor">#569789</color>
@@ -82,8 +104,8 @@
     <color name="ccTimelineBackgroundColor">#3A3A3A</color>
     <color name="ccTimelineWarningColor">#B85E1B2B</color>
     <color name="ccTimelineSpaceLabelColor">#B8569789</color>
-    <color name="ccTimelineThumbColor">#FFFFFF</color>
+    <color name="ccTimelineThumbColor">#FDFDFD</color>
 
     <!-- Scan playback scrollbar color -->
-    <color name="ccPlaybackScrollbarColor">#FFFFFF</color>
+    <color name="ccPlaybackScrollbarColor">#FDFDFD</color>
 </resources>

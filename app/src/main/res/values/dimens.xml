@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--
-      To change CubiCapture's default layout sizes, margins, and text sizes, redefine the
+      To customize CubiCapture's default layout sizes, margins, and text sizes, redefine the
       dimensions here.
 
       Note:
-      You don't have to redefine the dimensions here if you're not changing them.
-      Dimensions here are redefined to the default values just for example.
-     -->
+      - You don't need to redefine dimensions here unless you are changing them.
+      - The dimensions below are set to their default values for demonstration purposes.
+    -->
 
     <!--
-        Scan back button padding, background radius and background margin
+        Scan close button size, background radius and background margin
 
         Note:
-        - Scan back button's width and height wraps the content
-        - Scan timer is constrained to vertically center the scan back button
-        - Scan back button's background margin is applied to the original background drawable item
+        - Scan close button is constrained to vertically center the scan timer
+        - Scan close button's background margin is applied to the original background drawable item
     -->
-    <dimen name="cc_scan_button_back_padding">16dp</dimen>
-    <dimen name="cc_scan_button_back_background_radius">10dp</dimen>
-    <dimen name="cc_scan_button_back_background_margin">12dp</dimen>
+    <dimen name="cc_scan_button_close_size">24dp</dimen>
+    <dimen name="cc_scan_button_close_background_radius">10dp</dimen>
+    <dimen name="cc_scan_button_close_background_margin">12dp</dimen>
 
-    <!-- Scan timer vertical and horizontal paddings and background radius  -->
-    <dimen name="cc_scan_timer_padding_vertical">4dp</dimen>
-    <dimen name="cc_scan_timer_padding_horizontal">16dp</dimen>
+    <!-- Scan timer margin top, width and background radius  -->
+    <dimen name="cc_scan_timer_width">96dp</dimen>
+    <dimen name="cc_scan_timer_height">24dp</dimen>
     <dimen name="cc_scan_timer_background_radius">36dp</dimen>
 
-    <!-- Scan top guide horizontal and top margins and vertical and horizontal paddings -->
-    <dimen name="cc_guide_top_margin_top">12dp</dimen>
-    <dimen name="cc_guide_top_margin_horizontal">16dp</dimen>
-    <dimen name="cc_guide_top_padding_vertical">12dp</dimen>
-    <dimen name="cc_guide_top_padding_horizontal">16dp</dimen>
+    <!-- Scan guide margins, paddings, and max width -->
+    <dimen name="cc_guide_margin">16dp</dimen>
+    <dimen name="cc_guide_text_contents_padding">16dp</dimen>
+    <dimen name="cc_guide_info_text_margin_top">4dp</dimen>
+    <dimen name="cc_guide_max_width">560dp</dimen>
 
-    <!-- Scan top guide icon height -->
-    <dimen name="cc_guide_top_icon_height">48dp</dimen>
+    <!-- Scan guide text sizes -->
+    <dimen name="cc_guide_title_text_size">20dp</dimen>
+    <dimen name="cc_guide_info_text_size">14dp</dimen>
 
-    <!-- Scan top guide text margins -->
-    <dimen name="cc_guide_top_text_margin_start">16dp</dimen>
-    <dimen name="cc_guide_top_info_text_margin_top">4dp</dimen>
+    <!-- Scan overlay stroke width -->
+    <dimen name="cc_overlay_stroke_width">2dp</dimen>
 
-    <!-- Scan top guide background radius and stroke width -->
-    <dimen name="cc_guide_top_background_radius">8dp</dimen>
-    <dimen name="cc_guide_top_background_stroke_width">2dp</dimen>
+    <!-- Scan guide icon height (using scale type center inside) -->
+    <dimen name="cc_guide_icon_height">160dp</dimen>
+
+    <!-- Scan guide background radius and stroke width -->
+    <dimen name="cc_guide_background_radius">8dp</dimen>
+    <dimen name="cc_guide_background_stroke_width">2dp</dimen>
 
     <!-- Scan fullscreen guide padding -->
     <dimen name="cc_guide_fullscreen_padding">32dp</dimen>
@@ -53,13 +55,29 @@
     <dimen name="cc_guide_fullscreen_title_text_margin_top">32dp</dimen>
     <dimen name="cc_guide_fullscreen_info_text_margin_top">16dp</dimen>
 
-    <!-- Record button size and margin bottom -->
-    <dimen name="cc_button_record_size">64dp</dimen>
-    <dimen name="cc_button_record_margin_bottom">32dp</dimen>
+    <!-- Scan controls container paddings and item margin (gap between items) -->
+    <dimen name="cc_scan_controls_container_padding_top">16dp</dimen>
+    <dimen name="cc_scan_controls_container_padding_bottom">24dp</dimen>
+    <dimen name="cc_scan_controls_item_margin">56dp</dimen>
 
-    <!-- Photo capture button and thumbnail image size, and photo capture button icon size -->
-    <dimen name="cc_button_capture_image_size">48dp</dimen>
-    <dimen name="cc_button_capture_icon_size">24dp</dimen>
+    <!-- Scan header container paddings -->
+    <dimen name="cc_scan_header_container_padding_horizontal">16dp</dimen>
+    <dimen name="cc_scan_header_container_padding_vertical">24dp</dimen>
+
+    <!-- Record button size -->
+    <dimen name="cc_button_record_size">64dp</dimen>
+
+    <!-- Photo capture button size, stroke width, and icon size-->
+    <dimen name="cc_button_capture_photo_button_size">56dp</dimen>
+    <dimen name="cc_button_capture_photo_button_stroke_width">2dp</dimen>
+    <dimen name="cc_button_capture_photo_icon_size">32dp</dimen>
+
+    <!-- Photo thumbnail size -->
+    <dimen name="cc_photo_thumbnail_size">56dp</dimen>
+
+    <!-- Photo count background (non-zero) and text size-->
+    <dimen name="cc_photo_count_non_zero_text_background_size">24dp</dimen>
+    <dimen name="cc_photo_count_text_size">12dp</dimen>
 
     <!-- Request permission button radius, padding horizontal and margin top -->
     <dimen name="cc_permission_request_button_radius">100dp</dimen>
