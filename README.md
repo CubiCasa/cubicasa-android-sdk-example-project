@@ -3,7 +3,7 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture Library Module](#cubicapture-library-module)
-  * [Updating to CubiCapture 3.2.2](#updating-to-cubicapture-322)
+  * [Updating to CubiCapture 3.2.4](#updating-to-cubicapture-324)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
@@ -20,6 +20,9 @@
       * [Enable or Disable Automatic Zipping](#enable-or-disable-automatic-zipping)
       * [Manual Zipping](#manual-zipping)
       * [Directory Structure for Successful Zipping](#directory-structure-for-successful-zipping)
+    * [Validating the Scan Data](#validating-the-scan-data)
+      * [Validation Result](#validation-result)
+      * [Validation Error Types](#validation-error-types)
   * [UI Settings](#ui-settings)
     * [General](#general)
     * [Colors and Alphas](#colors-and-alphas)
@@ -49,10 +52,14 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 3.2.2
+## Updating to CubiCapture 3.2.4
 
-- Update your app to use the CubiCapture 3.2.2 library module
+- Update your app to use the CubiCapture 3.2.4 library module
 - Update the app level `build.gradle` dependencies (see [Implementation](#implementation))
+- Consider validating scan data before uploading the scan.
+  See [Validating the Scan Data](#validating-the-scan-data) for details
+
+**Note! If you've previously implemented version 3.2.2 you've probably done the next steps already:**
 - Update the implementations of `CubiEventListener` and `TrueNorth` to use their new package
   location: `cubi.casa.cubicapture.utils.*`
 - See the changes to the UI, including new scan guides/warnings, the new
@@ -81,6 +88,11 @@ as any room labels that were added.
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**3.2.4:**
+- Added `ScanDataValidator` for validating scan data (see [Validating the Scan Data](#validating-the-scan-data))
+- Various bug fixes and improvements
+- Updated dependencies (see [Implementation](#implementation))
 
 **3.2.2:**
 - Revised UI and warnings (see [UI settings](#ui-settings))
@@ -148,37 +160,37 @@ For older release notes, see [Archived Release Notes](#archived-release-notes)
 
 ## Glossary
 
-Term | Description
------|------------
-Scan | The process of capturing the surroundings in indoor space using the phone's camera.
-ARCore | Google's Augmented Reality library that is used in CubiCapture library for scanning.
-Tracking | The process of aligning the device to it's surroundings properly. We use ARCore to track where the phone is relative to the world around it.
-Sideways walk | An error which occurs during a scan when the user walks sideways. Walking sideways makes it hard to track the position of the device and can affect the quality of the scan.
+| Term          | Description                                                                                                                                                                  |
+|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Scan          | The process of capturing the surroundings in indoor space using the phone's camera.                                                                                          |
+| ARCore        | Google's Augmented Reality library that is used in CubiCapture library for scanning.                                                                                         |
+| Tracking      | The process of aligning the device to it's surroundings properly. We use ARCore to track where the phone is relative to the world around it.                                 |
+| Sideways walk | An error which occurs during a scan when the user walks sideways. Walking sideways makes it hard to track the position of the device and can affect the quality of the scan. |
 
 ## Implementation
 
-This implementation was made with Android Studio Ladybug Feature Drop | 2024.2.2
-using Gradle plugin version 8.8.1.
+This implementation was made with Android Studio Narwhal Feature Drop | 2025.1.2 Patch 1
+using Android Gradle Plugin version 8.12.1.
 
 #### Setting Up
 
-Start by [downloading the Android library module](https://sdk-files.s3.us-east-2.amazonaws.com/android/cubicapture-release-3.2.2.aar).
+Start by [downloading the Android library module](https://github.com/CubiCasa/cubicasa-android-sdk-example-project/releases/download/3.2.4/cubicapture-release-3.2.4.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-3.2.2.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-3.2.4.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.2.2.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.2.4.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-3.2.2.aar')`.
+`implementation files('libs/cubicapture-release-3.2.4.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-3.2.2.aar')
-implementation 'com.google.ar:core:1.47.0'
-implementation 'com.google.code.gson:gson:2.11.0'
+implementation files('libs/cubicapture-release-3.2.4.aar')
+implementation 'com.google.ar:core:1.50.0'
+implementation 'com.google.code.gson:gson:2.13.1'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
 
 // Implement the following if 'CubiCapture.trueNorth' is set to 'ENABLED':
@@ -186,7 +198,7 @@ implementation 'com.google.android.gms:play-services-location:21.3.0'
 
 // Implement the following if using 'ScanPlayback':
 implementation 'androidx.recyclerview:recyclerview:1.4.0'
-implementation 'androidx.media3:media3-exoplayer:1.5.1'
+implementation 'androidx.media3:media3-exoplayer:1.8.0'
 ```
 
 Add CubiCapture fragment to your projects scanning layout .xml file:
@@ -206,7 +218,7 @@ inside your scanning `Activity`'s `activity` tag. Example:
     android:name=".ExampleActivity"
     android:largeHeap="true"
     android:screenOrientation="portrait"
-    android:configChanges="orientation|screenSize">
+    android:configChanges="orientation|screenSize" />
 ```
 
 Declare a `lateinit` variable for CubiCapture in your scanning `Activity`:
@@ -309,10 +321,10 @@ turned on and the location permission must be granted. No position data is colle
 
 True north detection `trueNorth` has the following two settings:
 
-Name | Description
------|------------
-`TrueNorth.DISABLED`| True north detection disabled
-`TrueNorth.ENABLED` | True north detection enabled
+| Name                 | Description                   |
+|----------------------|-------------------------------|
+| `TrueNorth.DISABLED` | True north detection disabled |
+| `TrueNorth.ENABLED`  | True north detection enabled  |
 
 Example, where we enable the true north detection:
 ```Kotlin
@@ -522,6 +534,61 @@ Here’s an example directory structure where zipping will succeed:
 ```
 Note: The `UUID*.jpg` and `photo_capturer.json` files will only be present if photos were taken
 during the scan.
+
+#### Validating the Scan Data
+
+Before uploading a scan, it's a good practice to validate that all required data is present and
+consistent. The `ScanDataValidator` utility offers a straightforward way to verify the integrity
+of the scan files in a given directory.
+
+The validator checks for several conditions:
+- The scan directory exists.
+- All required files (`arkitData.json`, `config.json`, `video.mp4`) are present.
+- The JSON files are not empty.
+- The frame counts between the video and AR data are consistent.
+
+The validation is performed synchronously and returns a `ScanDataValidationResult`.
+
+```Kotlin
+val result = ScanDataValidator.validateScanData(scanDirectory)
+
+when (result) {
+    is ScanDataValidationResult.Valid -> {
+        // Validation successful.
+    }
+    is ScanDataValidationResult.Invalid -> {
+        // Handle the validation error.
+        
+        // Example debug log:
+        Log.e("ScanValidation", "Validation failed: ${result.errorType} - ${result.message}")
+    }
+}
+```
+
+##### Validation Result
+
+The `validateScanData` method returns a `ScanDataValidationResult` object,
+which can be one of two types:
+- `ScanDataValidationResult.Valid`: Returned when the scan data passes all integrity checks.
+- `ScanDataValidationResult.Invalid`: Returned when the scan data is found to be invalid.
+  This object contains two properties:
+  - `errorType`: An enum specifying the kind of problem found.
+  - `message`: A string describing the specific error.
+
+##### Validation Error Types
+
+When validation fails, the `Invalid` result will contain one of the following `ErrorType` values:
+
+| ErrorType                       | Description                                                                                               |
+|---------------------------------|-----------------------------------------------------------------------------------------------------------|
+| `DIRECTORY_NOT_FOUND`           | The specified `scanDirectory` does not exist.                                                             |
+| `FILES_MISSING`                 | One or more required files (`arkitData.json`, `config.json`, `video.mp4`) are missing from the directory. |
+| `FILE_EMPTY`                    | The `arkitData.json` or `config.json` file was found but is empty.                                        |
+| `VIDEO_FRAME_EXTRACTION_FAILED` | The validator was unable to extract the frame count from the `video.mp4` file.                            |
+| `AR_FRAME_EXTRACTION_FAILED`    | The validator was unable to extract the frame count from the `arkitData.json` file.                       |
+| `FRAME_COUNT_INCONSISTENCY`     | The number of frames in the video and AR data files are inconsistent.                                     |
+| `UNKNOWN_ERROR`                 | An unexpected exception occurred during the validation process.                                           |
+
 
 ## UI Settings
 
@@ -1084,13 +1151,13 @@ style or tracking. These warnings are categorized into different priority levels
 warnings will override and hide any lower-priority warnings, ensuring only the most critical
 warning is shown at a given time.
 
-Priority Level | Warnings
----------------|---------
-1 | Not tracking*
-2 | Rotate device
-3 | Sideways walking, Fast rotation, Too close
-4 | Device is tilted forward/up too much
-5 | Low storage, Device is hot
+| Priority Level | Warnings                                   |
+|----------------|--------------------------------------------|
+| 1              | Not tracking*                              |
+| 2              | Rotate device                              |
+| 3              | Sideways walking, Fast rotation, Too close |
+| 4              | Device is tilted forward/up too much       |
+| 5              | Low storage, Device is hot                 |
 
 *The `Not tracking` warning is displayed when ARCore's `TrackingState` is **not** `TRACKING`,
 meaning the position of the device cannot be determined.
@@ -1490,7 +1557,7 @@ The scan files will be deleted (code 15), and CubiCapture will be finished after
 - New scan playback `Fragment` available, which can be used to review the scan and to see any warnings
   that were shown during the scan, as well as any room labels that were added. See
   [Scan playback](#scan-playback) for more information
-- Reminder view for microphone and location permission. See [Reminder view](#reminder-view)
+- Reminder view for microphone and location permission
   for more information
 - New customization resources for scan playback and reminder view
 - Resource names `open_settings_text`, `cc_location_background`, `cc_location_reminder_text_size`
