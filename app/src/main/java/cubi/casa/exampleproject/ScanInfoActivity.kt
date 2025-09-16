@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +21,10 @@ import androidx.core.content.ContextCompat
 import com.google.ar.core.ArCoreApk
 import cubi.casa.cubicapture.data.PropertyType
 import cubi.casa.exampleproject.databinding.ActivityScanInfoBinding
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 
 /** Example Activity for starting the scan. */
 
@@ -43,6 +46,7 @@ class ScanInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityScanInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupWindowInsets()
 
         if (!shouldRequestLocationPermission()) {
             /* Requesting 'ACCESS_FINE_LOCATION' permission on the app side because we've set
@@ -144,7 +148,7 @@ class ScanInfoActivity : AppCompatActivity() {
         builder.setView(view)
 
         val dialog = builder.show()
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
 
         okBtn.setOnClickListener {
             dialog.dismiss()
@@ -165,4 +169,18 @@ class ScanInfoActivity : AppCompatActivity() {
      * Also requests install or update if needed */
     private fun arCoreIsInstalledAndUpToDate(): Boolean =
         ArCoreApk.getInstance().requestInstall(this, true) == ArCoreApk.InstallStatus.INSTALLED
+
+    private fun setupWindowInsets() {
+        val initialPaddingTop = binding.root.paddingTop
+        val initialPaddingBottom = binding.root.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(
+                top = initialPaddingTop + systemBars.top,
+                bottom = initialPaddingBottom + systemBars.bottom
+            )
+            insets
+        }
+    }
 }
