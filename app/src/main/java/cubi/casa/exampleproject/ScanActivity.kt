@@ -12,7 +12,7 @@ import java.util.*
 
 /**
  * Example Activity demonstrating the implementation and usage of
- * the CubiCapture 3.2.2 library module.
+ * the CubiCapture library module.
  */
 class ScanActivity : AppCompatActivity(), CubiEventListener {
 
