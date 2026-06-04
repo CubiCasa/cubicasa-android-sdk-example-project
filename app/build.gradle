@@ -37,7 +37,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.16.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
-    implementation files('libs/cubicapture-release-3.2.4.aar')
+    implementation files('libs/cubicapture-release-3.2.5.aar')
     implementation 'com.google.ar:core:1.50.0'
     implementation 'com.google.code.gson:gson:2.13.1'
     implementation 'com.jaredrummler:android-device-names:2.1.1'

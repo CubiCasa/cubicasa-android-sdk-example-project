@@ -3,7 +3,7 @@
 * [Table of Contents](#table-of-contents)
 * [Example Project](#example-project)
 * [CubiCapture Library Module](#cubicapture-library-module)
-  * [Updating to CubiCapture 3.2.4](#updating-to-cubicapture-324)
+  * [Updating to CubiCapture 3.2.5](#updating-to-cubicapture-325)
   * [Release Notes](#release-notes)
   * [Glossary](#glossary)
   * [Implementation](#implementation)
@@ -52,9 +52,11 @@ upload to the CubiCasa back-end for processing. CubiCapture also provides a scan
 which can be used to review the scan and to see any warnings that were shown during the scan, as well
 as any room labels that were added.
 
-## Updating to CubiCapture 3.2.4
+## Updating to CubiCapture 3.2.5
 
-- Update your app to use the CubiCapture 3.2.4 library module
+- Update your app to use the CubiCapture 3.2.5 library module
+
+**Note! If you've previously implemented version 3.2.4 you've probably done the next steps already:**
 - Update the app level `build.gradle` dependencies (see [Implementation](#implementation))
 - Consider validating scan data before uploading the scan.
   See [Validating the Scan Data](#validating-the-scan-data) for details
@@ -88,6 +90,9 @@ as any room labels that were added.
 For older update guides, see [Archived Update Guides](#archived-update-guides)
 
 ## Release Notes
+
+**3.2.5:**
+- Various bug fixes and improvements
 
 **3.2.4:**
 - Added `ScanDataValidator` for validating scan data (see [Validating the Scan Data](#validating-the-scan-data))
@@ -174,21 +179,21 @@ using Android Gradle Plugin version 8.12.1.
 
 #### Setting Up
 
-Start by [downloading the Android library module](https://github.com/CubiCasa/cubicasa-android-sdk-example-project/releases/download/3.2.4/cubicapture-release-3.2.4.aar).
+Start by [downloading the Android library module](https://github.com/CubiCasa/cubicasa-android-sdk-example-project/releases/download/3.2.5/cubicapture-release-3.2.5.aar).
 
 Add the CubiCapture library module to your project:
-1. Place the `cubicapture-release-3.2.4.aar` file to your project's `app/libs/` folder.
+1. Place the `cubicapture-release-3.2.5.aar` file to your project's `app/libs/` folder.
 2. In Android Studio navigate to: `File` -> `Project Structure` -> `Dependencies` -> `app` ->
 In the `Declared Dependencies` tab, click `+` and select `JAR/AAR Dependency`.
-3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.2.4.aar` and
+3. In the `JAR/AAR Dependency` dialog, enter the path as `libs/cubicapture-release-3.2.5.aar` and
 select `implementation` as configuration. -> Press `OK`, `Apply` and `OK` .
 4. Check your app's `build.gradle` file to confirm a that in contains the following declaration:
-`implementation files('libs/cubicapture-release-3.2.4.aar')`.
+`implementation files('libs/cubicapture-release-3.2.5.aar')`.
 
 Add the following lines to the app level `build.gradle` inside the `dependencies` branch:
 ```Groovy
 implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-implementation files('libs/cubicapture-release-3.2.4.aar')
+implementation files('libs/cubicapture-release-3.2.5.aar')
 implementation 'com.google.ar:core:1.50.0'
 implementation 'com.google.code.gson:gson:2.13.1'
 implementation 'com.jaredrummler:android-device-names:2.1.1'
